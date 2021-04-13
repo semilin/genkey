@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -12,7 +11,6 @@ func GeneratePositions() {
 		sfbPositions = append(sfbPositions, []int{col, col+10})
 		sfbPositions = append(sfbPositions, []int{col, col+20})
 		sfbPositions = append(sfbPositions, []int{col+10, col+20})
-		println(col)
 	}
 	for row:=0;row<=2;row++ {
 		for row2:=0;row2<=2;row2++ {
@@ -32,14 +30,21 @@ func CalcFingerSpeed(l string) []float64{
 		dsfb := Data.Skipgrams[k1+ k2]
 		dsfb += Data.Skipgrams[k2+ k1]
 
-		fmt.Println(k1 + k2)
-		fmt.Println(twoKeyDist(pair[0], pair[1]))
-		
 		f := finger(pair[0])
 		dist := twoKeyDist(pair[0], pair[1])
-		speed[f] += (float64(sfb) * dist) + (float64(dsfb) * dist * 0.5)
+		speed[f] += (float64(sfb) * dist) + (float64(dsfb) * dist * 0.6)
 	}
 	return speed
+}
+
+func CalcSameKey(l string) []int {
+	samekey := []int{0,0,0,0,0,0,0,0}
+	for pos, r := range []rune(l) {
+		key := string(r)
+		f := finger(pos)
+		samekey[f] += Data.Bigrams[key+key]
+	}
+	return samekey
 }
 
 func colrow(pos int) (int, int) {
