@@ -6,12 +6,12 @@ import (
 
 var Data TextData
 var KPS []float64
-var SameKeyKPS []float64
+//var SameKeyKPS []float64
 
 func main() {
 	GeneratePositions()
-	KPS = []float64{4.1, 4.6, 4.8, 4.6, 4.9, 4.7, 4.8, 4.4}
-	SameKeyKPS = []float64{5.3, 4.9, 5.7, 5.9, 5.6, 5.5, 5.7, 5.6}
+	KPS = []float64{2.4, 4.6, 5.0, 5.1, 5.1, 5.0, 4.6, 2.4}
+	//SameKeyKPS = []float64{5.4, 5.0, 5.7, 6.2, 6.2, 6.2, 6.2, 6.8}
 	
 	Data = GetTextData()
 
@@ -22,5 +22,7 @@ func main() {
 
 	speed := CalcFingerSpeed(l)
 	fmt.Println(speed)
-	fmt.Println(CalcSameKey(l))
+	fmt.Println(Score(l))
+	fmt.Println(Score("yclmkzfu,'isrtgpneaoqvwdjbh/.x"))
+	fmt.Println(Score("qwertyuiopasdfghjkl;zxcvbnm,./"))
 }

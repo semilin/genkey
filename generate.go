@@ -1,11 +1,12 @@
 package main
 
 import (
-	"math"
+	"fmt"
 	"math/rand"
+	"time"
 )
 
-func score(l string) float64 {
+func Score(l string) float64 {
 	speeds := CalcFingerSpeed(l)
 	sameKey := CalcSameKey(l)
 
@@ -13,32 +14,61 @@ func score(l string) float64 {
 	weightedSameKey := 0.00
 
 	for i, _ := range speeds {
-		weightedSpeed += speeds[i]/math.Pow(KPS[i], 2)
-		weightedSameKey += float64(sameKey[i])/math.Pow(SameKeyKPS[i], 2)
+		weightedSpeed += speeds[i]/KPS[i]
+		weightedSameKey += float64(sameKey[i])
 	}
-	return weightedSpeed + weightedSameKey 
+	return weightedSpeed + 0.1*(weightedSameKey) 
 }
 
 func Generate() string {
 	l := "abcdefghijklmnopqrstuvwxyz,./'"
-	for temp:=100;temp>-5;temp-- {
-		println(temp)
-		for i:=0;i<20000;i++ {
-			first := score(l)
-			// swap two random keys
-			pos1 := rand.Intn(30)
-			pos2 := rand.Intn(30)
-			prop := swap(l, pos1, pos2)
-			
-			second := score(prop)
+	rand.Seed(time.Now().Unix())
+	i := 0
+	tier := 1
+	fmt.Println(tier)
+	i = 0
+	changed := false
+	for {
+		i += 1
+		prop := swapRandomPairs(l, tier)
+		first := Score(l)
+		second := Score(prop)
+		
+		if second < first {
+			l = prop
+			i = 0
+			changed = true
+			continue
+		} else if second == first {
+			l = prop
+		} else {
+			if i > 200000*tier {
+				if changed {
+					tier = 1
+				} else {
+					tier++
+				}
+				
+				changed = false
 
-			if second < first || rand.Intn(100) <= temp {
-				l = prop
-				continue
-			} else {
-				continue
+				if tier > 5 {
+					break
+				}
+
+				fmt.Println(tier)
+				i = 0
 			}
 		}
+		continue
+	}
+	return l
+}
+
+func swapRandomPairs(l string, count int) string {
+	for i:=0;i<count;i++ {
+		a := rand.Intn(30)
+		b := rand.Intn(30)
+		l = swap(l, a, b)
 	}
 	return l
 }

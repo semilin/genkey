@@ -47,6 +47,10 @@ func CalcSameKey(l string) []int {
 	return samekey
 }
 
+func CalcRolls(l string) int {
+	
+}
+
 func colrow(pos int) (int, int) {
 	var col int
 	var row int
