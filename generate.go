@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"strings"
+	"sync"
 )
 
 func Score(l string) float64 {
@@ -20,17 +22,30 @@ func Score(l string) float64 {
 	return weightedSpeed + 0.1*(weightedSameKey) 
 }
 
-func Generate() string {
-	l := "abcdefghijklmnopqrstuvwxyz,./'"
+func randomLayout() string {
+	chars := "abcdefghijklmnopqrstuvwxyz,./'"
+	length := len(chars)
+	l := ""
+	for i:=0;i<length;i++ {
+		char := string([]rune(chars)[rand.Intn(len(chars))])
+		l += char
+		chars = strings.ReplaceAll(chars, char, "")
+	}
+	return l
+}
+
+func Generate(num int, wg *sync.WaitGroup) string {
 	rand.Seed(time.Now().Unix())
+	l := randomLayout()
+	fmt.Printf("%d: %s\n", num, l)
 	i := 0
 	tier := 1
-	fmt.Println(tier)
+	fmt.Printf("%d: %d\n", num, tier)
 	i = 0
 	changed := false
 	for {
 		i += 1
-		prop := swapRandomPairs(l, tier)
+		prop := cycleRandKeys(l, tier)
 		first := Score(l)
 		second := Score(prop)
 		
@@ -55,21 +70,37 @@ func Generate() string {
 					break
 				}
 
-				fmt.Println(tier)
+				fmt.Printf("%d: %d\n", num, tier)
 				i = 0
 			}
 		}
 		continue
 	}
+
+
+	fmt.Printf("----%d----\n", num)
+	fmt.Println(string(l[0:10]))
+	fmt.Println(string(l[10:20]))
+	fmt.Println(string(l[20:30]))
+	
+	fmt.Println(Score(l))	
+
+	wg.Done()
+
 	return l
 }
 
-func swapRandomPairs(l string, count int) string {
-	for i:=0;i<count;i++ {
-		a := rand.Intn(30)
-		b := rand.Intn(30)
+func cycleRandKeys(l string, count int) string {
+	first := rand.Intn(30)
+	a := first
+	b := rand.Intn(30)
+	for i:=0;i<count-1;i++ {
 		l = swap(l, a, b)
+		a = b
+		b = rand.Intn(30)
 	}
+	a = first
+	l = swap(l, a, b)
 	return l
 }
 

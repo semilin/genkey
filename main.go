@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"sync"
 )
 
 var Data TextData
@@ -15,14 +15,10 @@ func main() {
 	
 	Data = GetTextData()
 
-	l := Generate()
-	fmt.Println(string(l[0:10]))
-	fmt.Println(string(l[10:20]))
-	fmt.Println(string(l[20:30]))
-
-	speed := CalcFingerSpeed(l)
-	fmt.Println(speed)
-	fmt.Println(Score(l))
-	fmt.Println(Score("yclmkzfu,'isrtgpneaoqvwdjbh/.x"))
-	fmt.Println(Score("qwertyuiopasdfghjkl;zxcvbnm,./"))
+	var wg sync.WaitGroup
+	for i := 0; i < 5; i++ {
+		go Generate(i, &wg)
+		wg.Add(1)
+	}
+	wg.Wait()
 }
