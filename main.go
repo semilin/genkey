@@ -1,7 +1,8 @@
 package main
 
 import (
-	"sync"
+	"time"
+	"fmt"
 )
 
 var Data TextData
@@ -15,10 +16,8 @@ func main() {
 	
 	Data = GetTextData()
 
-	var wg sync.WaitGroup
-	for i := 0; i < 5; i++ {
-		go Generate(i, &wg)
-		wg.Add(1)
-	}
-	wg.Wait()
+	start := time.Now()
+	Populate(1000)
+	end := time.Now()
+	fmt.Println(end.Sub(start))
 }
