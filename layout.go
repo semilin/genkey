@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -35,6 +36,16 @@ func CalcFingerSpeed(l string) []float64{
 		speed[f] += (float64(sfb) * dist) + (float64(dsfb) * dist * 0.6)
 	}
 	return speed
+}
+
+func CalcIndexUsage(l string) int{
+	usage := 0
+	for x:=3;x<=6;x++ {
+		for y:=0;y<=2;y++ {
+			usage += Data.Letters[string(l[x+(10*y)])]
+		}
+	}
+	return int(100*float64(usage) / float64(Data.Total))
 }
 
 func CalcSameKey(l string) []int {
@@ -91,4 +102,10 @@ func twoKeyDist(a int, b int) float64 {
 
 	dist := math.Sqrt(math.Pow(x, 2) + math.Pow(y, 2))
 	return dist
+}
+
+func PrintLayout(l string) {
+	fmt.Println(string(l[0:10]))
+	fmt.Println(string(l[10:20]))
+	fmt.Println(string(l[20:30]))
 }

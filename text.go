@@ -6,9 +6,11 @@ import (
 )
 
 type TextData struct {
+	Letters   map[string]int
 	Bigrams   map[string]int
 	Trigrams  map[string]int
 	Skipgrams map[string]int
+	Total int
 }
 
 func GetTextData() TextData {
@@ -22,10 +24,11 @@ func GetTextData() TextData {
 	valid := "abcdefghijklmnopqrstuvwxyz,./?'\""
 
 	var data TextData
+	data.Letters = make(map[string]int)
 	data.Bigrams = make(map[string]int)
 	data.Trigrams = make(map[string]int)
 	data.Skipgrams = make(map[string]int)
-	
+
 	lastchar := ""
 	lastchar2 := ""
 	for _, char := range chars {
@@ -41,8 +44,10 @@ func GetTextData() TextData {
 			lastchar = ""
 			continue
 		} else {
+			data.Total++
+			data.Letters[char] += 1
 			if lastchar != "" {
-				data.Bigrams[lastchar + char] += 1
+				data.Bigrams[lastchar+char] += 1
 				if lastchar2 != "" {
 					data.Trigrams[lastchar2+lastchar+char] += 1
 					data.Skipgrams[lastchar2+char] += 1

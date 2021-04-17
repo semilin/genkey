@@ -4,23 +4,31 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
-	"sync"
 	"time"
 	"runtime"
+	"sort"
 )
 
 func Score(l string) float64 {
+	var score float64
 	speeds := CalcFingerSpeed(l)
 	sameKey := CalcSameKey(l)
 
 	weightedSpeed := 0.00
 	weightedSameKey := 0.00
 
+	indexUsage := CalcIndexUsage(l)
+	if indexUsage < 25 {
+		score += float64(10*(25-indexUsage))
+	}
+
 	for i, _ := range speeds {
 		weightedSpeed += speeds[i] / KPS[i]
 		weightedSameKey += float64(sameKey[i])
 	}
-	return weightedSpeed + 0.1*(weightedSameKey)
+
+	score += weightedSpeed + 0.1*(weightedSameKey)
+	return score
 }
 
 func randomLayout() string {
@@ -40,7 +48,7 @@ type Layout struct {
 	Score float64
 }
 
-func Populate(n int) {
+func Populate(n int) []string {
 	rand.Seed(time.Now().Unix())
 	layouts := []string{}
 	for i := 0; i < n; i++ {
@@ -57,61 +65,85 @@ func Populate(n int) {
 	}
 	fmt.Println()
 
-	for _, l := range layouts {
-		fmt.Println(Score(l))
+	fmt.Println("Sorting...")
+	sort.Slice(layouts, func(i, j int) bool {
+		return Score(layouts[i]) < Score(layouts[j]) 
+	})
+	PrintLayout(layouts[0])
+	fmt.Println(Score(layouts[0]))
+	PrintLayout(layouts[0])
+	fmt.Println(Score(layouts[1]))
+	PrintLayout(layouts[0])
+	fmt.Println(Score(layouts[2]))
+
+	layouts = layouts[0:49]
+
+	for i, _ := range layouts {
+		go fullImprove(&layouts[i])
 	}
+	for runtime.NumGoroutine() > 1 {
+		fmt.Printf("%d fully improving...\r", runtime.NumGoroutine()-1)
+	}
+
+	sort.Slice(layouts, func(i, j int) bool {
+		return Score(layouts[i]) < Score(layouts[j]) 
+	})
 	
+	fmt.Println()
+	PrintLayout(layouts[0])
+	fmt.Println(Score(layouts[0]))
+	fmt.Println(CalcIndexUsage(layouts[0]))
+	PrintLayout(layouts[1])
+	fmt.Println(Score(layouts[1]))
+	PrintLayout(layouts[2])
+	fmt.Println(Score(layouts[2]))
+	return layouts
 }
 
-func greedyImprove(layout *string) string {
+func greedyImprove(layout *string)  {
 	stuck := 0
-	l := *layout
 	for {
 		stuck++
-		prop := cycleRandKeys(l, 1)
+		prop := cycleRandKeys(*layout, 1)
 
-		first := Score(l)
+		first := Score(*layout)
 		second := Score(prop)
 
 		if second < first {
 			// accept
-			l = prop
+			*layout = prop
 			stuck = 0
 		} else {
 			stuck++
 		}
 
 		if stuck > 100 {
-			return l
+			return
 		}
 	}
 
-	return l
 }
 
-func Generate(num int, wg *sync.WaitGroup) string {
-	l := randomLayout()
-	fmt.Printf("%d: %s\n", num, l)
+func fullImprove(layout *string) {
 	i := 0
 	tier := 1
-	fmt.Printf("%d: %d\n", num, tier)
 	i = 0
 	changed := false
 	for {
 		i += 1
-		prop := cycleRandKeys(l, tier)
-		first := Score(l)
+		prop := cycleRandKeys(*layout, tier)
+		first := Score(*layout)
 		second := Score(prop)
 
 		if second < first {
-			l = prop
+			*layout = prop
 			i = 0
 			changed = true
 			continue
 		} else if second == first {
-			l = prop
+			*layout = prop
 		} else {
-			if i > 200000*tier {
+			if i > 5000*tier {
 				if changed {
 					tier = 1
 				} else {
@@ -120,27 +152,30 @@ func Generate(num int, wg *sync.WaitGroup) string {
 
 				changed = false
 
-				if tier > 5 {
+				if tier > 6 {
 					break
 				}
 
-				fmt.Printf("%d: %d\n", num, tier)
 				i = 0
 			}
 		}
 		continue
 	}
 
-	fmt.Printf("----%d----\n", num)
-	fmt.Println(string(l[0:10]))
-	fmt.Println(string(l[10:20]))
-	fmt.Println(string(l[20:30]))
+}
 
-	fmt.Println(Score(l))
-
-	wg.Done()
-
-	return l
+func Anneal(l *string) {
+	for temp:=100;temp>-5;temp-- {
+		for i:=0;i<300;i++ {
+			prop := cycleRandKeys(*l, 1)
+			first := Score(*l)
+			second := Score(prop)
+			if second < first || rand.Intn(100) < temp {
+				*l = prop
+			} 
+			
+		}
+	}
 }
 
 func cycleRandKeys(l string, count int) string {
