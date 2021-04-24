@@ -12,23 +12,31 @@ import (
 func Score(l string) float64 {
 	var score float64
 	speeds := CalcFingerSpeed(l)
-	sameKey := CalcSameKey(l)
 
 	weightedSpeed := 0.00
-	weightedSameKey := 0.00
 
-	indexUsage := CalcIndexUsage(l)
-	if indexUsage < 25 {
-		score += float64(10*(25-indexUsage))
+	leftIndex, rightIndex := CalcIndexUsage(l)
+	score += float64(10*(12-leftIndex))
+
+	score += float64(10*(12-rightIndex))
+
+	lowest := 100000000000.0
+	highest := 0.0
+	for i, speed := range speeds {
+		weightedSpeed += speed*speed / (KPS[i]*KPS[i])
+		if weightedSpeed < lowest {
+			lowest = weightedSpeed
+		}
+		if weightedSpeed > highest {
+			highest = weightedSpeed
+		}
 	}
 
-	for i, _ := range speeds {
-		weightedSpeed += speeds[i] / KPS[i]
-		weightedSameKey += float64(sameKey[i])
-	}
+	deviation := highest - lowest
 
-	score += weightedSpeed + 0.1*(weightedSameKey)
-	return score
+	score += weightedSpeed
+	score += 0.3*deviation
+	return score/1000000
 }
 
 func randomLayout() string {

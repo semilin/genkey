@@ -38,14 +38,16 @@ func CalcFingerSpeed(l string) []float64{
 	return speed
 }
 
-func CalcIndexUsage(l string) int{
-	usage := 0
-	for x:=3;x<=6;x++ {
+func CalcIndexUsage(l string) (int, int) {
+	left := 0
+	right := 0
+	for x:=3;x<=4;x++ {
 		for y:=0;y<=2;y++ {
-			usage += Data.Letters[string(l[x+(10*y)])]
+			left += Data.Letters[string(l[x+(10*y)])]
+			right += Data.Letters[string(l[x+2+(10*y)])]
 		}
 	}
-	return int(100*float64(usage) / float64(Data.Total))
+	return (int(100*float64(left) / float64(Data.Total))), (int(100*float64(right) / float64(Data.Total)))
 }
 
 func CalcSameKey(l string) []int {
@@ -105,6 +107,7 @@ func twoKeyDist(a int, b int) float64 {
 }
 
 func PrintLayout(l string) {
+	fmt.Println("----------")
 	fmt.Println(string(l[0:10]))
 	fmt.Println(string(l[10:20]))
 	fmt.Println(string(l[20:30]))
