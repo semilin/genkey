@@ -11,7 +11,7 @@ var KPS []float64
 
 func main() {
 	GeneratePositions()
-	KPS = []float64{1.0, 4.6, 5.0, 5.0, 5.0, 5.0, 4.6, 1.0}
+	KPS = []float64{1.2, 4.6, 5.0, 5.0, 5.0, 5.0, 4.6, 1.2}
 	//SameKeyKPS = []float64{5.4, 5.0, 5.7, 6.2, 6.2, 6.2, 6.2, 6.8}
 	
 	Data = GetTextData()
@@ -36,11 +36,11 @@ func main() {
 	PrintLayout(dh)
 	fmt.Println(Score(dh))
 
-	q := ";wgpbjluyqarstfmneiozxcdkvh/.,"
+	q := ";wfpbjluyqarstgmneiozxcdkvh/.,"
 	PrintLayout(q)
 	fmt.Println(Score(q))
 
-	qf := ";wgfbjluyqarstgmneiozxcdkvh/.,"
+	qf := ";wgpbjluyqarstfmneiozxcdkvh/.,"
 	PrintLayout(qf)
 	fmt.Println(Score(qf))
 

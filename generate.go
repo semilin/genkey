@@ -16,9 +16,9 @@ func Score(l string) float64 {
 	weightedSpeed := 0.00
 
 	leftIndex, rightIndex := CalcIndexUsage(l)
-	score += float64(10*(12-leftIndex))
+	score += float64(25*(13-leftIndex))
 
-	score += float64(10*(12-rightIndex))
+	score += float64(25*(13-rightIndex))
 
 	lowest := 100000000000.0
 	highest := 0.0

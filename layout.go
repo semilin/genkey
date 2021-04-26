@@ -13,8 +13,12 @@ func GeneratePositions() {
 		sfbPositions = append(sfbPositions, []int{col, col+20})
 		sfbPositions = append(sfbPositions, []int{col+10, col+20})
 	}
+	
 	for row:=0;row<=2;row++ {
 		for row2:=0;row2<=2;row2++ {
+			if row == 1 && row2 == 1 {
+				continue
+			} 
 			sfbPositions = append(sfbPositions, []int{3+(10*row), 4+(10*row2)})
 			sfbPositions = append(sfbPositions, []int{5+(10*row), 6+(10*row2)})
 		}
