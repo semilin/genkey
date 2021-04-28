@@ -39,6 +39,7 @@ func GetTextData() TextData {
 			char = "'"
 		}
 		if char == " " {
+			lastchar = " "
 			continue
 		} else if !strings.Contains(valid, char) {
 			lastchar = ""

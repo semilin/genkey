@@ -16,26 +16,29 @@ func Score(l string) float64 {
 	weightedSpeed := 0.00
 
 	leftIndex, rightIndex := CalcIndexUsage(l)
-	score += float64(25*(13-leftIndex))
+	score += float64(25*(12-leftIndex))
 
-	score += float64(25*(13-rightIndex))
+	score += float64(25*(12-rightIndex))
 
-	lowest := 100000000000.0
-	highest := 0.0
+	lowest := speeds[0]
+	highest := speeds[0]
 	for i, speed := range speeds {
-		weightedSpeed += speed*speed / (KPS[i]*KPS[i])
-		if weightedSpeed < lowest {
-			lowest = weightedSpeed
+		s := speed*speed / (KPS[i]*KPS[i])
+		weightedSpeed += s
+		if s < lowest {
+			lowest = s
 		}
-		if weightedSpeed > highest {
-			highest = weightedSpeed
+		if s > highest {
+			highest = s
 		}
 	}
 
-	deviation := highest - lowest
+	score += 50*float64(CalcTrigrams(l))
 
+	deviation := highest - lowest
+	
 	score += weightedSpeed
-	score += 0.3*deviation
+	score += 4*deviation
 	return score/1000000
 }
 
@@ -84,7 +87,7 @@ func Populate(n int) []string {
 	PrintLayout(layouts[0])
 	fmt.Println(Score(layouts[2]))
 
-	layouts = layouts[0:49]
+	layouts = layouts[0:10]
 
 	for i, _ := range layouts {
 		go fullImprove(&layouts[i])
@@ -105,7 +108,7 @@ func Populate(n int) []string {
 	fmt.Println(Score(layouts[1]))
 	PrintLayout(layouts[2])
 	fmt.Println(Score(layouts[2]))
-	return layouts
+	return layouts[0:3]
 }
 
 func greedyImprove(layout *string)  {
@@ -151,7 +154,7 @@ func fullImprove(layout *string) {
 		} else if second == first {
 			*layout = prop
 		} else {
-			if i > 5000*tier {
+			if i > 1000*tier {
 				if changed {
 					tier = 1
 				} else {

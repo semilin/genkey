@@ -16,9 +16,6 @@ func GeneratePositions() {
 	
 	for row:=0;row<=2;row++ {
 		for row2:=0;row2<=2;row2++ {
-			if row == 1 && row2 == 1 {
-				continue
-			} 
 			sfbPositions = append(sfbPositions, []int{3+(10*row), 4+(10*row2)})
 			sfbPositions = append(sfbPositions, []int{5+(10*row), 6+(10*row2)})
 		}
@@ -37,9 +34,52 @@ func CalcFingerSpeed(l string) []float64{
 
 		f := finger(pair[0])
 		dist := twoKeyDist(pair[0], pair[1])
-		speed[f] += (float64(sfb) * dist) + (float64(dsfb) * dist * 0.6)
+		speed[f] += ((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))
 	}
 	return speed
+}
+
+func CalcTrigrams(l string) int {
+	split := []rune(l)
+	penalty := 0
+	for p1, k1 := range split {
+		s1 := string(k1)
+		for p2, k2 := range split {
+			part := s1 + string(k2)
+			for p3, k3 := range split {
+				if p1 == p2 || p2 == p3 {
+					continue
+				}	
+				lastfinger := -10
+				lasthand := -10
+				samehand := 0
+				for _, v := range []int{p1, p2, p3} {
+					f := finger(v)
+					if f == lastfinger {
+						continue
+					}
+					if f > 3 {
+						if lasthand == 1 {
+							samehand += 1
+						} 
+						lasthand = 1
+					} else {
+						if lasthand == 0 {
+							samehand += 1
+						}
+						lasthand = 0
+					}
+					lastfinger = f
+				}
+				if samehand == 2 {
+					penalty += 200 * Data.Trigrams[part+string(k3)]
+				} else if samehand == 0 {
+					penalty += 100 * Data.Trigrams[part+string(k3)]
+				}
+			}
+		}
+	}
+	return penalty
 }
 
 func CalcIndexUsage(l string) (int, int) {
@@ -91,7 +131,7 @@ func finger(pos int) int {
 	} else if col == 4 {
 		finger = 3
 	} else if col == 5 {
-		finger = 4 
+		finger = 4
 	} else if col >= 6 {
 		finger = col - 2
 	}
