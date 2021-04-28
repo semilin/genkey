@@ -72,7 +72,7 @@ func CalcTrigrams(l string) int {
 					lastfinger = f
 				}
 				if samehand == 2 {
-					penalty += 200 * Data.Trigrams[part+string(k3)]
+					penalty += 200 * Data.Trigrams[part+string(k3)]	
 				} else if samehand == 0 {
 					penalty += 100 * Data.Trigrams[part+string(k3)]
 				}

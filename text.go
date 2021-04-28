@@ -39,9 +39,11 @@ func GetTextData() TextData {
 			char = "'"
 		}
 		if char == " " {
+			lastchar2 = lastchar
 			lastchar = " "
 			continue
 		} else if !strings.Contains(valid, char) {
+			lastchar2 = lastchar
 			lastchar = ""
 			continue
 		} else {
@@ -50,7 +52,9 @@ func GetTextData() TextData {
 			if lastchar != "" {
 				data.Bigrams[lastchar+char] += 1
 				if lastchar2 != "" {
-					data.Trigrams[lastchar2+lastchar+char] += 1
+					if lastchar2 != " " && lastchar != " " {
+						data.Trigrams[lastchar2+lastchar+char] += 1
+					}
 					data.Skipgrams[lastchar2+char] += 1
 				}
 				lastchar2 = lastchar
