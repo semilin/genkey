@@ -22,8 +22,27 @@ func GeneratePositions() {
 	}
 }
 
-func CalcFingerSpeed(l string) []float64{
+func WeightedSpeed(speeds []float64) (float64, float64) {
+	lowest := speeds[0]
+	highest := speeds[0]
+	weightedSpeed := 0.0
+	for i, speed := range speeds {
+		s := speed*speed / (KPS[i]*KPS[i])
+		weightedSpeed += s
+		if s < lowest {
+			lowest = s
+		}
+		if s > highest {
+			highest = s
+		}
+	}
+
+	return weightedSpeed, highest - lowest
+}
+
+func FingerSpeed(l string) []float64{
 	speed := []float64{0,0,0,0,0,0,0,0}
+
 	for _, pair := range sfbPositions {
 		k1 := string(l[pair[0]])
 		k2 := string(l[pair[1]])
@@ -34,20 +53,28 @@ func CalcFingerSpeed(l string) []float64{
 
 		f := finger(pair[0])
 		dist := twoKeyDist(pair[0], pair[1])
-		speed[f] += ((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))
+		speed[f] += 1000*((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))/float64(Data.Total)
 	}
 	return speed
 }
 
-func CalcTrigrams(l string) int {
+// Trigrams returns the number of rolls, alternates, and onehands
+func Trigrams(l string) (int, int, int) {
 	split := []rune(l)
-	penalty := 0
+
+	rolls := 0
+	alternation := 0
+	onehands := 0
+	
 	for p1, k1 := range split {
 		s1 := string(k1)
 		for p2, k2 := range split {
+			if p1 == p2 {
+				continue
+			}
 			part := s1 + string(k2)
 			for p3, k3 := range split {
-				if p1 == p2 || p2 == p3 {
+				if p2 == p3 {
 					continue
 				}	
 				lastfinger := -10
@@ -71,18 +98,22 @@ func CalcTrigrams(l string) int {
 					}
 					lastfinger = f
 				}
+
+				count := Data.Trigrams[part+string(k3)]
 				if samehand == 2 {
-					penalty += 200 * Data.Trigrams[part+string(k3)]	
+					onehands += count
 				} else if samehand == 0 {
-					penalty += 100 * Data.Trigrams[part+string(k3)]
+					alternation += count
+				} else {
+					rolls += count
 				}
 			}
 		}
 	}
-	return penalty
+	return rolls, alternation, onehands
 }
 
-func CalcIndexUsage(l string) (int, int) {
+func IndexUsage(l string) (int, int) {
 	left := 0
 	right := 0
 	for x:=3;x<=4;x++ {
@@ -94,7 +125,7 @@ func CalcIndexUsage(l string) (int, int) {
 	return (int(100*float64(left) / float64(Data.Total))), (int(100*float64(right) / float64(Data.Total)))
 }
 
-func CalcSameKey(l string) []int {
+func SameKey(l string) []int {
 	samekey := []int{0,0,0,0,0,0,0,0}
 	for pos, r := range []rune(l) {
 		key := string(r)

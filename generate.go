@@ -11,33 +11,17 @@ import (
 
 func Score(l string) float64 {
 	var score float64
-	speeds := CalcFingerSpeed(l)
+	speeds := FingerSpeed(l)
 
-	weightedSpeed := 0.00
-
-	leftIndex, rightIndex := CalcIndexUsage(l)
-	score += float64(25*(12-leftIndex))
-
-	score += float64(25*(12-rightIndex))
-
-	lowest := speeds[0]
-	highest := speeds[0]
-	for i, speed := range speeds {
-		s := speed*speed / (KPS[i]*KPS[i])
-		weightedSpeed += s
-		if s < lowest {
-			lowest = s
-		}
-		if s > highest {
-			highest = s
-		}
-	}
-
-	score += 50*float64(CalcTrigrams(l))
-
-	deviation := highest - lowest
+	weightedSpeed, deviation := WeightedSpeed(speeds)
 	
-	score += weightedSpeed
+	rolls, alternates, onehands := Trigrams(l)
+	
+	score += float64(100*rolls/Data.Total)
+	score += float64(200*alternates/Data.Total)
+	score += float64(200*onehands/Data.Total)
+	
+	score += 8*weightedSpeed
 	score += 4*deviation
 	return score/1000000
 }
@@ -103,7 +87,7 @@ func Populate(n int) []string {
 	fmt.Println()
 	PrintLayout(layouts[0])
 	fmt.Println(Score(layouts[0]))
-	fmt.Println(CalcIndexUsage(layouts[0]))
+	fmt.Println(IndexUsage(layouts[0]))
 	PrintLayout(layouts[1])
 	fmt.Println(Score(layouts[1]))
 	PrintLayout(layouts[2])
@@ -154,7 +138,7 @@ func fullImprove(layout *string) {
 		} else if second == first {
 			*layout = prop
 		} else {
-			if i > 1000*tier {
+			if i > 500*tier {
 				if changed {
 					tier = 1
 				} else {

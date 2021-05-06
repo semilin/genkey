@@ -18,7 +18,7 @@ type layout struct {
 
 func main() {
 	GeneratePositions()
-	KPS = []float64{4,5,5,5.1,5.1,5,5,4}
+	KPS = []float64{1,4,5,5.5,5.5,5,4,1}
 	//SameKeyKPS = []float64{5.4, 5.0, 5.7, 6.2, 6.2, 6.2, 6.2, 6.8}
 
 	var layouts []layout
@@ -37,13 +37,17 @@ func main() {
 	layouts = append(layouts, layout{"ColemaQ", ";wfpbjluyqarstgmneiozxcdkvh/.,"})
 	layouts = append(layouts, layout{"ColemaQ-f", ";wgpbjluyqarstfmneiozxcdkvh/.,"})
 	layouts = append(layouts, layout{"Colemak Qi", "qlwmkjfuy'arstgpneiozxcdvbh/.,"})
-	layouts = append(layouts, layout{"Colemak Qi;x", "qlcmkjfuyqarstgpneiozxwdvbh/.,"})
+	layouts = append(layouts, layout{"Colemak Qi;x", ";lcmkjfuyqarstgpneiozxwdvbh/.,"})
 	layouts = append(layouts, layout{"ISRT", "yclmkzfu,'isrtgpneaoqvwdjbh/.x"})
 	layouts = append(layouts, layout{"Norman", "qwdfkjurl;asetgyniohzxcvbpm,./"})
 	layouts = append(layouts, layout{"MTGAP", "ypoujkdlcwinea,mhtsrqz/.;bfgvx"})
+	layouts = append(layouts, layout{"MTGAP 2.0", ",fhdkjcul.oantgmseriqxbpzyw'v;"})
+	layouts = append(layouts, layout{"MTGAP But Funny", "wcldkjuopyrsthm,aenixvgfb;.'zq"})
 	layouts = append(layouts, layout{"SIND", "y,hwfqkouxsindcvtaerj.lpbgm;/z"})
 	layouts = append(layouts, layout{"RTNA", "xdh.qbfoujrtna;gweislkm,/pczyv"})
 	layouts = append(layouts, layout{"Workman", "qdrwbjfup;ashtgyneoizxmcvkl,./"})
+	layouts = append(layouts, layout{"Colby's Funny", "/wgdbmho,qarstflneuizxcpkjv'.y"})
+	layouts = append(layouts, layout{"Colby's Funny 2", ",lcmkzfuy.arstgpneio;wvdjbh'qx"})
 	layouts = append(layouts, layout{"Halmak", "wlrbz;qudjshnt,.aeoifmvc/gpxky"})
 	layouts = append(layouts, layout{"ABC", "abcdefghijklmnopqrstuvwxyz,./'"})
 
@@ -52,7 +56,15 @@ func main() {
 	})
 
 	for _, l := range layouts {
-		fmt.Println(l.Name, int(Score(l.Keys)), CalcTrigrams(l.Keys))
+		fmt.Println(l.Name)
+		rolls, alternates, onehands := Trigrams(l.Keys)
+		fmt.Printf("\t Rolls: %d%%\n", 100*rolls / Data.Total)		
+		fmt.Printf("\t Alternates: %d%%\n", 100*alternates / Data.Total)		
+		fmt.Printf("\t Onehands: %d%%\n", 100*onehands / Data.Total)
+		speed, deviation := WeightedSpeed(FingerSpeed(l.Keys))
+		fmt.Printf("\t Finger Speed: %d\n", int(speed))		
+		fmt.Printf("\t Speed deviation: %d\n", int(deviation))
+		fmt.Println()
 	}
 
 	start := time.Now()

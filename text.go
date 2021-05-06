@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"strings"
+	"fmt"
 )
 
 type TextData struct {
@@ -31,7 +32,10 @@ func GetTextData() TextData {
 
 	lastchar := ""
 	lastchar2 := ""
-	for _, char := range chars {
+	for i, char := range chars {
+		if i % 500000 == 0 {
+			go fmt.Printf("%d words read...\r", i/5)
+		}
 		char = strings.ToLower(char)
 		if char == "?" {
 			char = "/"
@@ -62,5 +66,6 @@ func GetTextData() TextData {
 			lastchar = char
 		}
 	}
+	fmt.Println()
 	return data
 }
