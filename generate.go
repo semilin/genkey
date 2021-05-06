@@ -19,10 +19,10 @@ func Score(l string) float64 {
 	
 	score += float64(100*rolls/Data.Total)
 	score += float64(200*alternates/Data.Total)
-	score += float64(200*onehands/Data.Total)
+	score += float64(230*onehands/Data.Total)
 	
 	score += 8*weightedSpeed
-	score += 4*deviation
+	score += 8*deviation
 	return score/1000000
 }
 
