@@ -23,21 +23,17 @@ func GeneratePositions() {
 }
 
 func WeightedSpeed(speeds []float64) (float64, float64) {
-	lowest := speeds[0]
 	highest := speeds[0]
 	weightedSpeed := 0.0
 	for i, speed := range speeds {
 		s := speed*speed / (KPS[i]*KPS[i])
 		weightedSpeed += s
-		if s < lowest {
-			lowest = s
-		}
 		if s > highest {
 			highest = s
 		}
 	}
 
-	return weightedSpeed, highest - lowest
+	return weightedSpeed, highest
 }
 
 func FingerSpeed(l string) []float64{
@@ -68,35 +64,29 @@ func Trigrams(l string) (int, int, int) {
 	
 	for p1, k1 := range split {
 		s1 := string(k1)
+		f1 := finger(p1)
+		h1 := (f1 > 3)
 		for p2, k2 := range split {
-			if p1 == p2 {
+			f2 := finger(p2)
+			if f1 == f2 {
 				continue
 			}
+			h2 := (f2 > 3)			
+			
 			part := s1 + string(k2)
 			for p3, k3 := range split {
-				if p2 == p3 {
+				f3 := finger(p3)
+				if f2 == f3 {
 					continue
-				}	
-				lastfinger := -10
-				lasthand := -10
+				}
+				
 				samehand := 0
-				for _, v := range []int{p1, p2, p3} {
-					f := finger(v)
-					if f == lastfinger {
-						continue
-					}
-					if f > 3 {
-						if lasthand == 1 {
-							samehand += 1
-						} 
-						lasthand = 1
-					} else {
-						if lasthand == 0 {
-							samehand += 1
-						}
-						lasthand = 0
-					}
-					lastfinger = f
+
+				if h1 == h2 {
+					samehand++
+				} 
+				if h2 == (f3 > 3) {
+					samehand++
 				}
 
 				count := Data.Trigrams[part+string(k3)]

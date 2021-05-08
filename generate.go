@@ -13,17 +13,16 @@ func Score(l string) float64 {
 	var score float64
 	speeds := FingerSpeed(l)
 
-	weightedSpeed, deviation := WeightedSpeed(speeds)
+	weightedSpeed, highest := WeightedSpeed(speeds)
 	
-	rolls, alternates, onehands := Trigrams(l)
+	_, alternates, onehands := Trigrams(l)
 	
-	score += float64(100*rolls/Data.Total)
-	score += float64(200*alternates/Data.Total)
-	score += float64(230*onehands/Data.Total)
+	score += float64(300*alternates/Data.Total)
+	score += float64(500*onehands/Data.Total)
 	
-	score += 8*weightedSpeed
-	score += 8*deviation
-	return score/1000000
+	score += 10*weightedSpeed
+	score += 40*highest
+	return score/1000
 }
 
 func randomLayout() string {
@@ -85,13 +84,16 @@ func Populate(n int) []string {
 	})
 	
 	fmt.Println()
-	PrintLayout(layouts[0])
-	fmt.Println(Score(layouts[0]))
-	fmt.Println(IndexUsage(layouts[0]))
-	PrintLayout(layouts[1])
-	fmt.Println(Score(layouts[1]))
-	PrintLayout(layouts[2])
-	fmt.Println(Score(layouts[2]))
+	for i := 0; i < 3; i++ {
+		PrintLayout(layouts[i])
+		fmt.Println(Score(layouts[i]))
+		rolls, alts, onehands := Trigrams(layouts[i])
+		fmt.Printf("\t Rolls: %d%%\n", 100*rolls / Data.Total)		
+		fmt.Printf("\t Alternates: %d%%\n", 100*alts / Data.Total)		
+		fmt.Printf("\t Onehands: %d%%\n", 100*onehands / Data.Total)
+		speed, highest := WeightedSpeed(FingerSpeed(layouts[i]))
+		fmt.Printf("\t Finger Speed: %d\n", int(speed))		
+		fmt.Printf("\t Highest speed: %d\n", int(highest))	}
 	return layouts[0:3]
 }
 
@@ -138,7 +140,7 @@ func fullImprove(layout *string) {
 		} else if second == first {
 			*layout = prop
 		} else {
-			if i > 500*tier {
+			if i > 1000*tier {
 				if changed {
 					tier = 1
 				} else {

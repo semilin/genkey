@@ -25,7 +25,7 @@ func main() {
 
 	Data = GetTextData()
 
-	fmt.Println(Data.Trigrams)
+	fmt.Println(Data.Bigrams)
 
 	layouts = append(layouts, layout{"QWERTY", "qwertyuiopasdfghjkl;zxcvbnm,./"})
 	layouts = append(layouts, layout{"AZERTY", "azertyuiopqsdfghjklmwxcvbn',./"})
@@ -61,24 +61,19 @@ func main() {
 		fmt.Printf("\t Rolls: %d%%\n", 100*rolls / Data.Total)		
 		fmt.Printf("\t Alternates: %d%%\n", 100*alternates / Data.Total)		
 		fmt.Printf("\t Onehands: %d%%\n", 100*onehands / Data.Total)
-		speed, deviation := WeightedSpeed(FingerSpeed(l.Keys))
+		speed, highest := WeightedSpeed(FingerSpeed(l.Keys))
 		fmt.Printf("\t Finger Speed: %d\n", int(speed))		
-		fmt.Printf("\t Speed deviation: %d\n", int(deviation))
+		fmt.Printf("\t Highest Speed: %d\n", int(highest))
 		fmt.Println()
 	}
 
 	start := time.Now()
-	best := Populate(250)
+	best := Populate(100)
 	end := time.Now()
 	fmt.Println(end.Sub(start))
 
 	optimal := Score(best[0])
 	for _, l := range layouts {
 		fmt.Printf("%s: %d%%\n", l.Name, int(100*optimal/(Score(l.Keys))))
-		/*var speed []int
-		for _, f := range CalcFingerSpeed(l.Keys) {
-			speed = append(speed, int(f/100))
-		}
-		fmt.Println(speed)*/
 	}
 }
