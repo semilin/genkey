@@ -25,8 +25,15 @@ func main() {
 
 	Data = GetTextData()
 
-	fmt.Println(Data.Bigrams)
+	fmt.Println(Data.Total)
 
+	sum := 0
+	for _, trigram := range Data.Trigrams {
+		sum += trigram
+	}
+
+	fmt.Println(sum)
+	
 	layouts = append(layouts, layout{"QWERTY", "qwertyuiopasdfghjkl;zxcvbnm,./"})
 	layouts = append(layouts, layout{"AZERTY", "azertyuiopqsdfghjklmwxcvbn',./"})
 	layouts = append(layouts, layout{"Dvorak", "',.pyfgcrlaoeuidhtns;qjkxbmwvz"})
@@ -38,7 +45,9 @@ func main() {
 	layouts = append(layouts, layout{"ColemaQ-f", ";wgpbjluyqarstfmneiozxcdkvh/.,"})
 	layouts = append(layouts, layout{"Colemak Qi", "qlwmkjfuy'arstgpneiozxcdvbh/.,"})
 	layouts = append(layouts, layout{"Colemak Qi;x", ";lcmkjfuyqarstgpneiozxwdvbh/.,"})
+	layouts = append(layouts, layout{"Renato's funny", "qylmkjfuc;airtgpnesoz.wdvbh/x,"})
 	layouts = append(layouts, layout{"ISRT", "yclmkzfu,'isrtgpneaoqvwdjbh/.x"})
+	layouts = append(layouts, layout{"Hands Down", "qchpvkyoj/rsntgwueiaxmldbzf',."})
 	layouts = append(layouts, layout{"Norman", "qwdfkjurl;asetgyniohzxcvbpm,./"})
 	layouts = append(layouts, layout{"MTGAP", "ypoujkdlcwinea,mhtsrqz/.;bfgvx"})
 	layouts = append(layouts, layout{"MTGAP 2.0", ",fhdkjcul.oantgmseriqxbpzyw'v;"})
@@ -57,18 +66,21 @@ func main() {
 
 	for _, l := range layouts {
 		fmt.Println(l.Name)
-		rolls, alternates, onehands := Trigrams(l.Keys)
+		rolls, alternates, onehands, redirects := Trigrams(l.Keys)
 		fmt.Printf("\t Rolls: %d%%\n", 100*rolls / Data.Total)		
 		fmt.Printf("\t Alternates: %d%%\n", 100*alternates / Data.Total)		
 		fmt.Printf("\t Onehands: %d%%\n", 100*onehands / Data.Total)
+		fmt.Printf("\t Redirects: %d%%\n", 100*redirects / Data.Total)
 		speed, highest := WeightedSpeed(FingerSpeed(l.Keys))
 		fmt.Printf("\t Finger Speed: %d\n", int(speed))		
 		fmt.Printf("\t Highest Speed: %d\n", int(highest))
+		fmt.Printf("\t SFBs: %.2f%%\n", 100*float64(SFBs(l.Keys))/float64(Data.Total))
+		fmt.Printf("\t Score: %d\n", int(Score(l.Keys)))
 		fmt.Println()
 	}
 
 	start := time.Now()
-	best := Populate(100)
+	best := Populate(300)
 	end := time.Now()
 	fmt.Println(end.Sub(start))
 

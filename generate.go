@@ -9,20 +9,25 @@ import (
 	"sort"
 )
 
+// Max Rolls: 30%
+
 func Score(l string) float64 {
 	var score float64
 	speeds := FingerSpeed(l)
 
 	weightedSpeed, highest := WeightedSpeed(speeds)
 	
-	_, alternates, onehands := Trigrams(l)
-	
-	score += float64(300*alternates/Data.Total)
-	score += float64(500*onehands/Data.Total)
+	//rolls, _, onehands, redirects := Trigrams(l)
+
+	//total := float64(Data.Total)
+
+	//score -= 10*float64(rolls)/total
+	//score -= 10*float64(onehands)/total
+	//score += 10*float64(redirects)/total
 	
 	score += 10*weightedSpeed
-	score += 40*highest
-	return score/1000
+	score += 12*highest
+	return score
 }
 
 func randomLayout() string {
@@ -35,11 +40,6 @@ func randomLayout() string {
 		chars = strings.ReplaceAll(chars, char, "")
 	}
 	return l
-}
-
-type Layout struct {
-	Keys  string
-	Score float64
 }
 
 func Populate(n int) []string {
@@ -70,7 +70,7 @@ func Populate(n int) []string {
 	PrintLayout(layouts[0])
 	fmt.Println(Score(layouts[2]))
 
-	layouts = layouts[0:10]
+	layouts = layouts[0:5]
 
 	for i, _ := range layouts {
 		go fullImprove(&layouts[i])
@@ -84,16 +84,25 @@ func Populate(n int) []string {
 	})
 	
 	fmt.Println()
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 1; i++ {
 		PrintLayout(layouts[i])
 		fmt.Println(Score(layouts[i]))
-		rolls, alts, onehands := Trigrams(layouts[i])
+		rolls, alts, onehands, redirects := Trigrams(layouts[i])
 		fmt.Printf("\t Rolls: %d%%\n", 100*rolls / Data.Total)		
 		fmt.Printf("\t Alternates: %d%%\n", 100*alts / Data.Total)		
 		fmt.Printf("\t Onehands: %d%%\n", 100*onehands / Data.Total)
+		fmt.Printf("\t Redirects: %d%%\n", 100*redirects / Data.Total)
 		speed, highest := WeightedSpeed(FingerSpeed(layouts[i]))
+		standardsfb := SFBs(layouts[i])
+		repeatsfb, saved := SFBsMinusTop(layouts[i])
 		fmt.Printf("\t Finger Speed: %d\n", int(speed))		
-		fmt.Printf("\t Highest speed: %d\n", int(highest))	}
+		fmt.Printf("\t Highest speed: %d\n", int(highest))
+		fmt.Printf("\t Standard SFB: %.2f\n", 100*float64(standardsfb)/float64(Data.Total))
+		fmt.Printf("\t Repeat Key SFB: %.2f%%\n", 100*float64(repeatsfb)/float64(Data.Total))
+		fmt.Printf("\t Repeat Key Usage: %.2f%%\n", 100*float64(saved)/float64(Data.Total))
+		fmt.Printf("\t Score: %d\n", int(Score(layouts[i])))
+		fmt.Println(ListRepeats(layouts[i]))
+	}
 	return layouts[0:3]
 }
 
@@ -114,7 +123,7 @@ func greedyImprove(layout *string)  {
 			stuck++
 		}
 
-		if stuck > 100 {
+		if stuck > 500 {
 			return
 		}
 	}
@@ -140,7 +149,7 @@ func fullImprove(layout *string) {
 		} else if second == first {
 			*layout = prop
 		} else {
-			if i > 1000*tier {
+			if i > 1000*tier*tier {
 				if changed {
 					tier = 1
 				} else {
@@ -149,7 +158,7 @@ func fullImprove(layout *string) {
 
 				changed = false
 
-				if tier > 6 {
+				if tier > 7 {
 					break
 				}
 

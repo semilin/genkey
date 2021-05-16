@@ -22,7 +22,7 @@ func GetTextData() TextData {
 	}
 
 	chars := strings.Split(string(text), "")
-	valid := "abcdefghijklmnopqrstuvwxyz,./?'\""
+	valid := "abcdefghijklmnopqrstuvwxyz,./?'\" "
 
 	var data TextData
 	data.Letters = make(map[string]int)
@@ -42,11 +42,8 @@ func GetTextData() TextData {
 		} else if char == "\"" {
 			char = "'"
 		}
-		if char == " " {
-			lastchar2 = lastchar
-			lastchar = " "
-			continue
-		} else if !strings.Contains(valid, char) {
+		
+		if !strings.Contains(valid, char) {
 			lastchar2 = lastchar
 			lastchar = ""
 			continue
@@ -56,9 +53,7 @@ func GetTextData() TextData {
 			if lastchar != "" {
 				data.Bigrams[lastchar+char] += 1
 				if lastchar2 != "" {
-					if lastchar2 != " " && lastchar != " " {
-						data.Trigrams[lastchar2+lastchar+char] += 1
-					}
+					data.Trigrams[lastchar2+lastchar+char] += 1
 					data.Skipgrams[lastchar2+char] += 1
 				}
 				lastchar2 = lastchar

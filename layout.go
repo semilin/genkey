@@ -6,20 +6,21 @@ import (
 )
 
 var sfbPositions [][]int
+var sfbMap map[int][]int
 
 func GeneratePositions() {
-	for col:=0;col<=9;col++ {
-		sfbPositions = append(sfbPositions, []int{col, col+10})
-		sfbPositions = append(sfbPositions, []int{col, col+20})
-		sfbPositions = append(sfbPositions, []int{col+10, col+20})
-	}
-	
-	for row:=0;row<=2;row++ {
-		for row2:=0;row2<=2;row2++ {
-			sfbPositions = append(sfbPositions, []int{3+(10*row), 4+(10*row2)})
-			sfbPositions = append(sfbPositions, []int{5+(10*row), 6+(10*row2)})
+	sfbMap = make(map[int][]int)
+
+	for p1:=0;p1<=29;p1++ {
+		for p2:=0;p2<=29;p2++ {
+			if finger(p1) == finger(p2) {
+				sfbPositions = append(sfbPositions, []int{p1, p2})
+				sfbMap[p1] = append(sfbMap[p1], p2)
+			}
 		}
 	}
+	fmt.Println(sfbMap[0])
+	fmt.Println(sfbMap[3])
 }
 
 func WeightedSpeed(speeds []float64) (float64, float64) {
@@ -44,29 +45,113 @@ func FingerSpeed(l string) []float64{
 		k2 := string(l[pair[1]])
 		sfb := Data.Bigrams[k1+ k2]
 		sfb += Data.Bigrams[k2+ k1]
+
 		dsfb := Data.Skipgrams[k1+ k2]
 		dsfb += Data.Skipgrams[k2+ k1]
+		
+		dist := twoKeyDist(pair[0], pair[1])
 
 		f := finger(pair[0])
-		dist := twoKeyDist(pair[0], pair[1])
-		speed[f] += 1000*((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))/float64(Data.Total)
+
+		for _, v := range sfbMap[pair[0]] {
+			if v != pair[0] {
+				if Data.Bigrams[k1 + string(l[v])] > sfb {
+					speed[f] += 1000*((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))/float64(Data.Total)
+					continue
+				}
+			}
+		}
+
+		speed[f] += 1000*(float64(dsfb) * dist * 0.5)/float64(Data.Total)		
+
 	}
 	return speed
 }
 
-// Trigrams returns the number of rolls, alternates, and onehands
-func Trigrams(l string) (int, int, int) {
+func SFBs(l string) int {
+	var count int
+	for _, pair := range sfbPositions {
+		k1 := string(l[pair[0]])
+		k2 := string(l[pair[1]])
+		sfb := Data.Bigrams[k1+ k2]
+		sfb += Data.Bigrams[k2+ k1]
+
+		count += sfb
+	}
+	return count
+}
+
+func SFBsMinusTop(l string) (int, int) {
+	var count int
+	var saved int
+	for _, pair := range sfbPositions {
+		k1 := string(l[pair[0]])
+		k2 := string(l[pair[1]])
+		sfb := Data.Bigrams[k1+ k2]
+		sfb += Data.Bigrams[k2+ k1]
+
+		highest := true
+		for _, v := range sfbMap[pair[0]] {
+			if v != pair[1] {
+				this := Data.Bigrams[k1 + string(l[v])]
+				this += Data.Bigrams[string(l[v]) + k1]
+				if this > sfb {
+					count += sfb
+					highest = false
+					break
+				}
+			}
+		}
+		if highest {
+			saved += sfb
+		}
+	}
+	return count, saved
+}
+
+func ListRepeats(l string) []string {
+	var list []string
+	for _, pair := range sfbPositions {
+		k1 := string(l[pair[0]])
+		k2 := string(l[pair[1]])
+		sfb := Data.Bigrams[k1+ k2]
+		sfb += Data.Bigrams[k2+ k1]
+
+		highest := true
+		for _, v := range sfbMap[pair[0]] {
+			if v != pair[1] {
+				this := Data.Bigrams[k1 + string(l[v])]
+				this += Data.Bigrams[string(l[v]) + k1]
+				if this > sfb {
+					highest = false
+					break
+				}
+			}
+		}
+		if highest {
+			list = append(list, k1+k2)
+		}
+	}
+	return list
+}
+
+// Trigrams returns the number of rolls, alternates, onehands, and redirects
+func Trigrams(l string) (int, int, int, int) {
 	split := []rune(l)
 
 	rolls := 0
 	alternation := 0
 	onehands := 0
+	redirects := 0
 	
 	for p1, k1 := range split {
 		s1 := string(k1)
 		f1 := finger(p1)
 		h1 := (f1 > 3)
 		for p2, k2 := range split {
+			if p1 == p2 {
+				continue
+			}
 			f2 := finger(p2)
 			if f1 == f2 {
 				continue
@@ -75,32 +160,49 @@ func Trigrams(l string) (int, int, int) {
 			
 			part := s1 + string(k2)
 			for p3, k3 := range split {
+				if p2 == p3 {
+					continue
+				}
 				f3 := finger(p3)
 				if f2 == f3 {
 					continue
 				}
-				
+				s3 := string(k3)
+
 				samehand := 0
 
+				first := false
+				
 				if h1 == h2 {
 					samehand++
+					first = true
 				} 
 				if h2 == (f3 > 3) {
 					samehand++
 				}
 
-				count := Data.Trigrams[part+string(k3)]
+				count := Data.Trigrams[part+s3]
 				if samehand == 2 {
-					onehands += count
+					if f1 > f2 && f2 > 3 {
+						onehands += count
+					} else if f1 < f2 && f2 < f3 {
+						onehands += count
+					} else {
+						redirects += count
+					}
 				} else if samehand == 0 {
 					alternation += count
 				} else {
+					if first {
+						//rolls += Data.Trigrams[part+" "]
+					}
 					rolls += count
 				}
 			}
 		}
 	}
-	return rolls, alternation, onehands
+
+	return rolls, alternation, onehands, redirects
 }
 
 func IndexUsage(l string) (int, int) {
@@ -146,17 +248,17 @@ func colrow(pos int) (int, int) {
 func finger(pos int) int {
 	col, _ := colrow(pos)
 	var finger int
-	
+
 	if col <= 3 {
 		finger = col
+	} else if col >= 6 {
+		finger = col - 2
 	} else if col == 4 {
 		finger = 3
 	} else if col == 5 {
 		finger = 4
-	} else if col >= 6 {
-		finger = col - 2
 	}
-
+	
 	return finger
 }
 
