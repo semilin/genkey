@@ -1,16 +1,18 @@
 package main
 
 import (
+	"os"
 	"io/ioutil"
 	"strings"
+	"encoding/json"
 	"fmt"
 )
 
 type TextData struct {
-	Letters   map[string]int
-	Bigrams   map[string]int
-	Trigrams  map[string]int
-	Skipgrams map[string]int
+	Letters   map[string]int `json:"letters"`
+	Bigrams   map[string]int `json:"bigrams"`
+	Trigrams  map[string]int `json:"trigrams"`
+	Skipgrams map[string]int `json:"skipgrams"`
 	Total int
 }
 
@@ -33,6 +35,7 @@ func GetTextData() TextData {
 	lastchar := ""
 	lastchar2 := ""
 	for i, char := range chars {
+		data.Total++
 		if i % 500000 == 0 {
 			go fmt.Printf("%d words read...\r", i/5)
 		}
@@ -48,7 +51,6 @@ func GetTextData() TextData {
 			lastchar = ""
 			continue
 		} else {
-			data.Total++
 			data.Letters[char] += 1
 			if lastchar != "" {
 				data.Bigrams[lastchar+char] += 1
@@ -62,5 +64,40 @@ func GetTextData() TextData {
 		}
 	}
 	fmt.Println()
+
+	return data
+}
+
+func WriteData(data TextData) {
+	f, err := os.Create("data.json")
+
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	js, err := json.Marshal(data)
+
+	if err != nil {
+		panic(err)
+	}
+	
+	f.WriteString(string(js))
+}
+
+func LoadData() TextData {
+	b, err := ioutil.ReadFile("data.json")
+	if err != nil {
+		panic(err)
+	}
+
+	var data TextData
+
+	err = json.Unmarshal(b, &data)
+
+	if err != nil {
+		panic(err)
+	}
+	
 	return data
 }

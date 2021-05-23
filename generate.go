@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
-	"strings"
-	"time"
 	"runtime"
 	"sort"
+	"strings"
+	"time"
 )
 
 // Max Rolls: 30%
@@ -16,17 +17,18 @@ func Score(l string) float64 {
 	speeds := FingerSpeed(l)
 
 	weightedSpeed, highest := WeightedSpeed(speeds)
-	
-	//rolls, _, onehands, redirects := Trigrams(l)
+
+	//rolls, _, _, redirects := Trigrams(l)
 
 	//total := float64(Data.Total)
 
-	//score -= 10*float64(rolls)/total
+	//score -= 20*float64(rolls)/total
 	//score -= 10*float64(onehands)/total
-	//score += 10*float64(redirects)/total
-	
-	score += 10*weightedSpeed
-	score += 12*highest
+	//score += 40*float64(redirects)/total
+
+	score += 12 * weightedSpeed
+	score += 2 * highest
+
 	return score
 }
 
@@ -45,12 +47,18 @@ func randomLayout() string {
 func Populate(n int) []string {
 	rand.Seed(time.Now().Unix())
 	layouts := []string{}
-	for i := 0; i < n; i++ {
+	for i := 0; i < n*10; i++ {
 		layouts = append(layouts, randomLayout())
 		fmt.Printf("%d random created...\r", i+1)
 
 	}
 	fmt.Println()
+	sort.Slice(layouts, func(i, j int) bool {
+		return Score(layouts[i]) < Score(layouts[j])
+	})
+
+	layouts = layouts[0:n]
+
 	for i, _ := range layouts {
 		go greedyImprove(&layouts[i])
 	}
@@ -61,13 +69,13 @@ func Populate(n int) []string {
 
 	fmt.Println("Sorting...")
 	sort.Slice(layouts, func(i, j int) bool {
-		return Score(layouts[i]) < Score(layouts[j]) 
+		return Score(layouts[i]) < Score(layouts[j])
 	})
 	PrintLayout(layouts[0])
 	fmt.Println(Score(layouts[0]))
-	PrintLayout(layouts[0])
+	PrintLayout(layouts[1])
 	fmt.Println(Score(layouts[1]))
-	PrintLayout(layouts[0])
+	PrintLayout(layouts[2])
 	fmt.Println(Score(layouts[2]))
 
 	layouts = layouts[0:5]
@@ -80,33 +88,73 @@ func Populate(n int) []string {
 	}
 
 	sort.Slice(layouts, func(i, j int) bool {
-		return Score(layouts[i]) < Score(layouts[j]) 
+		return Score(layouts[i]) < Score(layouts[j])
 	})
-	
+
 	fmt.Println()
 	for i := 0; i < 1; i++ {
 		PrintLayout(layouts[i])
 		fmt.Println(Score(layouts[i]))
 		rolls, alts, onehands, redirects := Trigrams(layouts[i])
-		fmt.Printf("\t Rolls: %d%%\n", 100*rolls / Data.Total)		
-		fmt.Printf("\t Alternates: %d%%\n", 100*alts / Data.Total)		
-		fmt.Printf("\t Onehands: %d%%\n", 100*onehands / Data.Total)
-		fmt.Printf("\t Redirects: %d%%\n", 100*redirects / Data.Total)
+		fmt.Printf("\t Rolls: %d%%\n", 100*rolls/Data.Total)
+		fmt.Printf("\t Alternates: %d%%\n", 100*alts/Data.Total)
+		fmt.Printf("\t Onehands: %d%%\n", 100*onehands/Data.Total)
+		fmt.Printf("\t Redirects: %d%%\n", 100*redirects/Data.Total)
 		speed, highest := WeightedSpeed(FingerSpeed(layouts[i]))
 		standardsfb := SFBs(layouts[i])
-		repeatsfb, saved := SFBsMinusTop(layouts[i])
-		fmt.Printf("\t Finger Speed: %d\n", int(speed))		
-		fmt.Printf("\t Highest speed: %d\n", int(highest))
-		fmt.Printf("\t Standard SFB: %.2f\n", 100*float64(standardsfb)/float64(Data.Total))
-		fmt.Printf("\t Repeat Key SFB: %.2f%%\n", 100*float64(repeatsfb)/float64(Data.Total))
-		fmt.Printf("\t Repeat Key Usage: %.2f%%\n", 100*float64(saved)/float64(Data.Total))
-		fmt.Printf("\t Score: %d\n", int(Score(layouts[i])))
-		fmt.Println(ListRepeats(layouts[i]))
+		repeatsfb, _ := SFBsMinusTop(layouts[i])
+		fmt.Printf("\t Finger Speed: %.2f\n", speed)
+		fmt.Printf("\t Highest speed: %.2f\n", highest)
+		fmt.Printf("\t SFBs: %.2f%%\n", 100*float64(standardsfb)/float64(Data.Total))
+		fmt.Printf("\t DSFBs: %.2f%%\n", 100*float64(DSFBs(layouts[i]))/float64(Data.Total))
+		fmt.Printf("\t SFBs (with dynamic): %.2f%%\n", 100*float64(repeatsfb)/float64(Data.Total))
+
+		sfbs := ListSFBs(layouts[i])
+		dsfbs := ListDSFBs(layouts[i])
+		repeats, nonrepeats := ListRepeats(layouts[i])
+
+		SortFreqList(sfbs)
+		SortFreqList(dsfbs)
+		SortFreqList(repeats)
+		SortFreqList(nonrepeats)
+
+		fmt.Printf("\tSFBs: \n")
+		for i, v := range sfbs[0:8] {
+			fmt.Printf("\t\t%s: %.2f%%", v.Bigram, 100*float64(v.Count)/float64(Data.Total))
+			if (i+1)%4 == 0 {
+				fmt.Println()
+			}
+		}
+		fmt.Println()
+		fmt.Printf("\tDSFBs: \n")
+		for i, v := range dsfbs[0:12] {
+			fmt.Printf("\t\t%s: %.2f%%", v.Bigram, 100*float64(v.Count)/float64(Data.Total))
+			if (i+1)%4 == 0 {
+				fmt.Println()
+			}
+		}
+		fmt.Println()
+		// fmt.Println("Avoided SFBs: ")
+		// for i, v := range repeats {
+		// 	fmt.Printf("\t%s: %.2f%%", v.Bigram, 100*float64(v.Count)/float64(Data.Total))
+		// 	if (i+1)%4 == 0 {
+		// 		fmt.Println()
+		// 	}
+		// }
+		// fmt.Println()
+		// fmt.Println("Real SFBs: ")
+		// for i, v := range nonrepeats[0:10] {
+		// 	fmt.Printf("\t%s: %.2f%%", v.Bigram, 100*float64(v.Count)/float64(Data.Total))
+		// 	if (i+1)%4 == 0 {
+		// 		fmt.Println()
+		// 	}
+		// }
+		fmt.Printf("\t Score: %d\n", int(Score(layouts[i])))		
 	}
 	return layouts[0:3]
 }
 
-func greedyImprove(layout *string)  {
+func greedyImprove(layout *string) {
 	stuck := 0
 	for {
 		stuck++
@@ -123,7 +171,7 @@ func greedyImprove(layout *string)  {
 			stuck++
 		}
 
-		if stuck > 500 {
+		if stuck > 100 {
 			return
 		}
 	}
@@ -133,8 +181,8 @@ func greedyImprove(layout *string)  {
 func fullImprove(layout *string) {
 	i := 0
 	tier := 1
-	i = 0
 	changed := false
+	max := 1000
 	for {
 		i += 1
 		prop := cycleRandKeys(*layout, tier)
@@ -149,12 +197,15 @@ func fullImprove(layout *string) {
 		} else if second == first {
 			*layout = prop
 		} else {
-			if i > 1000*tier*tier {
+
+			if i > max {
 				if changed {
 					tier = 1
 				} else {
 					tier++
 				}
+
+				max = 160 * int(math.Pow(3, float64(tier)))
 
 				changed = false
 
@@ -171,15 +222,15 @@ func fullImprove(layout *string) {
 }
 
 func Anneal(l *string) {
-	for temp:=100;temp>-5;temp-- {
-		for i:=0;i<300;i++ {
+	for temp := 100; temp > -5; temp-- {
+		for i := 0; i < 300; i++ {
 			prop := cycleRandKeys(*l, 1)
 			first := Score(*l)
 			second := Score(prop)
 			if second < first || rand.Intn(100) < temp {
 				*l = prop
-			} 
-			
+			}
+
 		}
 	}
 }
