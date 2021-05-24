@@ -16,7 +16,7 @@ func Score(l string) float64 {
 	var score float64
 	speeds := FingerSpeed(l)
 
-	weightedSpeed, highest := WeightedSpeed(speeds)
+	weightedSpeed, highest, _ := WeightedSpeed(speeds)
 
 	//rolls, _, _, redirects := Trigrams(l)
 
@@ -100,7 +100,7 @@ func Populate(n int) []string {
 		fmt.Printf("\t Alternates: %d%%\n", 100*alts/Data.Total)
 		fmt.Printf("\t Onehands: %d%%\n", 100*onehands/Data.Total)
 		fmt.Printf("\t Redirects: %d%%\n", 100*redirects/Data.Total)
-		speed, highest := WeightedSpeed(FingerSpeed(layouts[i]))
+		speed, highest, _ := WeightedSpeed(FingerSpeed(layouts[i]))
 		standardsfb := SFBs(layouts[i])
 		repeatsfb, _ := SFBsMinusTop(layouts[i])
 		fmt.Printf("\t Finger Speed: %.2f\n", speed)
@@ -205,7 +205,7 @@ func fullImprove(layout *string) {
 					tier++
 				}
 
-				max = 160 * int(math.Pow(3, float64(tier)))
+				max = 80 * int(math.Pow(5, float64(tier)))
 
 				changed = false
 

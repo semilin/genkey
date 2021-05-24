@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"sort"
 )
@@ -20,21 +19,23 @@ func GeneratePositions() {
 			}
 		}
 	}
-	fmt.Println(sfbPositions)
 }
 
-func WeightedSpeed(speeds []float64) (float64, float64) {
-	highest := speeds[0]
-	weightedSpeed := 0.0
+// WeightedSpeed takes in a raw speeds slice and returns the total weighted, highest finger speed, and highest finger
+func WeightedSpeed(speeds []float64) (float64, float64, int) {
+	var highest float64
+	var finger int
+	var weightedSpeed float64
 	for i, speed := range speeds {
-		s := speed * speed / (KPS[i] * KPS[i])
+		s := (speed*speed) / (KPS[i]*KPS[i])
 		weightedSpeed += s
 		if s > highest {
 			highest = s
+			finger = i
 		}
 	}
 
-	return weightedSpeed, highest
+	return weightedSpeed, highest, finger 
 }
 
 func FingerSpeed(l string) []float64 {
@@ -337,14 +338,4 @@ func twoKeyDist(a int, b int) float64 {
 
 	dist := math.Pow(x, 2) + math.Pow(y, 2)
 	return dist
-}
-
-func PrintLayout(l string) {
-	fmt.Println("----------")
-	for i, k := range l {
-		fmt.Printf("%s ", string(k))
-		if (i+1) % 10 == 0 {
-			fmt.Println()
-		}
-	}
 }
