@@ -58,6 +58,8 @@ func main() {
 	layouts = append(layouts, layout{"Dynamica 0.1", "lfawqzghu,rnoibysetdjp/m'xckv."})
 	layouts = append(layouts, layout{"ABC", "abcdefghijklmnopqrstuvwxyz,./'"})
 	layouts = append(layouts, layout{"TypeHack", "jghpfqvou;rsntkyiaelzwmdbc,'.x"})
+	layouts = append(layouts, layout{"QGMLWY", "qgmlwyfub;dstnriaeohzxcvjkp,./"})
+	layouts = append(layouts, layout{"TNWMLC", "tnwmlcbprhsgxjfkqzv;eadioyu,./"})
 	
 	if len(args) > 0 {
 		if args[0] == "a" || args[0] == "analyze" {
