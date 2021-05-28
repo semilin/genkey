@@ -17,14 +17,15 @@ func PrintLayout(l string) {
 	}
 }
 
-func PrintAnalysis(name string, l string) {
+func PrintAnalysis(name, l string) {
 	fmt.Println(name)
 	PrintLayout(l)
 	rolls, alternates, onehands, redirects := Trigrams(l)
-	fmt.Printf("Rolls: %d%%\n", 100*rolls / Data.Total)		
-	fmt.Printf("Alternates: %d%%\n", 100*alternates / Data.Total)		
-	fmt.Printf("Onehands: %d%%\n", 100*onehands / Data.Total)
-	fmt.Printf("Redirects: %d%%\n", 100*redirects / Data.Total)
+	total := float64(Data.Total)
+	fmt.Printf("Rolls: %.1f%%\n", float64(100*rolls) / total)		
+	fmt.Printf("Alternates: %.1f%%\n", float64(100*alternates) / total)		
+	fmt.Printf("Onehands: %.1f%%\n", float64(100*onehands) / total)
+	fmt.Printf("Redirects: %.1f%%\n", float64(100*redirects) / total)
 
 	speeds := FingerSpeed(l)
 	speed, highestWeighted, f := WeightedSpeed(speeds)
@@ -44,10 +45,10 @@ func PrintAnalysis(name string, l string) {
 	fmt.Printf("Finger Speed (unweighted): %.2f\n", unweighted)		
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
-	fmt.Printf("SFBs: %.2f%%\n", 100*float64(SFBs(l))/float64(Data.Total))
-	fmt.Printf("DSFBs: %.2f%%\n", 100*float64(DSFBs(l))/float64(Data.Total))
+	fmt.Printf("SFBs: %.2f%%\n", 100*float64(SFBs(l))/float64(Data.TotalBigrams))
+	fmt.Printf("DSFBs: %.2f%%\n", 100*float64(DSFBs(l))/float64(Data.TotalBigrams))
 	dynamic, _ := SFBsMinusTop(l)
-	fmt.Printf("SFBs (with dynamic): %.2f%%\n", 100*float64(dynamic)/float64(Data.Total))
+	fmt.Printf("SFBs (with dynamic): %.2f%%\n", 100*float64(dynamic)/float64(Data.TotalBigrams))
 	sfbs := ListSFBs(l)
 	dsfbs := ListDSFBs(l)
 	SortFreqList(sfbs)
@@ -59,13 +60,17 @@ func PrintAnalysis(name string, l string) {
 	fmt.Println("Top DSFBs:")
 	PrintFreqList(dsfbs, 16)
 
-	fmt.Printf("Score: %d\n", int(Score(l)))
+	fmt.Printf("Score: %.2f\n", Score(l))
 	fmt.Println()
+}
+
+func InteractiveAnalysis(name, l string) {
+	
 }
 
 func PrintFreqList(list []FreqPair, length int) {
 	for i, v := range list[0:length] {
-		fmt.Printf("\t%s: %.2f%%", v.Bigram, 100*float64(v.Count)/float64(Data.Total))
+		fmt.Printf("\t%s %.3f%%", v.Bigram, 100*float64(v.Count)/float64(Data.TotalBigrams))
 		if (i+1)%4 == 0 {
 			fmt.Println()
 		}

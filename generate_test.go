@@ -6,7 +6,7 @@ import (
 
 func init() {
 	GeneratePositions()
-	Data = GetTextData()
+	Data = LoadData()
  	KPS = []float64{4,5,5,5.1,5.1,5,5,4}
 }
 

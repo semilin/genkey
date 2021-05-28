@@ -47,14 +47,14 @@ func FingerSpeed(l string) []float64 {
 		sfb := Data.Bigrams[k1+k2]
 		dsfb := Data.Skipgrams[k1+k2]
 
-		dist := 0.1+twoKeyDist(pair[0], pair[1])
+		dist := 0.2+twoKeyDist(pair[0], pair[1])
 
 		f := finger(pair[0])
 
 		// for _, v := range sfbMap[pair[0]] {
 		// 	if v != pair[0] {
 		// 		if Data.Bigrams[k1 + string(l[v])] > sfb {
-		speed[f] += 1000 * ((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5)) / float64(Data.Total)
+		speed[f] += 600*((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))/float64(Data.TotalBigrams)
 		// 			continue
 		// 		}
 		// 	}
@@ -69,6 +69,9 @@ func FingerSpeed(l string) []float64 {
 func SFBs(l string) int {
 	var count int
 	for _, pair := range sfbPositions {
+		if pair[0] == pair[1] {
+			continue
+		}
 		k1 := string(l[pair[0]])
 		k2 := string(l[pair[1]])
 		sfb := Data.Bigrams[k1+k2]
@@ -78,17 +81,17 @@ func SFBs(l string) int {
 	return count
 }
 
-func DSFBs(l string) int {
-	var count int
+func DSFBs(l string) float64 {
+	var count float64
 	for _, pair := range sfbPositions {
 		if pair[0] == pair[1] {
 			continue
 		}
 		k1 := string(l[pair[0]])
 		k2 := string(l[pair[1]])
-		sfb := Data.Skipgrams[k1+k2]
+		dsfb := Data.Skipgrams[k1+k2]
 
-		count += sfb
+		count += dsfb
 	}
 	return count
 }
@@ -129,7 +132,7 @@ func SFBsMinusTop(l string) (int, int) {
 
 type FreqPair struct {
 	Bigram string
-	Count  int
+	Count  float64
 }
 
 func SortFreqList(pairs []FreqPair) {
@@ -147,7 +150,7 @@ func ListSFBs(l string) ([]FreqPair) {
 		}
 		k1 := string(l[pair[0]])
 		k2 := string(l[pair[1]])
-		sfb := Data.Bigrams[k1+k2]
+		sfb := float64(Data.Bigrams[k1+k2])
 		sfbs = append(sfbs, FreqPair{k1 + k2, sfb})
 	}
 
@@ -175,13 +178,13 @@ func ListRepeats(l string) ([]FreqPair, []FreqPair) {
 				//this += Data.Bigrams[c + k1]
 				if this > sfb {
 					highest = false
-					nonrepeat = append(nonrepeat, FreqPair{k1 + k2, Data.Bigrams[k1+k2]})
+					nonrepeat = append(nonrepeat, FreqPair{k1 + k2, float64(Data.Bigrams[k1+k2])})
 					break
 				}
 			}
 		}
 		if highest {
-			repeat = append(repeat, FreqPair{k1 + k2, Data.Bigrams[k1+k2]})
+			repeat = append(repeat, FreqPair{k1 + k2, float64(Data.Bigrams[k1+k2])})
 		}
 	}
 	return repeat, nonrepeat
@@ -213,7 +216,6 @@ func Trigrams(l string) (int, int, int, int) {
 	redirects := 0
 
 	for p1, k1 := range split {
-		s1 := string(k1)
 		f1 := finger(p1)
 		h1 := (f1 > 3)
 		for p2, k2 := range split {
@@ -226,7 +228,6 @@ func Trigrams(l string) (int, int, int, int) {
 			}
 			h2 := (f2 > 3)
 
-			part := s1 + string(k2)
 			for p3, k3 := range split {
 				if p2 == p3 {
 					continue
@@ -235,21 +236,17 @@ func Trigrams(l string) (int, int, int, int) {
 				if f2 == f3 {
 					continue
 				}
-				s3 := string(k3)
 
 				samehand := 0
 
-				first := false
-
 				if h1 == h2 {
 					samehand++
-					first = true
 				}
 				if h2 == (f3 > 3) {
 					samehand++
 				}
 
-				count := Data.Trigrams[part+s3]
+				count := Data.Trigrams[string([]rune{k1,k2,k3})]
 				if samehand == 2 {
 					if f1 > f2 && f2 > 3 {
 						onehands += count
@@ -261,9 +258,6 @@ func Trigrams(l string) (int, int, int, int) {
 				} else if samehand == 0 {
 					alternation += count
 				} else {
-					if first {
-						//rolls += Data.Trigrams[part+" "]
-					}
 					rolls += count
 				}
 			}
@@ -336,6 +330,6 @@ func twoKeyDist(a int, b int) float64 {
 	x := math.Abs(float64(col1 - col2))
 	y := math.Abs(float64(row1 - row2))
 
-	dist := math.Pow(x, 2) + math.Pow(y, 2)
+	dist := (1.3*x*x) + y*y
 	return dist
 }
