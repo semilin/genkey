@@ -13,6 +13,13 @@ func PrintLayout(l string) {
 		}
 		if (i+1) % 10 == 0 {
 			fmt.Println()
+			if StaggerFlag {
+				if i == 9 {
+					fmt.Printf(" ")
+				} else {
+					fmt.Printf("  ")
+				}
+			}
 		}
 	}
 }
@@ -22,10 +29,10 @@ func PrintAnalysis(name, l string) {
 	PrintLayout(l)
 	rolls, alternates, onehands, redirects := Trigrams(l)
 	total := float64(Data.Total)
-	fmt.Printf("Rolls: %.1f%%\n", float64(100*rolls) / total)		
-	fmt.Printf("Alternates: %.1f%%\n", float64(100*alternates) / total)		
-	fmt.Printf("Onehands: %.1f%%\n", float64(100*onehands) / total)
-	fmt.Printf("Redirects: %.1f%%\n", float64(100*redirects) / total)
+	fmt.Printf("Rolls: %.2f%%\n", float64(100*rolls) / total)		
+	fmt.Printf("Alternates: %.2f%%\n", float64(100*alternates) / total)		
+	fmt.Printf("Onehands: %.2f%%\n", float64(100*onehands) / total)
+	fmt.Printf("Redirects: %.2f%%\n", float64(100*redirects) / total)
 
 	speeds := FingerSpeed(l)
 	speed, highestWeighted, f := WeightedSpeed(speeds)
@@ -45,8 +52,8 @@ func PrintAnalysis(name, l string) {
 	fmt.Printf("Finger Speed (unweighted): %.2f\n", unweighted)		
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
-	fmt.Printf("SFBs: %.2f%%\n", 100*float64(SFBs(l))/float64(Data.TotalBigrams))
-	fmt.Printf("DSFBs: %.2f%%\n", 100*float64(DSFBs(l))/float64(Data.TotalBigrams))
+	fmt.Printf("SFBs: %.3f%%\n", 100*float64(SFBs(l))/float64(Data.TotalBigrams))
+	fmt.Printf("DSFBs: %.3f%%\n", 100*float64(DSFBs(l))/float64(Data.TotalBigrams))
 	dynamic, _ := SFBsMinusTop(l)
 	fmt.Printf("SFBs (with dynamic): %.2f%%\n", 100*float64(dynamic)/float64(Data.TotalBigrams))
 	sfbs := ListSFBs(l)

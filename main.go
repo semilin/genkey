@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"flag"
 )
 
 var Data TextData
@@ -13,53 +14,60 @@ var KPS []float64
 
 //var SameKeyKPS []float64
 
-type layout struct {
+type Layout struct {
 	Name string
 	Keys string
 }
 
+func init() {
+	flag.StringVar(&ImproveFlag, "improve", "", "if set, decides which layout to improve")
+	flag.BoolVar(&StaggerFlag, "stagger", false, "if true, calculates distance for row-stagger form factor")
+	flag.Parse()
+	}
+
 func main() {
-	args := os.Args[1:]
+	origargs := os.Args[1:]
+	var args []string
+	for _, v := range origargs {
+		if string(v[0]) != "-" {
+			args = append(args, v)
+		}
+	}
 	GeneratePositions()
 	//KPS = []float64{3.0, 4.2, 4.8, 5.6, 5.6, 4.8, 4.2, 3.0}
-	KPS = []float64{9, 17.64, 23.04, 31.36, 31.36, 23.04, 17.64, 9}
+	KPS = []float64{8, 13, 23.04, 40.36, 40.36, 23.04, 13, 8}
 
-	var layouts []layout
+	var layouts = make(map[string]string)
 
-	layouts = append(layouts, layout{"QWERTY", "qwertyuiopasdfghjkl;zxcvbnm,./"})
-	layouts = append(layouts, layout{"AZERTY", "azertyuiopqsdfghjklmwxcvbn',./"})
-	layouts = append(layouts, layout{"Dvorak", "',.pyfgcrlaoeuidhtns;qjkxbmwvz"})
-	layouts = append(layouts, layout{"Colemak", "qwfpgjluy;arstdhneiozxcvbkm,./"})
-	layouts = append(layouts, layout{"Shai-2", "qwfdgjluy'arstpmneiozxcvbkh,./"})
-	layouts = append(layouts, layout{"Colemak DH", "qwfpbjluy;arstgmneiozxcdvkh,./"})
-	layouts = append(layouts, layout{"Colemak VK", "qwfpbjluy;arstgmneiozxcdkvh,./"})
-	layouts = append(layouts, layout{"ColemaQ", ";wfpbjluyqarstgmneiozxcdkvh/.,"})
-	layouts = append(layouts, layout{"ColemaQ-f", ";wgpbjluyqarstfmneiozxcdkvh/.,"})
-	layouts = append(layouts, layout{"Colemak Qi", "qlwmkjfuy'arstgpneiozxcdvbh/.,"})
-	layouts = append(layouts, layout{"Colemak Qi;x", ";lcmkjfuyqarstgpneiozxwdvbh/.,"})
-	layouts = append(layouts, layout{"NESO", "qylmkjfuc;airtgpnesoz.wdvbh/x,"})
-	layouts = append(layouts, layout{"NESO 2", "qylwvjfuc;airtgpneso.zkdmbh,x/"})
-	layouts = append(layouts, layout{"SteveP Endgame", "y,lmkjfuc;iartgpnesoz.wdvbh/qx"})
-	layouts = append(layouts, layout{"Renato's Funny 2", "qulmkzbocyairtgpnesh.,wdvjf;x/"})
-	layouts = append(layouts, layout{"Renato's Funny 2 (VJ)", "qulmkzbocyairtgpnesh.,wdjvf;x/"})
-	layouts = append(layouts, layout{"ISRT", "yclmkzfu,'isrtgpneaoqvwdjbh/.x"})
-	layouts = append(layouts, layout{"Hands Down", "qchpvkyoj/rsntgwueiaxmldbzf',."})
-	layouts = append(layouts, layout{"Norman", "qwdfkjurl;asetgyniohzxcvbpm,./"})
-	layouts = append(layouts, layout{"MTGAP", "ypoujkdlcwinea,mhtsrqz/.;bfgvx"})
-	layouts = append(layouts, layout{"MTGAP 2.0", ",fhdkjcul.oantgmseriqxbpzyw'v;"})
-	layouts = append(layouts, layout{"MTGAP But Funny", "wcldkjuopyrsthm,aenixvgfb;.'zq"})
-	layouts = append(layouts, layout{"SIND", "y,hwfqkouxsindcvtaerj.lpbgm;/z"})
-	layouts = append(layouts, layout{"RTNA", "xdh.qbfoujrtna;gweislkm,/pczyv"})
-	layouts = append(layouts, layout{"Workman", "qdrwbjfup;ashtgyneoizxmcvkl,./"})
-	layouts = append(layouts, layout{"Colby's Funny", "/wgdbmho,qarstflneuizxcpkjv'.y"})
-	layouts = append(layouts, layout{"ISRT-AI", ",lcmkzfuy.arstgpneio;wvdjbh'qx"})
-	layouts = append(layouts, layout{"Halmak", "wlrbz;qudjshnt,.aeoifmvc/gpxky"})
-	layouts = append(layouts, layout{"Balance Twelve but Funny", "pclmb'uoyknsrtg,aeihzfwdj/.'-x"})
-	layouts = append(layouts, layout{"Dynamica 0.1", "lfawqzghu,rnoibysetdjp/m'xckv."})
-	layouts = append(layouts, layout{"ABC", "abcdefghijklmnopqrstuvwxyz,./'"})
-	layouts = append(layouts, layout{"TypeHack", "jghpfqvou;rsntkyiaelzwmdbc,'.x"})
-	layouts = append(layouts, layout{"QGMLWY", "qgmlwyfub;dstnriaeohzxcvjkp,./"})
-	layouts = append(layouts, layout{"TNWMLC", "tnwmlcbprhsgxjfkqzv;eadioyu,./"})
+	layouts["qwerty"] = "qwertyuiopasdfghjkl;zxcvbnm,./"
+	//layouts["azerty"] = "azertyuiopqsdfghjklmwxcvbn',./"
+	layouts["dvorak"] = "',.pyfgcrlaoeuidhtns;qjkxbmwvz"
+	layouts["colemak"] = "qwfpgjluy;arstdhneiozxcvbkm,./"
+	layouts["colemak dh"] = "qwfpbjluy;arstgmneiozxcdvkh,./"
+	layouts["colemaq"] = ";wfpbjluyqarstgmneiozxcdkvh/.,"
+	layouts["colemaq-f"] = ";wgpbjluyqarstfmneiozxcdkvh/.,"
+	layouts["colemak qi"] = "qlwmkjfuy'arstgpneiozxcdvbh/.,"
+	layouts["colemak qi;x"] = ";lcmkjfuyqarstgpneiozxwdvbh/.,"
+	//layouts["NESO"] = "qylmkjfuc;airtgpnesoz.wdvbh/x,"
+	//layouts["NESO 2"] = "qylwvjfuc;airtgpneso.zkdmbh,x/"
+	//layouts["Renato's Funny 2"] = "qulmkzbocyairtgpnesh.,wdjvf;x/"
+	layouts["isrt"] = "yclmkzfu,'isrtgpneaoqvwdjbh/.x"
+	layouts["hands down"] = "qchpvkyoj/rsntgwueiaxmldbzf',."
+	//layouts["Norman"] = "qwdfkjurl;asetgyniohzxcvbpm,./"
+	layouts["mtgap"] = "ypoujkdlcwinea,mhtsrqz/.;bfgvx"
+	layouts["mtgap 2.0"] = ",fhdkjcul.oantgmseriqxbpzyw'v;"
+	layouts["sind"] = "y,hwfqkouxsindcvtaerj.lpbgm;/z"
+	layouts["rtna"] = "xdh.qbfoujrtna;gweislkm,/pczyv"
+	//layouts["Workman"] = "qdrwbjfup;ashtgyneoizxmcvkl,./"
+	//layouts["Colby's Funny"] = "/wgdbmho,qarstflneuizxcpkjv'.y"
+	//layouts["ISRT-AI"] = ",lcmkzfuy.arstgpneio;wvdjbh'qx"
+	layouts["halmak"] = "wlrbz;qudjshnt,.aeoifmvc/gpxky"
+	//layouts["Balance Twelve but Funny"] = "pclmb'uoyknsrtg,aeihzfwdj/.'-x"
+	//layouts["Dynamica 0.1"] = "lfawqzghu,rnoibysetdjp/m'xckv."
+	//layouts["ABC"] = "abcdefghijklmnopqrstuvwxyz,./'"
+	//layouts["TypeHack"] = "jghpfqvou;rsntkyiaelzwmdbc,'.x"
+	//layouts["QGMLWY"] = "qgmlwyfub;dstnriaeohzxcvjkp,./"
+	//layouts["TNWMLC"] = "tnwmlcbprhsgxjfkqzv;eadioyu,./"
 	
 	if len(args) > 0 {
 		if args[0] == "a" || args[0] == "analyze" {
@@ -70,37 +78,56 @@ func main() {
 			Data = LoadData()
 
 			input := strings.ToLower(args[1])
-			for _, l := range layouts {
-				if strings.ToLower(l.Name) == input {
-					PrintAnalysis(l.Name, l.Keys)
-					break
-				}
-			}
+			PrintAnalysis(input, layouts[input])
 		} else if args[0] == "r" {
 			Data = LoadData()
 
-			sort.Slice(layouts, func(i, j int) bool {
-				return Score(layouts[i].Keys) < Score(layouts[j].Keys)
+			type x struct {
+				name string
+				score float64
+			}
+
+			var sorted []x
+
+			for k, v := range layouts {
+				sorted = append(sorted, x{k, Score(v)})
+			}
+
+			sort.Slice(sorted, func(i, j int) bool {
+				return sorted[i].score < sorted[j].score
 			})
 
-			for _, l := range layouts {
-				spaces := strings.Repeat(".", 25-len(l.Name))
-				fmt.Printf("%s.%s%.2f\n", l.Name, spaces, Score(l.Keys))
+			for _, l := range sorted {
+				spaces := strings.Repeat(".", 25-len(l.name))
+				fmt.Printf("%s.%s%.2f\n", l.name, spaces, l.score)
 			}
 		} else if args[0] == "g" {
 			Data = LoadData()
-			sort.Slice(layouts, func(i, j int) bool {
-				return Score(layouts[i].Keys) < Score(layouts[j].Keys)
-			})
 			start := time.Now()
 			best := Populate(1000)
 			end := time.Now()
 			fmt.Println(end.Sub(start))
 
 			optimal := Score(best)
-			for _, l := range layouts {
-				spaces := strings.Repeat(".", 25-len(l.Name))
-				fmt.Printf("%s.%s%d%%\n", l.Name, spaces, int(100*optimal/(Score(l.Keys))))
+
+			type x struct {
+				name string
+				score float64
+			}
+
+			var sorted []x
+
+			for k, v := range layouts {
+				sorted = append(sorted, x{k, Score(v)})
+			}
+
+			sort.Slice(sorted, func(i, j int) bool {
+				return sorted[i].score < sorted[j].score
+			})
+			
+			for _, l := range sorted {
+				spaces := strings.Repeat(".", 25-len(l.name))
+				fmt.Printf("%s.%s%d%%\n", l.name, spaces, int(100*optimal/(Score(layouts[l.name]))))
 			}
 
 		} else if args[0] == "sfbs" {
@@ -110,16 +137,12 @@ func main() {
 				os.Exit(1)
 			}
 			input := strings.ToLower(args[1])
-			for _, l := range layouts {
-				if strings.ToLower(l.Name) == input {
-					total := 100*float64(SFBs(l.Keys))/float64(Data.TotalBigrams)
-					sfbs := ListSFBs(l.Keys)
-					SortFreqList(sfbs)
-					fmt.Printf("%.2f%%\n", total)
-					PrintFreqList(sfbs, 16)
-					break
-				}
-			}
+			l := layouts[input]
+			total := 100*float64(SFBs(l))/float64(Data.TotalBigrams)
+			sfbs := ListSFBs(l)
+			SortFreqList(sfbs)
+			fmt.Printf("%.2f%%\n", total)
+			PrintFreqList(sfbs, 16)
 		} else if args[0] == "dsfbs" {
 			Data = LoadData()
 			if len(args) == 1 {
@@ -127,16 +150,12 @@ func main() {
 				os.Exit(1)
 			}
 			input := strings.ToLower(args[1])
-			for _, l := range layouts {
-				if strings.ToLower(l.Name) == input {
-					total := 100*float64(DSFBs(l.Keys))/float64(Data.TotalBigrams)
-					dsfbs := ListDSFBs(l.Keys)
-					SortFreqList(dsfbs)
-					fmt.Printf("%.2f%%\n", total)
-					PrintFreqList(dsfbs, 16)
-					break
-				}
-			}
+			l := layouts[input]
+			total := 100*float64(DSFBs(l))/float64(Data.TotalBigrams)
+			dsfbs := ListDSFBs(l)
+			SortFreqList(dsfbs)
+			fmt.Printf("%.2f%%\n", total)
+			PrintFreqList(dsfbs, 16)
 		} else if args[0] == "dynamic" {
 			Data = LoadData()
 			if len(args) == 1 {
@@ -144,19 +163,24 @@ func main() {
 				os.Exit(1)
 			}
 			input := strings.ToLower(args[1])
-			for _, l := range layouts {
-				if strings.ToLower(l.Name) == input {
-					truecount, usage := SFBsMinusTop(l.Keys)
-					total := 100*float64(usage)/float64(Data.TotalBigrams)
-					dynamic, truesfbs := ListRepeats(l.Keys)
-					SortFreqList(dynamic)
-					SortFreqList(truesfbs)
-					fmt.Printf("Dynamic Usage: %.2f%%\n", total)
-					PrintFreqList(dynamic, 30)
-					fmt.Printf("True SFBs: %.2f%%\n", 100*float64(truecount)/float64(Data.TotalBigrams))
-					PrintFreqList(truesfbs, 8)
-					break
-				}
+			l := layouts[input]
+			truecount, usage := SFBsMinusTop(l)
+			total := 100*float64(usage)/float64(Data.TotalBigrams)
+			dynamic, truesfbs := ListRepeats(l)
+			SortFreqList(dynamic)
+			SortFreqList(truesfbs)
+			fmt.Printf("Dynamic Usage: %.2f%%\n", total)
+			PrintFreqList(dynamic, 30)
+			fmt.Printf("True SFBs: %.2f%%\n", 100*float64(truecount)/float64(Data.TotalBigrams))
+			PrintFreqList(truesfbs, 8)
+		} else if args[0] == "speed" {
+			Data = LoadData()
+			input := strings.ToLower(args[1])
+			l := layouts[input]
+			speeds := FingerSpeed(l)
+			fmt.Println("Unweighted Speed")
+			for i, v := range speeds {
+				fmt.Printf("\t%s: %.2f\n", FingerNames[i], v)
 			}
 		} else if args[0] == "load" {
 			Data = GetTextData()

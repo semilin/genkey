@@ -6,8 +6,11 @@ import (
 	"math/rand"
 	"runtime"
 	"sort"
+
 	"strings"
 	"time"
+
+	prmt "github.com/gitchander/permutation"
 )
 
 // Max Rolls: 30%
@@ -15,18 +18,13 @@ import (
 func Score(l string) float64 {
 	var score float64
 	speeds := FingerSpeed(l)
+
+	//_, _, _, redirects := Trigrams(l)
 	
-	weightedSpeed, highest, _ := WeightedSpeed(speeds)
+	weighted, _, _ := WeightedSpeed(speeds)
 
-	rolls, _, _, redirects := Trigrams(l)
-
-	total := float64(Data.Total)
-
-	score += 12 * weightedSpeed
-	score += 4 * highest
-
-	score += 100*float64(redirects)/total
-	score -= 20*float64(rolls)/total
+	score += weighted
+	//score += 100*float64(redirects) / float64(Data.Total)
 
 	return score
 }
@@ -41,6 +39,7 @@ func randomLayout() string {
 		chars = strings.ReplaceAll(chars, char, "")
 	}
 	return l
+	//return "y,hwfqkouxsindcvtaerj.lpbgm;/z"
 }
 
 type layoutScore struct {
@@ -88,8 +87,12 @@ func Populate(n int) string {
 		layouts[i].score = 0
 		go greedyImprove(&layouts[i].keys)
 	}
+	last := runtime.NumGoroutine()
 	for runtime.NumGoroutine() > 1 {
-		fmt.Printf("%d improving...\r", runtime.NumGoroutine()-1)
+		if runtime.NumGoroutine() != last {
+			last = runtime.NumGoroutine()
+			fmt.Printf("%d improving...\r", runtime.NumGoroutine()-1)
+		}
 	}
 	fmt.Println()
 
@@ -106,11 +109,7 @@ func Populate(n int) string {
 
 	for i, _ := range layouts {
 		layouts[i].score = 0
-		if rand.Intn(1) == 1 {
-			go fullImprove(&layouts[i].keys)
-		} else {
-			go Anneal(&layouts[i].keys)
-		}
+		go fullImprove(&layouts[i].keys)
 	}
 	for runtime.NumGoroutine() > 1 {
 		fmt.Printf("%d fully improving...\r", runtime.NumGoroutine()-1)
@@ -122,6 +121,10 @@ func Populate(n int) string {
 	for i := 0; i < 1; i++ {
 		PrintAnalysis("Generated",layouts[i].keys)
 	}
+
+	improved := ImproveRedirects(layouts[0].keys)
+	PrintAnalysis("Generated (improved redirects)",improved)
+	
 	return layouts[0].keys
 }
 
@@ -142,11 +145,11 @@ func greedyImprove(layout *string) {
 			stuck++
 		}
 
-		if stuck > 100 {
+		if stuck > 500 {
 			return
 		}
+	
 	}
-
 }
 
 func fullImprove(layout *string) {
@@ -176,7 +179,7 @@ func fullImprove(layout *string) {
 					tier++
 				}
 
-				max = 200 * int(math.Pow(3, float64(tier)))
+				max = 500 * int(math.Pow(2, float64(tier)))
 
 				changed = false
 
@@ -194,7 +197,7 @@ func fullImprove(layout *string) {
 
 func Anneal(l *string) {
 	for temp := 100; temp > -5; temp-- {
-		for i := 0; i < 1000; i++ {
+		for i := 0; i < 2000; i++ {
 			prop := cycleRandKeys(*l, 1)
 			first := Score(*l)
 			second := Score(prop)
@@ -206,17 +209,53 @@ func Anneal(l *string) {
 	}
 }
 
+func ImproveRedirects(l string) string {
+	orig := Score(l)
+	orolls,_,_, oredirects := Trigrams(l)
+	lowest := (60*oredirects) - orolls 
+	best := l
+
+	columns := []int{0,1,2,3,6,7,8,9}
+
+	p := prmt.New(prmt.IntSlice(columns))
+	for p.Next() {
+		prop := ""
+		for i := 0; i < 30; i++ {
+			col, row := colrow(i)
+			if col <= 3 {
+				prop += string(l[columns[col]+(row*10)]) 
+			} else if col >= 6 {
+				prop += string(l[columns[col-2]+(row*10)])
+			} else {
+				prop += string(l[i])
+			}
+		}
+
+		if Score(prop) <= orig {
+			rolls,_,_, redirects := Trigrams(prop)
+			result := (60*redirects) - rolls
+			if result < lowest {
+				lowest = redirects
+				best = prop
+			}
+		}
+	}
+	
+	return best
+}
+
 func cycleRandKeys(l string, count int) string {
-	first := rand.Intn(30)
+	possibilities := []int{1,2,3,4,5,6,7,8,9,14, 15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
+	first := rand.Intn(len(possibilities))
 	a := first
-	b := rand.Intn(30)
+	b := rand.Intn(len(possibilities))
 	for i := 0; i < count-1; i++ {
-		l = swap(l, a, b)
+		l = swap(l, possibilities[a], possibilities[b])
 		a = b
-		b = rand.Intn(30)
+		b = rand.Intn(len(possibilities))
 	}
 	a = first
-	l = swap(l, a, b)
+	l = swap(l, possibilities[a], possibilities[b])
 	return l
 }
 

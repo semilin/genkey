@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"sort"
+	"strings"
 )
 
 var sfbPositions [][]int
@@ -27,7 +28,7 @@ func WeightedSpeed(speeds []float64) (float64, float64, int) {
 	var finger int
 	var weightedSpeed float64
 	for i, speed := range speeds {
-		s := (speed*speed) / (KPS[i]*KPS[i])
+		s := 22.1*(speed*speed) / (KPS[i]*KPS[i])
 		weightedSpeed += s
 		if s > highest {
 			highest = s
@@ -47,14 +48,14 @@ func FingerSpeed(l string) []float64 {
 		sfb := Data.Bigrams[k1+k2]
 		dsfb := Data.Skipgrams[k1+k2]
 
-		dist := 0.2+twoKeyDist(pair[0], pair[1])
+		dist := 0.1+twoKeyDist(pair[0], pair[1])
 
 		f := finger(pair[0])
 
 		// for _, v := range sfbMap[pair[0]] {
 		// 	if v != pair[0] {
 		// 		if Data.Bigrams[k1 + string(l[v])] > sfb {
-		speed[f] += 600*((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))/float64(Data.TotalBigrams)
+		speed[f] += 500*((float64(sfb) * dist) + (float64(dsfb) * dist * 0.5))/float64(Data.TotalBigrams)
 		// 			continue
 		// 		}
 		// 	}
@@ -67,13 +68,14 @@ func FingerSpeed(l string) []float64 {
 }
 
 func SFBs(l string) int {
-	var count int
+	var count int // the total count of sfbs
 	for _, pair := range sfbPositions {
 		if pair[0] == pair[1] {
+			// ignore if it's a repeated bigram, e.g "ee" or "oo"
 			continue
 		}
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := string(l[pair[0]]) // the string value of the first key
+		k2 := string(l[pair[1]]) // the string value of the second key
 		sfb := Data.Bigrams[k1+k2]
 
 		count += sfb
@@ -108,7 +110,6 @@ func SFBsMinusTop(l string) (int, int) {
 		}
 		highest := true
 		for _, v := range sfbMap[pair[0]] {
-
 			if v != pair[1] {
 				c := string(l[v])
 				if k1 == c {
@@ -208,7 +209,7 @@ func ListDSFBs(l string) []FreqPair {
 
 // Trigrams returns the number of rolls, alternates, onehands, and redirects
 func Trigrams(l string) (int, int, int, int) {
-	split := []rune(l)
+	split := strings.Split(l, "")
 
 	rolls := 0
 	alternation := 0
@@ -228,6 +229,8 @@ func Trigrams(l string) (int, int, int, int) {
 			}
 			h2 := (f2 > 3)
 
+			first := k1 + k2
+			
 			for p3, k3 := range split {
 				if p2 == p3 {
 					continue
@@ -246,7 +249,7 @@ func Trigrams(l string) (int, int, int, int) {
 					samehand++
 				}
 
-				count := Data.Trigrams[string([]rune{k1,k2,k3})]
+				count := Data.Trigrams[first+k3]
 				if samehand == 2 {
 					if f1 > f2 && f2 > 3 {
 						onehands += count
@@ -264,7 +267,7 @@ func Trigrams(l string) (int, int, int, int) {
 		}
 	}
 
-	return rolls, alternation, onehands, redirects
+		return rolls, alternation, onehands, redirects
 }
 
 func IndexUsage(l string) (int, int) {
@@ -307,29 +310,53 @@ func colrow(pos int) (int, int) {
 }
 
 func finger(pos int) int {
-	col, _ := colrow(pos)
-	var finger int
+	// col, _ := colrow(pos)
+	// var finger int
 
-	if col <= 3 {
-		finger = col
-	} else if col >= 6 {
-		finger = col - 2
-	} else if col == 4 {
-		finger = 3
-	} else if col == 5 {
-		finger = 4
-	}
+	// if col <= 3 {
+	// 	finger = col
+	// } else if col >= 6 {
+	// 	finger = col - 2
+	// } else if col == 4 {
+	// 	finger = 3
+	// } else if col == 5 {
+	// 	finger = 4
+	// }
 
-	return finger
+	return FingerMap[pos]
 }
 
 func twoKeyDist(a int, b int) float64 {
 	col1, row1 := colrow(a)
 	col2, row2 := colrow(b)
 
-	x := math.Abs(float64(col1 - col2))
+	var x1 float64
+	var x2 float64
+
+	if StaggerFlag {
+		if row1 == 0 {
+			x1 = float64(col1) - 0.25
+		} else if row1 == 2 {
+			x1 = float64(col1) + 0.5
+		} else {
+			x1 = float64(col1)
+		}
+
+		if row2 == 0 {
+			x2 = float64(col2) - 0.25
+		} else if row2 == 2 {
+			x2 = float64(col2) + 0.5
+		} else {
+			x2 = float64(col2)
+		}
+	} else {
+		x1 = float64(col1)
+		x2 = float64(col2)
+	}
+
+	x := math.Abs(x1 - x2)
 	y := math.Abs(float64(row1 - row2))
 
-	dist := (1.3*x*x) + y*y
+	dist := 1.5*(x*x) + (y*y)
 	return dist
 }
