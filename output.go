@@ -3,6 +3,8 @@ package main
 import (
 	//"strings"
 	"fmt"
+	"github.com/fogleman/gg"
+	"math"
 )
 
 func PrintLayout(l string) {
@@ -27,12 +29,12 @@ func PrintLayout(l string) {
 func PrintAnalysis(name, l string) {
 	fmt.Println(name)
 	PrintLayout(l)
-	rolls, alternates, onehands, redirects := Trigrams(l)
+	_, alternates, onehands, _ := Trigrams(l)
 	total := float64(Data.Total)
-	fmt.Printf("Rolls: %.2f%%\n", float64(100*rolls) / total)		
+	fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(l)) / total)		
 	fmt.Printf("Alternates: %.2f%%\n", float64(100*alternates) / total)		
 	fmt.Printf("Onehands: %.2f%%\n", float64(100*onehands) / total)
-	fmt.Printf("Redirects: %.2f%%\n", float64(100*redirects) / total)
+	fmt.Printf("Redirects: %.2f%%\n", float64(100*Redirects(l)) / total)
 
 	speeds := FingerSpeed(l)
 	speed, highestWeighted, f := WeightedSpeed(speeds)
@@ -83,5 +85,25 @@ func PrintFreqList(list []FreqPair, length int) {
 		}
 	}
 	fmt.Println()
+}
+
+func Heatmap(l string) {
+	dc := gg.NewContext(500, 150)
+
+	for i, r := range l {
+		c := string(r)
+		col, row := ColRow(i)
+		dc.DrawRectangle(float64(50*col), float64(50*row), 50, 50)
+		freq := float64(Data.Letters[c]) / float64(Data.Total)
+		pc := freq/0.1 //percent
+		log := math.Log(1+pc)
+		base := 0.3
+		dc.SetRGB(base+log, base*(1-pc), base*(1-pc))
+		dc.Fill()
+		dc.SetRGB(0, 0, 0)
+		dc.DrawString(c, 22.5+float64(50*col), 27.5+float64(50*row))
+}
+
+	dc.SavePNG("heatmap.png")
 }
 

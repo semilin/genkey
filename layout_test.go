@@ -46,3 +46,10 @@ func BenchmarkTrigrams(b *testing.B) {
 		Trigrams(l)
 	}
 }
+
+func BenchmarkRedirects(b *testing.B) {
+	l := "yclmkzfu,'isrtgpneaoqvwdjbh/.x"
+	for i := 0; i < 10*b.N; i++ {
+		Redirects(l)
+	}
+}

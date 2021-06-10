@@ -27,7 +27,7 @@ func GetTextData() TextData {
 	}
 	defer file.Close()
 
-	valid := " abcdefghijklmnopqrstuvwxyz,./?;:-_'\""
+	valid := "abcdefghijklmnopqrstuvwxyz,./?;:-_'\""
 
 	var data TextData
 	data.Letters = make(map[string]int)
@@ -90,6 +90,7 @@ func GetTextData() TextData {
 					}
 				}
 				lastchars = append(lastchars, char)
+					
 				if len(lastchars) > 10 {
 					lastchars = lastchars[1:11] // remove first character
 				}

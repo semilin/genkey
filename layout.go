@@ -7,6 +7,8 @@ import (
 )
 
 var sfbPositions [][]int
+var redirectPositions [][]int
+var rollPositions [][]int
 var sfbMap map[int][]int
 
 func GeneratePositions() {
@@ -14,9 +16,38 @@ func GeneratePositions() {
 
 	for p1 := 0; p1 <= 29; p1++ {
 		for p2 := 0; p2 <= 29; p2++ {
-			if finger(p1) == finger(p2) {
+			f1 := finger(p1)
+			f2 := finger(p2)
+			if f1 == f2 {
 				sfbPositions = append(sfbPositions, []int{p1, p2})
 				sfbMap[p1] = append(sfbMap[p1], p2)
+			} else {
+				h1 := (f1 >= 4)
+				h2 := (f2 >= 4)
+
+				
+				for p3 := 0; p3 <= 29; p3++ {
+					f3 := finger(p3)
+					
+					if f2 == f3 {
+						continue
+					}
+
+					h3 := (f3 >= 4)
+
+					if h1 == h2 == h3 {
+						dir1 := f1 < f2
+						dir2 := f2 < f3
+
+						if dir1 == dir2 {
+							redirectPositions = append(redirectPositions, []int{p1, p2, p3})
+						}
+					} else if h1 == h2 && h2 != h3 {
+						rollPositions = append(rollPositions, []int{p1, p2, p3})
+					} else if h1 != h2 && h2 == h3 {
+						rollPositions = append(rollPositions, []int{p1, p2, p3})
+					}
+				}
 			}
 		}
 	}
@@ -28,7 +59,7 @@ func WeightedSpeed(speeds []float64) (float64, float64, int) {
 	var finger int
 	var weightedSpeed float64
 	for i, speed := range speeds {
-		s := 22.1*(speed*speed) / (KPS[i]*KPS[i])
+		s := 21.965*(speed*speed) / (KPS[i]*KPS[i])
 		weightedSpeed += s
 		if s > highest {
 			highest = s
@@ -267,7 +298,23 @@ func Trigrams(l string) (int, int, int, int) {
 		}
 	}
 
-		return rolls, alternation, onehands, redirects
+	return rolls, alternation, onehands, redirects
+}
+
+func Redirects(l string) int {
+	var count int
+	for _, r := range redirectPositions {
+		count += Data.Trigrams[string(l[r[0]]) + string(l[r[1]]) + string(l[r[2]])]
+	}
+	return count
+}
+
+func Rolls(l string) int {
+	var count int
+	for _, r := range rollPositions {
+		count += Data.Trigrams[string(l[r[0]]) + string(l[r[1]]) + string(l[r[2]])]
+	}
+	return count
 }
 
 func IndexUsage(l string) (int, int) {
@@ -292,7 +339,7 @@ func SameKey(l string) []int {
 	return samekey
 }
 
-func colrow(pos int) (int, int) {
+func ColRow(pos int) (int, int) {
 	var col int
 	var row int
 	if pos < 10 {
@@ -310,7 +357,7 @@ func colrow(pos int) (int, int) {
 }
 
 func finger(pos int) int {
-	// col, _ := colrow(pos)
+	// col, _ := ColRow(pos)
 	// var finger int
 
 	// if col <= 3 {
@@ -327,8 +374,8 @@ func finger(pos int) int {
 }
 
 func twoKeyDist(a int, b int) float64 {
-	col1, row1 := colrow(a)
-	col2, row2 := colrow(b)
+	col1, row1 := ColRow(a)
+	col2, row2 := ColRow(b)
 
 	var x1 float64
 	var x2 float64

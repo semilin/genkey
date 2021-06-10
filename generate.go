@@ -26,10 +26,15 @@ func Score(l string) float64 {
 	score += weighted
 	//score += 100*float64(redirects) / float64(Data.Total)
 
+	score -= 20*float64(Rolls(l)) / float64(Data.Total)
+	
 	return score
 }
 
 func randomLayout() string {
+	if ImproveFlag != "" {
+		return Layouts[ImproveFlag]
+	}
 	chars := "abcdefghijklmnopqrstuvwxyz,./'"
 	length := len(chars)
 	l := ""
@@ -39,7 +44,6 @@ func randomLayout() string {
 		chars = strings.ReplaceAll(chars, char, "")
 	}
 	return l
-	//return "y,hwfqkouxsindcvtaerj.lpbgm;/z"
 }
 
 type layoutScore struct {
@@ -105,7 +109,7 @@ func Populate(n int) string {
 	PrintLayout(layouts[2].keys)
 	fmt.Println(Score(layouts[2].keys))
 
-	layouts = layouts[0:100]
+	layouts = layouts[0:50]
 
 	for i, _ := range layouts {
 		layouts[i].score = 0
@@ -154,9 +158,9 @@ func greedyImprove(layout *string) {
 
 func fullImprove(layout *string) {
 	i := 0
-	tier := 1
+	tier := 2
 	changed := false
-	max := 1000
+	max := 1200
 	for {
 		i += 1
 		prop := cycleRandKeys(*layout, tier)
@@ -179,7 +183,7 @@ func fullImprove(layout *string) {
 					tier++
 				}
 
-				max = 500 * int(math.Pow(2, float64(tier)))
+				max = 300 * int(math.Pow(2, float64(tier)))
 
 				changed = false
 
@@ -221,7 +225,7 @@ func ImproveRedirects(l string) string {
 	for p.Next() {
 		prop := ""
 		for i := 0; i < 30; i++ {
-			col, row := colrow(i)
+			col, row := ColRow(i)
 			if col <= 3 {
 				prop += string(l[columns[col]+(row*10)]) 
 			} else if col >= 6 {
@@ -245,7 +249,12 @@ func ImproveRedirects(l string) string {
 }
 
 func cycleRandKeys(l string, count int) string {
-	possibilities := []int{1,2,3,4,5,6,7,8,9,14, 15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
+	var possibilities []int
+	if ImproveFlag != "" {
+		possibilities = []int{1,2,3,4,5,6,7,8,9,14,15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}		
+	} else {
+		possibilities = []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29}
+	}
 	first := rand.Intn(len(possibilities))
 	a := first
 	b := rand.Intn(len(possibilities))
