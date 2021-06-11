@@ -238,6 +238,24 @@ func ListDSFBs(l string) []FreqPair {
 	return dsfbs
 }
 
+func ListWeightedSameFinger(l string) []FreqPair {
+	var bigrams []FreqPair
+
+	for _, pair := range sfbPositions {
+		if pair[0] == pair[1] {
+			continue
+		}
+		k1 := string(l[pair[0]])
+		k2 := string(l[pair[1]])
+		sfb := Data.Bigrams[k1+k2]
+		dsfb := Data.Skipgrams[k1+k2]
+		total := float64(sfb) + dsfb
+		total *= twoKeyDist(pair[0], pair[1])
+		bigrams = append(bigrams, FreqPair{k1+k2, total})
+	}
+	return bigrams
+} 
+
 // Trigrams returns the number of rolls, alternates, onehands, and redirects
 func Trigrams(l string) (int, int, int, int) {
 	split := strings.Split(l, "")

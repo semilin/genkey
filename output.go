@@ -88,21 +88,43 @@ func PrintFreqList(list []FreqPair, length int) {
 }
 
 func Heatmap(l string) {
-	dc := gg.NewContext(500, 150)
+	dc := gg.NewContext(500, 170)
 
+	cols := []float64{0,0,0,0,0,0,0,0,0,0}
+	
 	for i, r := range l {
 		c := string(r)
 		col, row := ColRow(i)
 		dc.DrawRectangle(float64(50*col), float64(50*row), 50, 50)
 		freq := float64(Data.Letters[c]) / float64(Data.Total)
+		cols[col] += freq
 		pc := freq/0.1 //percent
 		log := math.Log(1+pc)
 		base := 0.3
-		dc.SetRGB(base+log, base*(1-pc), base*(1-pc))
+		dc.SetRGB(0.8*(base+log), base*(1-pc), base+log)
 		dc.Fill()
 		dc.SetRGB(0, 0, 0)
 		dc.DrawString(c, 22.5+float64(50*col), 27.5+float64(50*row))
-}
+	}
+
+	speeds := FingerSpeed(l)
+	_, highest, _ := WeightedSpeed(speeds)
+
+	for i, c := range cols {
+		dc.DrawRectangle(float64(50*i), 150, 50, 10)
+		pc := c / 0.2
+		log := math.Log(1+pc)
+		base := 0.3
+		dc.SetRGB(0.8*(base+log), base*(1-pc), base+log)
+		dc.Fill()
+
+		dc.DrawRectangle(float64(50*i), 160, 50, 10)
+		speed := speeds[finger(i)] / (10*highest)
+		fmt.Println(speed)
+		log = math.Log(1+speed)
+		dc.SetRGB(0.5*(base+log), base, base+log)
+		dc.Fill()
+	}
 
 	dc.SavePNG("heatmap.png")
 }

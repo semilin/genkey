@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"sort"
 
-	"strings"
+	//"strings"
 	"time"
 
 	prmt "github.com/gitchander/permutation"
@@ -21,9 +21,10 @@ func Score(l string) float64 {
 
 	//_, _, _, redirects := Trigrams(l)
 	
-	weighted, _, _ := WeightedSpeed(speeds)
+	weighted, highest, _ := WeightedSpeed(speeds)
 
 	score += weighted
+	score += highest
 	//score += 100*float64(redirects) / float64(Data.Total)
 
 	score -= 20*float64(Rolls(l)) / float64(Data.Total)
@@ -32,18 +33,22 @@ func Score(l string) float64 {
 }
 
 func randomLayout() string {
-	if ImproveFlag != "" {
-		return Layouts[ImproveFlag]
-	}
-	chars := "abcdefghijklmnopqrstuvwxyz,./'"
-	length := len(chars)
-	l := ""
-	for i := 0; i < length; i++ {
-		char := string([]rune(chars)[rand.Intn(len(chars))])
-		l += char
-		chars = strings.ReplaceAll(chars, char, "")
-	}
-	return l
+	// if ImproveFlag != "" {
+	// 	return Layouts[ImproveFlag]
+	// }
+	// chars := "abcdefghijklmnopqrstuvwxyz,./'"
+	// length := len(chars)
+	// l := ""
+	// for i := 0; i < length; i++ {
+	// 	char := string([]rune(chars)[rand.Intn(len(chars))])
+	// 	l += char
+	// 	chars = strings.ReplaceAll(chars, char, "")
+	// }
+	// return l
+
+	
+
+	return ";wgpbjluyqarstfmn'iozxcdkvh/.,"
 }
 
 type layoutScore struct {
@@ -128,6 +133,7 @@ func Populate(n int) string {
 
 	improved := ImproveRedirects(layouts[0].keys)
 	PrintAnalysis("Generated (improved redirects)",improved)
+	Heatmap(improved)
 	
 	return layouts[0].keys
 }
@@ -183,7 +189,8 @@ func fullImprove(layout *string) {
 					tier++
 				}
 
-				max = 300 * int(math.Pow(2, float64(tier)))
+				//max = 300 * int(math.Pow(2, float64(tier)))
+				max = 100 * int(math.Pow(2, float64(tier)))
 
 				changed = false
 
@@ -250,11 +257,11 @@ func ImproveRedirects(l string) string {
 
 func cycleRandKeys(l string, count int) string {
 	var possibilities []int
-	if ImproveFlag != "" {
-		possibilities = []int{1,2,3,4,5,6,7,8,9,14,15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}		
-	} else {
-		possibilities = []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29}
-	}
+	//if ImproveFlag != "" {
+	possibilities = []int{1,2,3,4,5,6,7,8,9,14,15,17, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}		
+	//} else {
+	//possibilities = []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29}
+	//}
 	first := rand.Intn(len(possibilities))
 	a := first
 	b := rand.Intn(len(possibilities))

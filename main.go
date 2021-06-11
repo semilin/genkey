@@ -48,35 +48,41 @@ func main() {
 
 	Layouts["colemaq"] = ";wfpbjluyqarstgmneiozxcdkvh/.,"
 	Layouts["colemaq-f"] = ";wgpbjluyqarstfmneiozxcdkvh/.,"
-	//Layouts["colemak qi"] = "qlwmkjfuy'arstgpneiozxcdvbh/.,"
+	Layouts["colemak qi"] = "qlwmkjfuy'arstgpneiozxcdvbh/.,"
 	Layouts["colemak qi;x"] = ";lcmkjfuyqarstgpneiozxwdvbh/.,"
 	//Layouts["NESO"] = "qylmkjfuc;airtgpnesoz.wdvbh/x,"
 	//Layouts["NESO 2"] = "qylwvjfuc;airtgpneso.zkdmbh,x/"
 	//Layouts["Renato's Funny 2"] = "qulmkzbocyairtgpnesh.,wdjvf;x/"
 	Layouts["isrt"] = "yclmkzfu,'isrtgpneaoqvwdjbh/.x"
 	Layouts["hands down"] = "qchpvkyoj/rsntgwueiaxmldbzf',."
-	//Layouts["norman"] = "qwdfkjurl;asetgyniohzxcvbpm,./"
+	Layouts["norman"] = "qwdfkjurl;asetgyniohzxcvbpm,./"
 	Layouts["mtgap"] = "ypoujkdlcwinea,mhtsrqz/.;bfgvx"
 	//Layouts["mtgap 2.0"] = ",fhdkjcul.oantgmseriqxbpzyw'v;"
 	Layouts["sind"] = "y,hwfqkouxsindcvtaerj.lpbgm;/z"
 	Layouts["rtna"] = "xdh.qbfoujrtna;gweislkm,/pczyv"
 	//Layouts["funny colemaq"] = "'wgdbmhuyqarstplneiozxcfkjv/.,"
-	//Layouts["Workman"] = "qdrwbjfup;ashtgyneoizxmcvkl,./"
+	Layouts["workman"] = "qdrwbjfup;ashtgyneoizxmcvkl,./"
 	//Layouts["Colby's Funny"] = "/wgdbmho,qarstflneuizxcpkjv'.y"
 	//Layouts["ISRT-AI"] = ",lcmkzfuy.arstgpneio;wvdjbh'qx"
 	Layouts["halmak"] = "wlrbz;qudjshnt,.aeoifmvc/gpxky"
 	//Layouts["Balance Twelve but Funny"] = "pclmb'uoyknsrtg,aeihzfwdj/.'-x"
 	//Layouts["Dynamica 0.1"] = "lfawqzghu,rnoibysetdjp/m'xckv."
-	//Layouts["abc"] = "abcdefghijklmnopqrstuvwxyz,./'"
+	Layouts["abc"] = "abcdefghijklmnopqrstuvwxyz,./'"
 	//Layouts["TypeHack"] = "jghpfqvou;rsntkyiaelzwmdbc,'.x"
-	//Layouts["qgmlwy"] = "qgmlwyfub;dstnriaeohzxcvjkp,./"
+	Layouts["qgmlwy"] = "qgmlwyfub;dstnriaeohzxcvjkp,./"
 	//Layouts["TNWMLC"] = "tnwmlcbprhsgxjfkqzv;eadioyu,./"
 	Layouts["semimak 0.1"] = "vlafqzgu,ytronbmdeiskj/hpcw'.x"
 	Layouts["semimak 0.1s"] = ",qumkwfrj/iaetdycnhs.o'zvgpxlb"
 	Layouts["semimak 0.2"] = "ydlwkzfuo,strmcbneaiqj'gvph/x."
+	Layouts["semimak 0.2mb"] = "kdl.gxfuoystrm,pneaivz'cwbh/qj"
 	Layouts["czgap"] = "qwgdbmhuy'orstplneiazxcfkjv/.,"
+	Layouts["czgap oa"] = "qwgdbmhuy'arstplneiozxcfkjv/.,"
+	Layouts["beakl"] = "qyouxgcrfzkhea.dstnbj/,i'wmlpv"
+	Layouts["owomak"] = "qwfpbjluy;arstdhneioxvcbzkm,./"
+	Layouts["boo"] = ",.ucvzfmlyaoesgpntri;x'djbhkwq"
+	Layouts["colemake"] = ";jgwvqpy/.arstkfndio,lcmzb'hux"
 
-	if len(args) > 0 {
+		if len(args) > 0 {
 		if args[0] == "a" || args[0] == "analyze" {
 			if len(args) == 1 {
 				fmt.Println("You must provide the name of a layout to analyze")
@@ -163,6 +169,17 @@ func main() {
 			SortFreqList(dsfbs)
 			fmt.Printf("%.2f%%\n", total)
 			PrintFreqList(dsfbs, 16)
+		}else if args[0] == "bigrams" {
+			Data = LoadData()
+			if len(args) == 1 {
+				fmt.Println("You must specify a layout")
+				os.Exit(1)
+			}
+			input := strings.ToLower(args[1])
+			l := Layouts[input]
+			sf := ListWeightedSameFinger(l)
+			SortFreqList(sf)
+			PrintFreqList(sf, 16)
 		} else if args[0] == "dynamic" {
 			Data = LoadData()
 			if len(args) == 1 {
