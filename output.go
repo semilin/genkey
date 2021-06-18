@@ -3,8 +3,10 @@ package main
 import (
 	//"strings"
 	"fmt"
-	"github.com/fogleman/gg"
 	"math"
+	"strings"
+
+	"github.com/fogleman/gg"
 )
 
 func PrintLayout(l string) {
@@ -74,7 +76,51 @@ func PrintAnalysis(name, l string) {
 }
 
 func InteractiveAnalysis(name, l string) {
-	
+	tracked := []string{"sfb", "dsfb", "highest_speed"}
+	for {
+		
+		fmt.Printf(":")
+		var input string
+		fmt.Scanln(&input)
+
+		terms := strings.Split(input, " ")
+		command := terms[0]
+
+		switch command {
+		case "track":
+			if len(terms) <= 1 {
+				for _, v := range tracked {
+					fmt.Printf("\t%s\n", v)
+				}
+			} else {
+				fmt.Println(terms[1:])
+			}
+		case "sfb":
+			fmt.Printf("%.4f%%\n", sfb_cmd(l))
+		case "dsfb":
+			fmt.Printf("%.4f%%\n", dsfb_cmd(l))
+		case "printl":
+			printl_cmd(l)
+		case "printl_s":
+			printl_s_cmd(l)
+		}
+	}
+}
+
+func sfb_cmd(l string) float64 {
+	return 100*float64(SFBs(l))/float64(Data.TotalBigrams)
+}
+
+func dsfb_cmd(l string) float64 {
+	return 100*float64(DSFBs(l))/float64(Data.TotalBigrams)
+}
+
+func printl_cmd(l string) {
+	PrintLayout(l)
+}
+
+func printl_s_cmd(l string) {
+	fmt.Println(l)
 }
 
 func PrintFreqList(list []FreqPair, length int) {

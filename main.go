@@ -35,7 +35,8 @@ func main() {
 	}
 	GeneratePositions()
 	//KPS = []float64{3.0, 4.2, 4.8, 5.6, 5.6, 4.8, 4.2, 3.0}
-	KPS = []float64{9, 13, 26.5, 40.36, 40.36, 26.5, 13, 9}
+	KPS = []float64{9, 16, 26.5, 40.36, 40.36, 26.5, 16, 9}
+	//KPS = []float64{1, 2, 5, 7, 7, 5, 2, 1}
 
 	Layouts = make(map[string]string)
 
@@ -72,17 +73,21 @@ func main() {
 	Layouts["qgmlwy"] = "qgmlwyfub;dstnriaeohzxcvjkp,./"
 	//Layouts["TNWMLC"] = "tnwmlcbprhsgxjfkqzv;eadioyu,./"
 	Layouts["semimak 0.1"] = "vlafqzgu,ytronbmdeiskj/hpcw'.x"
-	Layouts["semimak 0.1s"] = ",qumkwfrj/iaetdycnhs.o'zvgpxlb"
 	Layouts["semimak 0.2"] = "ydlwkzfuo,strmcbneaiqj'gvph/x."
 	Layouts["semimak 0.2mb"] = "kdl.gxfuoystrm,pneaivz'cwbh/qj"
-	Layouts["czgap"] = "qwgdbmhuy'orstplneiazxcfkjv/.,"
-	Layouts["czgap oa"] = "qwgdbmhuy'arstplneiozxcfkjv/.,"
+	Layouts["semimak 0.3"] = "kfawxqbulytsodchnerizv'gmp.,j/"
+	Layouts["semimak 0.4"] = "ymlkjqfau,scrtdbnoeixw'gvph/z."
+	Layouts["flaw"] = "flawpzkur/hsoycmtenibj'gvqd.x,"
+	Layouts["ctgap"] = "qwgdbmhuy'orstplneiazxcfkjv/.,"
 	Layouts["beakl"] = "qyouxgcrfzkhea.dstnbj/,i'wmlpv"
 	Layouts["owomak"] = "qwfpbjluy;arstdhneioxvcbzkm,./"
 	Layouts["boo"] = ",.ucvzfmlyaoesgpntri;x'djbhkwq"
-	Layouts["colemake"] = ";jgwvqpy/.arstkfndio,lcmzb'hux"
+	Layouts["colemake"] = ";lgwvqpdu.arstkfnhio,jcmzb'y/x"
+	Layouts["ctgap 2.0"] = "wcldkjyou/rsthmpneiazvgfbqx',."
+	Layouts["rsthd"] = "jcyfkzl,uqrsthdmnaio/vgpbxw.;-"
+	
 
-		if len(args) > 0 {
+	if len(args) > 0 {
 		if args[0] == "a" || args[0] == "analyze" {
 			if len(args) == 1 {
 				fmt.Println("You must provide the name of a layout to analyze")
@@ -117,7 +122,7 @@ func main() {
 		} else if args[0] == "g" {
 			Data = LoadData()
 			start := time.Now()
-			best := Populate(1000)
+			best := Populate(250)
 			end := time.Now()
 			fmt.Println(end.Sub(start))
 
@@ -210,6 +215,23 @@ func main() {
 		} else if args[0] == "h" {			
 			Data = LoadData()
 			Heatmap(Layouts[args[1]])
+			
+		} else if args[0] == "ngram" {
+			Data = LoadData()
+			total := float64(Data.Total)
+			ngram := args[1]
+			if len(ngram) == 1 {
+				fmt.Printf("unigram: %.3f%%\n", 100*float64(Data.Letters[ngram]) / total)
+			} else if len(ngram) == 2 {
+				fmt.Printf("bigram: %.3f%%\n", 100*float64(Data.Bigrams[ngram]) / total)
+				fmt.Printf("skipgram: %.3f%%\n", 100*Data.Skipgrams[ngram] / total)
+			} else if len(ngram) == 3 {
+				fmt.Printf("trigram: %.3f%%\n", 100*float64(Data.Trigrams[ngram]) / total)
+			}
+		} else if args[0] == "i" {
+			LoadData()
+			input := strings.ToLower(args[1])
+			InteractiveAnalysis(input, Layouts[input])
 		} else if args[0] == "load" {
 			Data = GetTextData()
 			WriteData(Data)
