@@ -4,14 +4,13 @@ import (
 	//"strings"
 	"fmt"
 	"math"
-	"strings"
 
 	"github.com/fogleman/gg"
 )
 
-func PrintLayout(l string) {
-	for i, k := range l {
-		fmt.Printf("%s ", string(k))
+func PrintLayout(keys []string) {
+	for i, k := range keys {
+		fmt.Printf("%s ", k)
 		if (i+1) % 5 == 0 {
 			fmt.Printf(" ")
 		}
@@ -20,25 +19,26 @@ func PrintLayout(l string) {
 			if StaggerFlag {
 				if i == 9 {
 					fmt.Printf(" ")
-				} else {
-					fmt.Printf("  ")
-				}
+			} else {
+				fmt.Printf("  ")
 			}
 		}
 	}
+	}
 }
 
-func PrintAnalysis(name, l string) {
-	fmt.Println(name)
-	PrintLayout(l)
-	_, alternates, onehands, _ := Trigrams(l)
+func PrintAnalysis(l Layout) {
+	fmt.Println(l.Name)
+	PrintLayout(l.Keys)
+	k := l.Keys
+	_, alternates, onehands, _ := Trigrams(k)
 	total := float64(Data.Total)
-	fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(l)) / total)		
+	fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(k)) / total)		
 	fmt.Printf("Alternates: %.2f%%\n", float64(100*alternates) / total)		
 	fmt.Printf("Onehands: %.2f%%\n", float64(100*onehands) / total)
-	fmt.Printf("Redirects: %.2f%%\n", float64(100*Redirects(l)) / total)
+	fmt.Printf("Redirects: %.2f%%\n", float64(100*Redirects(k)) / total)
 
-	speeds := FingerSpeed(l)
+	speeds := FingerSpeed(k)
 	speed, highestWeighted, f := WeightedSpeed(speeds)
 	highestWeightedFinger := FingerNames[f]
 	
@@ -56,12 +56,12 @@ func PrintAnalysis(name, l string) {
 	fmt.Printf("Finger Speed (unweighted): %.2f\n", unweighted)		
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
-	fmt.Printf("SFBs: %.3f%%\n", 100*float64(SFBs(l))/float64(Data.TotalBigrams))
-	fmt.Printf("DSFBs: %.3f%%\n", 100*float64(DSFBs(l))/float64(Data.TotalBigrams))
-	dynamic, _ := SFBsMinusTop(l)
+	fmt.Printf("SFBs: %.3f%%\n", 100*float64(SFBs(k))/float64(Data.TotalBigrams))
+	fmt.Printf("DSFBs: %.3f%%\n", 100*float64(DSFBs(k))/float64(Data.TotalBigrams))
+	dynamic, _ := SFBsMinusTop(k)
 	fmt.Printf("SFBs (with dynamic): %.2f%%\n", 100*float64(dynamic)/float64(Data.TotalBigrams))
-	sfbs := ListSFBs(l)
-	dsfbs := ListDSFBs(l)
+	sfbs := ListSFBs(k)
+	dsfbs := ListDSFBs(k)
 	SortFreqList(sfbs)
 	SortFreqList(dsfbs)
 
@@ -75,53 +75,53 @@ func PrintAnalysis(name, l string) {
 	fmt.Println()
 }
 
-func InteractiveAnalysis(name, l string) {
-	tracked := []string{"sfb", "dsfb", "highest_speed"}
-	for {
-		
-		fmt.Printf(":")
-		var input string
-		fmt.Scanln(&input)
+// func InteractiveAnalysis(l Layout) {
+// 	tracked := []string{"sfb", "dsfb", "highest_speed"}
+// 	for {
 
-		terms := strings.Split(input, " ")
-		command := terms[0]
+// 		fmt.Printf(":")
+// 		var input string
+// 		fmt.Scanln(&input)
 
-		switch command {
-		case "track":
-			if len(terms) <= 1 {
-				for _, v := range tracked {
-					fmt.Printf("\t%s\n", v)
-				}
-			} else {
-				fmt.Println(terms[1:])
-			}
-		case "sfb":
-			fmt.Printf("%.4f%%\n", sfb_cmd(l))
-		case "dsfb":
-			fmt.Printf("%.4f%%\n", dsfb_cmd(l))
-		case "printl":
-			printl_cmd(l)
-		case "printl_s":
-			printl_s_cmd(l)
-		}
-	}
-}
+// 		terms := strings.Split(input, " ")
+// 		command := terms[0]
 
-func sfb_cmd(l string) float64 {
-	return 100*float64(SFBs(l))/float64(Data.TotalBigrams)
-}
+// 		switch command {
+// 		case "track":
+// 			if len(terms) <= 1 {
+// 				for _, v := range tracked {
+// 					fmt.Printf("\t%s\n", v)
+// 				}
+// 			} else {
+// 				fmt.Println(terms[1:])
+// 			}
+// 		case "sfb":
+// 			fmt.Printf("%.4f%%\n", sfb_cmd(l))
+// 		case "dsfb":
+// 			fmt.Printf("%.4f%%\n", dsfb_cmd(l))
+// 		case "printl":
+// 			printl_cmd(l)
+// 		case "printl_s":
+// 			printl_s_cmd(l)
+// 		}
+// 	}
+// }
 
-func dsfb_cmd(l string) float64 {
-	return 100*float64(DSFBs(l))/float64(Data.TotalBigrams)
-}
+// func sfb_cmd(l string) float64 {
+// 	return 100*float64(SFBs(l))/float64(Data.TotalBigrams)
+// }
 
-func printl_cmd(l string) {
-	PrintLayout(l)
-}
+// func dsfb_cmd(l string) float64 {
+// 	return 100*float64(DSFBs(l))/float64(Data.TotalBigrams)
+// }
 
-func printl_s_cmd(l string) {
-	fmt.Println(l)
-}
+// func printl_cmd(l string) {
+// 	PrintLayout(l)
+// }
+
+// func printl_s_cmd(l string) {
+// 	fmt.Println(l)
+// }
 
 func PrintFreqList(list []FreqPair, length int) {
 	for i, v := range list[0:length] {
@@ -133,13 +133,13 @@ func PrintFreqList(list []FreqPair, length int) {
 	fmt.Println()
 }
 
-func Heatmap(l string) {
+func Heatmap(l []string) {
 	dc := gg.NewContext(500, 170)
 
 	cols := []float64{0,0,0,0,0,0,0,0,0,0}
 	
 	for i, r := range l {
-		c := string(r)
+		c := r
 		col, row := ColRow(i)
 		dc.DrawRectangle(float64(50*col), float64(50*row), 50, 50)
 		freq := float64(Data.Letters[c]) / float64(Data.Total)
@@ -166,7 +166,6 @@ func Heatmap(l string) {
 
 		dc.DrawRectangle(float64(50*i), 160, 50, 10)
 		speed := speeds[finger(i)] / (10*highest)
-		fmt.Println(speed)
 		log = math.Log(1+speed)
 		dc.SetRGB(0.5*(base+log), base, base+log)
 		dc.Fill()

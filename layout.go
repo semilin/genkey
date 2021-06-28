@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math"
 	"sort"
 	"strings"
 )
@@ -10,6 +9,26 @@ var sfbPositions [][]int
 var redirectPositions [][]int
 var rollPositions [][]int
 var sfbMap map[int][]int
+
+type Layout struct {
+	Name string
+	Keys []string
+	Keymap map[string]int
+}
+
+func NewLayout(name string, keys string) Layout {
+	s := strings.Split(keys, "")
+	return Layout{name, s, GenKeymap(s)}
+}
+
+func GenKeymap(keys []string) map[string]int {
+	keymap := make(map[string]int)
+	for i, v := range keys {
+		keymap[v] = i
+	}
+
+	return keymap
+}
 
 func GeneratePositions() {
 	sfbMap = make(map[int][]int)
@@ -58,7 +77,8 @@ func WeightedSpeed(speeds []float64) (float64, float64, int) {
 	var finger int
 	var weightedSpeed float64
 	for i, speed := range speeds {
-		s := 26 * (speed * speed) / (KPS[i] * KPS[i])
+		s := (speed / KPS[i])
+		s *= s
 		weightedSpeed += s
 		if s > highest {
 			highest = s
@@ -69,12 +89,12 @@ func WeightedSpeed(speeds []float64) (float64, float64, int) {
 	return weightedSpeed, highest, finger
 }
 
-func FingerSpeed(l string) []float64 {
+func FingerSpeed(l []string) []float64 {
 	speed := []float64{0, 0, 0, 0, 0, 0, 0, 0}
 
 	for _, pair := range sfbPositions {
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := l[pair[0]]
+		k2 := l[pair[1]]
 		sfb := Data.Bigrams[k1+k2]
 		dsfb := Data.Skipgrams[k1+k2]
 
@@ -82,12 +102,20 @@ func FingerSpeed(l string) []float64 {
 
 		f := finger(pair[0])
 
+		if SlideFlag && dist <= 1 {
+			if pair[1] > pair[0] {
+				speed[f] += 0.01+(float64(dsfb)*0.5*dist)
+				continue
+			}
+		}
+
+
 		// for _, v := range sfbMap[pair[0]] {
 		// 	if v != pair[0] {
 		// 		if Data.Bigrams[k1 + string(l[v])] > sfb {
 		speed[f] += 0.01+(float64(sfb) + (float64(dsfb)*0.5)) * dist
 		// 			continue
-			// 		}
+		// 		}
 		// 	}
 		// }
 
@@ -99,7 +127,7 @@ func FingerSpeed(l string) []float64 {
 	return speed
 }
 
-func SFBs(l string) int {
+func SFBs(l []string) int {
 	var count int // the total count of sfbs
 	for _, pair := range sfbPositions {
 		if pair[0] == pair[1] {
@@ -115,27 +143,27 @@ func SFBs(l string) int {
 	return count
 }
 
-func DSFBs(l string) float64 {
+func DSFBs(l []string) float64 {
 	var count float64
 	for _, pair := range sfbPositions {
 		if pair[0] == pair[1] {
 			continue
 		}
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := l[pair[0]]
+		k2 := l[pair[1]]
 		dsfb := Data.Skipgrams[k1+k2]
 
 		count += dsfb
-	}
+}
 	return count
 }
 
-func SFBsMinusTop(l string) (int, int) {
+func SFBsMinusTop(l []string) (int, int) {
 	var count int
 	var saved int
 	for _, pair := range sfbPositions {
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := l[pair[0]]
+		k2 := l[pair[1]]
 		sfb := Data.Bigrams[k1+k2]
 		if pair[1] == pair[0] {
 			continue
@@ -143,7 +171,7 @@ func SFBsMinusTop(l string) (int, int) {
 		highest := true
 		for _, v := range sfbMap[pair[0]] {
 			if v != pair[1] {
-				c := string(l[v])
+				c := l[v]
 				if k1 == c {
 					continue
 				}
@@ -174,15 +202,15 @@ func SortFreqList(pairs []FreqPair) {
 	})
 }
 
-func ListSFBs(l string) []FreqPair {
+func ListSFBs(l []string) []FreqPair {
 	var sfbs []FreqPair
 
 	for _, pair := range sfbPositions {
 		if pair[0] == pair[1] {
 			continue
 		}
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := l[pair[0]]
+		k2 := l[pair[1]]
 		sfb := float64(Data.Bigrams[k1+k2])
 		sfbs = append(sfbs, FreqPair{k1 + k2, sfb})
 	}
@@ -190,12 +218,12 @@ func ListSFBs(l string) []FreqPair {
 	return sfbs
 }
 
-func ListRepeats(l string) ([]FreqPair, []FreqPair) {
+func ListRepeats(l []string) ([]FreqPair, []FreqPair) {
 	var repeat []FreqPair
 	var nonrepeat []FreqPair
 	for _, pair := range sfbPositions {
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := l[pair[0]]
+		k2 := l[pair[1]]
 		sfb := Data.Bigrams[k1+k2]
 		if pair[1] == pair[0] {
 			continue
@@ -203,7 +231,7 @@ func ListRepeats(l string) ([]FreqPair, []FreqPair) {
 		highest := true
 		for _, v := range sfbMap[pair[0]] {
 			if v != pair[1] {
-				c := string(l[v])
+				c := l[v]
 				if k1 == c {
 					continue
 				}
@@ -223,15 +251,15 @@ func ListRepeats(l string) ([]FreqPair, []FreqPair) {
 	return repeat, nonrepeat
 }
 
-func ListDSFBs(l string) []FreqPair {
+func ListDSFBs(l []string) []FreqPair {
 	var dsfbs []FreqPair
 
 	for _, pair := range sfbPositions {
 		if pair[0] == pair[1] {
 			continue
 		}
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := l[pair[0]]
+		k2 := l[pair[1]]
 		dsfb := Data.Skipgrams[k1+k2]
 		dsfbs = append(dsfbs, FreqPair{k1 + k2, dsfb})
 	}
@@ -239,15 +267,15 @@ func ListDSFBs(l string) []FreqPair {
 	return dsfbs
 }
 
-func ListWeightedSameFinger(l string) []FreqPair {
+func ListWeightedSameFinger(l []string) []FreqPair {
 	var bigrams []FreqPair
 
 	for _, pair := range sfbPositions {
 		if pair[0] == pair[1] {
 			continue
 		}
-		k1 := string(l[pair[0]])
-		k2 := string(l[pair[1]])
+		k1 := l[pair[0]]
+		k2 := l[pair[1]]
 		sfb := Data.Bigrams[k1+k2]
 		dsfb := Data.Skipgrams[k1+k2]
 		total := float64(sfb) + dsfb
@@ -258,9 +286,7 @@ func ListWeightedSameFinger(l string) []FreqPair {
 }
 
 // Trigrams returns the number of rolls, alternates, onehands, and redirects
-func Trigrams(l string) (int, int, int, int) {
-	split := strings.Split(l, "")
-
+func Trigrams(split []string) (int, int, int, int) {
 	rolls := 0
 	alternation := 0
 	onehands := 0
@@ -320,38 +346,38 @@ func Trigrams(l string) (int, int, int, int) {
 	return rolls, alternation, onehands, redirects
 }
 
-func Redirects(l string) int {
+func Redirects(l []string) int {
 	var count int
 	for _, r := range redirectPositions {
-		count += Data.Trigrams[string(l[r[0]])+string(l[r[1]])+string(l[r[2]])]
+		count += Data.Trigrams[l[r[0]] + l[r[1]] + l[r[2]]]
 	}
 	return count
 }
 
-func Rolls(l string) int {
+func Rolls(l []string) int {
 	var count int
 	for _, r := range rollPositions {
-		count += Data.Trigrams[string(l[r[0]])+string(l[r[1]])+string(l[r[2]])]
+		count += Data.Trigrams[l[r[0]]+l[r[1]]+l[r[2]]]
 	}
 	return count
 }
 
-func IndexUsage(l string) (float64, float64) {
+func IndexUsage(l []string) (float64, float64) {
 	left := 0
 	right := 0
 	for x := 3; x <= 4; x++ {
 		for y := 0; y <= 2; y++ {
-			left += Data.Letters[string(l[x+(10*y)])]
-			right += Data.Letters[string(l[x+2+(10*y)])]
+			left += Data.Letters[l[x+(10*y)]]
+			right += Data.Letters[l[x+2+(10*y)]]
 		}
 	}
 	return (100 * float64(left) / float64(Data.Total)), (100 * float64(right) / float64(Data.Total))
 }
 
-func SameKey(l string) []int {
+func SameKey(l []string) []int {
 	samekey := []int{0, 0, 0, 0, 0, 0, 0, 0}
-	for pos, r := range []rune(l) {
-		key := string(r)
+	for pos, r := range l {
+		key := r
 		f := finger(pos)
 		samekey[f] += Data.Bigrams[key+key]
 	}
@@ -420,9 +446,9 @@ func twoKeyDist(a int, b int) float64 {
 		x2 = float64(col2)
 	}
 
-	x := math.Abs(x1 - x2)
-	y := math.Abs(float64(row1 - row2))
+	x := x1 - x2
+	y := float64(row1 - row2)
 
-	dist := math.Pow(1.3*x*x+(y*y), 1.5)
+	dist := (1.6*x*x) + (y*y)
 	return dist
 }
