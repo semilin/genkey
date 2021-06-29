@@ -113,7 +113,7 @@ func FingerSpeed(l []string) []float64 {
 		// for _, v := range sfbMap[pair[0]] {
 		// 	if v != pair[0] {
 		// 		if Data.Bigrams[k1 + string(l[v])] > sfb {
-		speed[f] += 0.01+(float64(sfb) + (float64(dsfb)*0.5)) * dist
+		speed[f] += 0.1+(float64(sfb) + (float64(dsfb)*0.5)) * dist
 		// 			continue
 		// 		}
 		// 	}
@@ -285,8 +285,51 @@ func ListWeightedSameFinger(l []string) []FreqPair {
 	return bigrams
 }
 
+func FastTrigrams (l Layout, precision int) [5]int {
+	var rolls int
+	var alternates int
+	var onehands int
+	var redirects int
+	var total int
+
+	for _, tg := range Data.TopTrigrams[:precision] {
+		f1 := finger(l.Keymap[string(tg.Bigram[0])])
+		f2 := finger(l.Keymap[string(tg.Bigram[1])])
+		f3 := finger(l.Keymap[string(tg.Bigram[2])])
+
+		if f1 != f2 && f2 != f3 {
+			h1 := (f1 >= 4)
+			h2 := (f2 >= 4)
+			h3 := (f3 >= 4)
+
+			if h1 == h2 && h2 == h3 {
+				dir1 := f1 < f2
+				dir2 := f2 < f3
+
+				if dir1 == dir2 {
+					onehands += int(tg.Count)
+					//fmt.Println(tg.Bigram, "onehand")
+				} else {
+					redirects += int(tg.Count)
+					//fmt.Println(tg.Bigram, "redirect")
+				}
+			} else if h1 != h2 && h2 != h3 {
+				alternates += int(tg.Count)
+				//fmt.Println(tg.Bigram, "alternate")
+			} else {
+				rolls += int(tg.Count)
+				//fmt.Println(tg.Bigram, "roll")
+			}
+
+			total += int(tg.Count)
+		}
+	}
+
+	return [5]int{rolls, alternates, onehands, redirects, total}
+}
+
 // Trigrams returns the number of rolls, alternates, onehands, and redirects
-func Trigrams(split []string) (int, int, int, int) {
+func Trigrams(split []string) [4]int {
 	rolls := 0
 	alternation := 0
 	onehands := 0
@@ -343,7 +386,7 @@ func Trigrams(split []string) (int, int, int, int) {
 		}
 	}
 
-	return rolls, alternation, onehands, redirects
+	return [4]int{rolls, alternation, onehands, redirects}
 }
 
 func Redirects(l []string) int {
@@ -366,7 +409,7 @@ func IndexUsage(l []string) (float64, float64) {
 	left := 0
 	right := 0
 	for x := 3; x <= 4; x++ {
-		for y := 0; y <= 2; y++ {
+		for y := 0; y < 3; y++ {
 			left += Data.Letters[l[x+(10*y)]]
 			right += Data.Letters[l[x+2+(10*y)]]
 		}

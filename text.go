@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -14,6 +15,7 @@ type TextData struct {
 	Letters      map[string]int     `json:"letters"`
 	Bigrams      map[string]int     `json:"bigrams"`
 	Trigrams     map[string]int     `json:"trigrams"`
+	TopTrigrams  []FreqPair         `json:"toptrigrams"`
 	Skipgrams    map[string]float64 `json:"skipgrams"`
 	TotalBigrams int
 	Total        int
@@ -80,7 +82,7 @@ func GetTextData() TextData {
 					if i == last {
 						if c != " " && char != " " {
 							data.TotalBigrams++
-						} 
+						}
 						data.Bigrams[c+char]++
 					} else {
 						if i == last-1 {
@@ -90,7 +92,7 @@ func GetTextData() TextData {
 					}
 				}
 				lastchars = append(lastchars, char)
-					
+
 				if len(lastchars) > 10 {
 					lastchars = lastchars[1:11] // remove first character
 				}
@@ -103,6 +105,18 @@ func GetTextData() TextData {
 	}
 
 	fmt.Println()
+
+	var sorted []FreqPair
+	
+	for k, v := range data.Trigrams {
+		sorted = append(sorted, FreqPair{k, float64(v)})
+	}
+	
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Count > sorted[j].Count
+	})
+
+	data.TopTrigrams = sorted
 
 	return data
 }

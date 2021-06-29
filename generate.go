@@ -20,11 +20,12 @@ func Score(l Layout) float64 {
 
 	weighted, highest, _ := WeightedSpeed(speeds)
 
-	score += weighted
-	score += highest
+	score += 2*weighted
+	score += 2*highest
 
-	//score += 0.05*(100-(100*float64(Rolls(l)) / float64(Data.Total)))
+	tri := FastTrigrams(l, 300)
 
+	score += 0.1*(100-(100*float64(tri[0]) / float64(tri[4])))
 	left, right := IndexUsage(l.Keys)
 
 	score += 0.5*math.Abs(right-left)
@@ -218,7 +219,7 @@ func fullImprove(layout *Layout) {
 					tier++
 				}
 
-				max = 300*tier*tier
+				max = 600*tier*tier
 
 				changed = false
 

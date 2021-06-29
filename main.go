@@ -30,9 +30,9 @@ func main() {
 		}
 	}
 	GeneratePositions()
-	//KPS = []float64{2.0, 4.2, 4.8, 5.6, 5.6, 4.8, 4.2, 2.0}
+	KPS = []float64{1.0, 4.0, 4.8, 5.6, 5.6, 4.8, 4.0, 1.0}
 	//KPS = []float64{6, 16, 26.5, 40.36, 40.36, 26.5, 16, 6}
-	KPS = []float64{1, 3, 6, 8, 8, 6, 3, 1}
+	//KPS = []float64{1, 3, 6, 8, 8, 6, 3, 1}
 	//KPS = []float64{1, 1, 1, 1, 1, 1, 1, 1}
 
 	Layouts = make(map[string]Layout)
@@ -44,7 +44,7 @@ func main() {
 	// Layouts["colemak dh"] = "qwfpbjluy;arstgmneiozxcdvkh,./"
 	// Layouts["funny colemak dh"] = "qwfpbjkuy;arstgmneiozxcdvlh,./"
 
-	// Layouts["colemaq"] = ";wfpbjluyqarstgmneiozxcdkvh/.,"
+	Layouts["colemaq"] = NewLayout("ColemaQ", ";wfpbjluyqarstgmneiozxcdkvh/.,")
 	// Layouts["colemaq-f"] = ";wgpbjluyqarstfmneiozxcdkvh/.,"
 	// Layouts["colemak qi"] = "qlwmkjfuy'arstgpneiozxcdvbh/.,"
 	// Layouts["colemak qi;x"] = ";lcmkjfuyqarstgpneiozxwdvbh/.,"
@@ -77,14 +77,17 @@ func main() {
 	Layouts["0.4"] = NewLayout("0.4", "ymlkjqfau,scrtdbnoeixw'gvph/z.")
 	Layouts["0.5"] = NewLayout("0.5", "yluwqkfha.sredcmtnoixj'gpzvb/,")
 	Layouts["0.6"] = NewLayout("0.6", ".yuwfqzalvisedcmnort/x,gpbh'jk") // -rolling, +index balance
-
+	Layouts["semimak"] = NewLayout("Semimak", "yhavzqwulfinotkcders/b.mjpg,'x")
+	// Layouts["0.7mv"] = NewLayout("0.7mv", "yhamzqwulfinotkcders/b.vjpg,'x")
+	// Layouts["0.7idk"] = NewLayout("0.7idk", "yhamkqwulfinotvcders/b.jzpg,'x")
+	
 	Layouts["whorf"] = NewLayout("Whorf", "flhdmvwou,srntkgyaeixjbzqpc';.")
 	Layouts["strtyp"] = NewLayout("strtyp", "jyuozkdlcwhiea,gtnsr'x/.qpbmfv")
 	
 	// Layouts["flaw"] = "flawpzkur/hsoycmtenibj'gvqd.x,"
 	// Layouts["beakl"] = "qyouxgcrfzkhea.dstnbj/,i'wmlpv"
 	// Layouts["owomak"] = "qwfpbjluy;arstdhneioxvcbzkm,./"
-	// Layouts["boo"] = ",.ucvzfmlyaoesgpntri;x'djbhkwq"
+	Layouts["boo"] = NewLayout("Boo", ",.ucvzfmlyaoesgpntri;x'djbhkwq")
 	// Layouts["colemake"] = ";lgwvqpdu.arstkfnhio,jcmzb'y/x"
 	// //Layouts["ctgap"] = "qwgdbmhuy'orstplneiazxcfkjv/.,"
 	// Layouts["ctgap"] = "wcldkjyou/rsthmpneiazvgfbqx',."
@@ -93,6 +96,19 @@ func main() {
 	// Layouts["notgate"] = "youwg.vdlpiaescmhtrn'q;xzf,kjb"
 	// Layouts["slider"] = "qwfpbjvuyzarscgmneio'ktdxlh/.,"
 	// Layouts["paper 200"] = " wldk mic asthy nero bgf vpuj "
+
+	//trigrams := Trigrams(Layouts["mtgap"].Keys)
+	//ft100 := FastTrigrams(Layouts["mtgap"], 100)
+	// ft250 := FastTrigrams(Layouts["qwerty"], 250)
+	// ft500 := FastTrigrams(Layouts["qwerty"], 500)
+	// ft1000 := FastTrigrams(Layouts["qwerty"], 1000)
+	// ftfull := FastTrigrams(Layouts["qwerty"], 26000)
+	//fmt.Println(ft100[0], ft100[1], ft100[2], ft100[3])
+	// fmt.Println(ft250[0], ft250[1], ft250[2], ft250[3])
+	// fmt.Println(ft500[0], ft500[1], ft500[2], ft500[3])
+	// fmt.Println(ft1000[0], ft1000[1], ft1000[2], ft1000[3])
+	// fmt.Println(ftfull[0], ftfull[1], ftfull[2], ftfull[3])
+	//fmt.Println(trigrams[0], trigrams[1], trigrams[2], trigrams[3])
 
 	if len(args) > 0 {
 		if args[0] == "a" || args[0] == "analyze" {
@@ -129,7 +145,7 @@ func main() {
 		} else if args[0] == "g" {
 			Data = LoadData()
 			start := time.Now()
-			best := Populate(250)
+			best := Populate(1000)
 			end := time.Now()
 			fmt.Println(end.Sub(start))
 
