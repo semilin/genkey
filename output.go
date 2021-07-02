@@ -32,7 +32,7 @@ func PrintAnalysis(l Layout) {
 	PrintLayout(l.Keys)
 	k := l.Keys
 	//tri := Trigrams(k)
-	ftri := FastTrigrams(l, 1000)
+	ftri := FastTrigrams(l, 500)
 	//total := float64(Data.Total)
 	ftotal := float64(ftri[4])
 	//fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(k)) / total)
@@ -63,7 +63,7 @@ func PrintAnalysis(l Layout) {
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
 	left, right := IndexUsage(l.Keys)
-	fmt.Printf("%.1f%% %1.f%%\n", left, right)
+	fmt.Printf("Index Usage: %.1f%% %1.f%%\n", left, right)
 	fmt.Printf("SFBs: %.3f%%\n", 100*float64(SFBs(k))/float64(Data.TotalBigrams))
 	fmt.Printf("DSFBs: %.3f%%\n", 100*float64(DSFBs(k))/float64(Data.TotalBigrams))
 	dynamic, _ := SFBsMinusTop(k)

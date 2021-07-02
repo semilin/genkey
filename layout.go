@@ -104,7 +104,7 @@ func FingerSpeed(l []string) []float64 {
 
 		if SlideFlag && dist <= 1 {
 			if pair[1] > pair[0] {
-				speed[f] += 0.01+(float64(dsfb)*0.5*dist)
+				speed[f] += 0.02+(float64(dsfb)*0.5*dist)
 				continue
 			}
 		}
@@ -297,6 +297,8 @@ func FastTrigrams (l Layout, precision int) [5]int {
 		f2 := finger(l.Keymap[string(tg.Bigram[1])])
 		f3 := finger(l.Keymap[string(tg.Bigram[2])])
 
+		total += int(tg.Count)
+
 		if f1 != f2 && f2 != f3 {
 			h1 := (f1 >= 4)
 			h2 := (f2 >= 4)
@@ -321,7 +323,6 @@ func FastTrigrams (l Layout, precision int) [5]int {
 				//fmt.Println(tg.Bigram, "roll")
 			}
 
-			total += int(tg.Count)
 		}
 	}
 

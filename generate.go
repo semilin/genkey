@@ -20,23 +20,27 @@ func Score(l Layout) float64 {
 
 	weighted, highest, _ := WeightedSpeed(speeds)
 
-	score += 2*weighted
+	score += 3*weighted
 	score += 2*highest
 
-	tri := FastTrigrams(l, 300)
+	tri := FastTrigrams(l, 100)
 
-	score += 0.1*(100-(100*float64(tri[0]) / float64(tri[4])))
+	score += 0.03*(100-(100*float64(tri[0]) / float64(tri[4])))
+	score += 0.3*(100*float64(tri[3]) / float64(tri[4]))
+	//score += 10*(100-(100*float64(tri[1]) / float64(tri[4])))
 	left, right := IndexUsage(l.Keys)
 
-	score += 0.5*math.Abs(right-left)
+	score += 0.5*math.Abs(11-right)
+	score += 0.5*math.Abs(11-left)
+	score += 0.1*math.Abs(right-left)
 
 	return score
 }
 
 func randomLayout() string {
 	if ImproveFlag != "" {
-		return strings.Join(Layouts[ImproveFlag].Keys, "")
-	}
+		//return strings.Join(Layouts[ImproveFlag].Keys, "07.a2")
+		}
 	chars := "abcdefghijklmnopqrstuvwxyz,./'"
 	length := len(chars)
 	var l string
@@ -293,9 +297,9 @@ func Anneal(l *Layout) {
 func swapRandKeys(l Layout, count int) Layout {
 	var possibilities []int
 	//if ImproveFlag != "" {
-	//possibilities = []int{1,2,3,4,5,6,7,8,9,14,15,17, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
+	possibilities = []int{0, 1,2,3,4,5,6,7,8,9,14,15,16,17,20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
 	//} else {
-	possibilities = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
+	possibilities = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
 	//}
 	length := len(possibilities)
 	for i := 0; i < count; i++ {

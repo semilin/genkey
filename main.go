@@ -30,7 +30,7 @@ func main() {
 		}
 	}
 	GeneratePositions()
-	KPS = []float64{1.0, 4.0, 4.8, 5.6, 5.6, 4.8, 4.0, 1.0}
+	KPS = []float64{1.0, 4.0, 4.8, 5.7, 5.7, 4.8, 4.0, 1.0}
 	//KPS = []float64{6, 16, 26.5, 40.36, 40.36, 26.5, 16, 6}
 	//KPS = []float64{1, 3, 6, 8, 8, 6, 3, 1}
 	//KPS = []float64{1, 1, 1, 1, 1, 1, 1, 1}
@@ -77,13 +77,18 @@ func main() {
 	Layouts["0.4"] = NewLayout("0.4", "ymlkjqfau,scrtdbnoeixw'gvph/z.")
 	Layouts["0.5"] = NewLayout("0.5", "yluwqkfha.sredcmtnoixj'gpzvb/,")
 	Layouts["0.6"] = NewLayout("0.6", ".yuwfqzalvisedcmnort/x,gpbh'jk") // -rolling, +index balance
-	Layouts["semimak"] = NewLayout("Semimak", "yhavzqwulfinotkcders/b.mjpg,'x")
+	Layouts["0.7"] = NewLayout("0.7", "yhavzqwulfinotkcders/b.mjpg,'x")
+	Layouts["0.7a"] = NewLayout("0.7a", "yauvzqwhlfioetkcdnrs/.,mjpgb'x")
+	Layouts["0.7a3"] = NewLayout("0.7a3", "ylhvzqwuofirntkcdeas/'bmjpg,.x")
+	Layouts["a"] = NewLayout("a", "yauwbxkclvioenpdhsrtj/,.qfmg'z")
+	Layouts["1.0"] = NewLayout("1.0", "flhvzqwuoysrntkcdeaix'bmjpg,./")
+	Layouts["1,0"] = NewLayout("1,0", "flhvzqwuoysrntkcdeaix'bmjpg/.,")
 	// Layouts["0.7mv"] = NewLayout("0.7mv", "yhamzqwulfinotkcders/b.vjpg,'x")
 	// Layouts["0.7idk"] = NewLayout("0.7idk", "yhamkqwulfinotvcders/b.jzpg,'x")
-	
+
 	Layouts["whorf"] = NewLayout("Whorf", "flhdmvwou,srntkgyaeixjbzqpc';.")
 	Layouts["strtyp"] = NewLayout("strtyp", "jyuozkdlcwhiea,gtnsr'x/.qpbmfv")
-	
+
 	// Layouts["flaw"] = "flawpzkur/hsoycmtenibj'gvqd.x,"
 	// Layouts["beakl"] = "qyouxgcrfzkhea.dstnbj/,i'wmlpv"
 	// Layouts["owomak"] = "qwfpbjluy;arstdhneioxvcbzkm,./"
