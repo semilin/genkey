@@ -64,11 +64,17 @@ func PrintAnalysis(l Layout) {
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
 	left, right := IndexUsage(l.Keys)
 	fmt.Printf("Index Usage: %.1f%% %1.f%%\n", left, right)
-	fmt.Printf("SFBs: %.3f%%\n", 100*float64(SFBs(k))/float64(Data.TotalBigrams))
+	var sfb int
+	var sfbs []FreqPair
+	if !DynamicFlag {
+		sfb = SFBs(k)
+		sfbs = ListSFBs(k)
+	} else {
+		_, sfbs = ListRepeats(k)
+		sfb, _ = SFBsMinusTop(k)		
+	}
+	fmt.Printf("SFBs: %.3f%%\n", 100*float64(sfb)/float64(Data.TotalBigrams))
 	fmt.Printf("DSFBs: %.3f%%\n", 100*float64(DSFBs(k))/float64(Data.TotalBigrams))
-	dynamic, _ := SFBsMinusTop(k)
-	fmt.Printf("SFBs (with dynamic): %.2f%%\n", 100*float64(dynamic)/float64(Data.TotalBigrams))
-	sfbs := ListSFBs(k)
 	dsfbs := ListDSFBs(k)
 	SortFreqList(sfbs)
 	SortFreqList(dsfbs)
@@ -78,6 +84,14 @@ func PrintAnalysis(l Layout) {
 	
 	fmt.Println("Top DSFBs:")
 	PrintFreqList(dsfbs, 16)
+
+	if DynamicFlag {
+		dynamic, _ := ListRepeats(k)
+		SortFreqList(dynamic)	
+		fmt.Println("Dynamic Completions:")
+
+		PrintFreqList(dynamic, 30)	
+	}
 
 	fmt.Printf("Score: %.2f\n", Score(l))
 	fmt.Println()

@@ -3,6 +3,7 @@ package main
 var ImproveFlag string
 var StaggerFlag bool
 var SlideFlag bool
+var DynamicFlag bool
 
 var FingerNames = [8]string{"LP", "LR", "LM", "LI", "RI", "RM", "RR", "RP"}
 

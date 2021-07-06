@@ -23,16 +23,18 @@ func Score(l Layout) float64 {
 	score += 3*weighted
 	score += 2*highest
 
-	tri := FastTrigrams(l, 100)
+	//tri := FastTrigrams(l, 100)
 
-	score += 0.03*(100-(100*float64(tri[0]) / float64(tri[4])))
-	score += 0.3*(100*float64(tri[3]) / float64(tri[4]))
-	//score += 10*(100-(100*float64(tri[1]) / float64(tri[4])))
+	//score += 0.03*(100-(100*float64(tri[0]) / float64(tri[4])))
+	//score += 0.3*(100*float64(tri[3]) / float64(tri[4]))
+
 	left, right := IndexUsage(l.Keys)
 
-	score += 0.5*math.Abs(11-right)
-	score += 0.5*math.Abs(11-left)
+	//score += 0.1*math.Abs(11-right)
+	//score += 0.1*math.Abs(11-left)
 	score += 0.1*math.Abs(right-left)
+
+	//score += float64(sfb)
 
 	return score
 }

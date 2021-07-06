@@ -98,7 +98,7 @@ func FingerSpeed(l []string) []float64 {
 		sfb := Data.Bigrams[k1+k2]
 		dsfb := Data.Skipgrams[k1+k2]
 
-		dist := twoKeyDist(pair[0], pair[1])
+		dist := 0.03+twoKeyDist(pair[0], pair[1])
 
 		f := finger(pair[0])
 
@@ -109,17 +109,23 @@ func FingerSpeed(l []string) []float64 {
 			}
 		}
 
-
-		// for _, v := range sfbMap[pair[0]] {
-		// 	if v != pair[0] {
-		// 		if Data.Bigrams[k1 + string(l[v])] > sfb {
-		speed[f] += 0.1+(float64(sfb) + (float64(dsfb)*0.5)) * dist
-		// 			continue
-		// 		}
-		// 	}
-		// }
-
-		// speed[f] += 1000*(float64(dsfb) * dist * 0.5)/float64(Data.Total)
+		if DynamicFlag {
+			ishighest := true
+			for _, v := range sfbMap[pair[0]] {
+				if v != pair[0] {
+					if Data.Bigrams[k1 + string(l[v])] > sfb {
+						speed[f] += (float64(sfb) + (float64(dsfb)*0.5)) * dist
+						ishighest = false
+						break
+					}
+			 	}
+			}
+			if ishighest {
+				speed[f] += (float64(dsfb)*0.5) * dist
+			}
+		} else {
+			speed[f] += ((float64(sfb) + (float64(dsfb)*0.5))) * dist
+		}
 	}
 	for i, _ := range speed {
 		speed[i] = 500*speed[i] / float64(Data.TotalBigrams)

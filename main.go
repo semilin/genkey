@@ -21,6 +21,7 @@ func main() {
 	flag.StringVar(&ImproveFlag, "improve", "", "if set, decides which layout to improve")
 	flag.BoolVar(&StaggerFlag, "stagger", false, "if true, calculates distance for row-stagger form factor")
 	flag.BoolVar(&SlideFlag, "slide", false, "if true, ignores slideable sfbs")
+	flag.BoolVar(&DynamicFlag, "dynamic", false, "")
 	flag.Parse()
 	origargs := os.Args[1:]
 	var args []string
@@ -41,13 +42,14 @@ func main() {
 	//Layouts["azerty"] = "azertyuiopqsdfghjklmwxcvbn',./"
 	Layouts["dvorak"] = NewLayout("Dvorak", "',.pyfgcrlaoeuidhtns;qjkxbmwvz")
 	Layouts["colemak"] = NewLayout("Colemak", "qwfpgjluy;arstdhneiozxcvbkm,./")
-	// Layouts["colemak dh"] = "qwfpbjluy;arstgmneiozxcdvkh,./"
+	Layouts["colemak dh"] = NewLayout("Colemak DH", "qwfpbjluy;arstgmneiozxcdvkh,./")
 	// Layouts["funny colemak dh"] = "qwfpbjkuy;arstgmneiozxcdvlh,./"
 
 	Layouts["colemaq"] = NewLayout("ColemaQ", ";wfpbjluyqarstgmneiozxcdkvh/.,")
-	// Layouts["colemaq-f"] = ";wgpbjluyqarstfmneiozxcdkvh/.,"
-	// Layouts["colemak qi"] = "qlwmkjfuy'arstgpneiozxcdvbh/.,"
-	// Layouts["colemak qi;x"] = ";lcmkjfuyqarstgpneiozxwdvbh/.,"
+	Layouts["colemaq-f"] = NewLayout("ColemaQ-f", ";wgpbjluyqarstfmneiozxcdkvh/.,")
+	Layouts["colemak f"] = NewLayout("Colemak F", "qwgpbjluy;arstfmneiozxcdvkh,./")
+	Layouts["colemak qi"] = NewLayout("Colemak Qi", "qlwmkjfuy'arstgpneiozxcdvbh,./")
+	Layouts["colemak qix"] = NewLayout("Colemak Qi;x", ";lcmkjfuyqarstgpneiozxwdvbh/.,")
 	// Layouts["NESO"] = "qylmkjfuc;airtgpnesoz.wdvbh/x,"
 	// Layouts["NESO 2"] = "qylwvjfuc;airtgpneso.zkdmbh,x/"
 	// "qulmkzbocyairtgpnesh.,wdjvf;x/"
@@ -55,11 +57,11 @@ func main() {
 	// Layouts["hands down"] = "qchpvkyoj/rsntgwueiaxmldbzf',."
 	// Layouts["norman"] = "qwdfkjurl;asetgyniohzxcvbpm,./"
 	Layouts["mtgap"] = NewLayout("MTGAP", "ypoujkdlcwinea,mhtsrqz/.;bfgvx")
-	//Layouts["mtgap 2.0"] = ",fhdkjcul.oantgmseriqxbpzyw'v;"
+	Layouts["mtgap 2.0"] = NewLayout("MTGAP 2.0", ",fhdkjcul.oantgmseriqxbpzyw'v;")
 	// Layouts["sind"] = "y,hwfqkouxsindcvtaerj.lpbgm;/z"
 	// Layouts["rtna"] = "xdh.qbfoujrtna;gweislkm,/pczyv"
 	// //Layouts["funny colemaq"] = "'wgdbmhuyqarstplneiozxcfkjv/.,"
-	// Layouts["workman"] = "qdrwbjfup;ashtgyneoizxmcvkl,./"
+	Layouts["workman"] = NewLayout("Workman", "qdrwbjfup;ashtgyneoizxmcvkl,./")
 	// Layouts["workman ct"] = "wcldkjyru/ashtmpneoiqvgfbzx',."
 	//Layouts["Colby's Funny"] = "/wgdbmho,qarstflneuizxcpkjv'.y"
 	//Layouts["ISRT-AI"] = ",lcmkzfuy.arstgpneio;wvdjbh'qx"
@@ -70,19 +72,20 @@ func main() {
 	//Layouts["TypeHack"] = "jghpfqvou;rsntkyiaelzwmdbc,'.x"
 	// Layouts["qgmlwy"] = "qgmlwyfub;dstnriaeohzxcvjkp,./"
 	//Layouts["TNWMLC"] = "tnwmlcbprhsgxjfkqzv;eadioyu,./"
-	Layouts["0.1"] = NewLayout("0.1", "vlafqzgu,ytronbmdeiskj/hpcw'.x")
-	Layouts["0.2"] = NewLayout("0.2", "ydlwkzfuo,strmcbneaiqj'gvph/x.")
-	Layouts["0.2mb"] = NewLayout("0.2mb", "kdl.gxfuoystrm,pneaivz'cwbh/qj")
-	Layouts["0.3"] = NewLayout("0.3", "kfawxqbulytsodchnerizv'gmp.,j/")
-	Layouts["0.4"] = NewLayout("0.4", "ymlkjqfau,scrtdbnoeixw'gvph/z.")
-	Layouts["0.5"] = NewLayout("0.5", "yluwqkfha.sredcmtnoixj'gpzvb/,")
-	Layouts["0.6"] = NewLayout("0.6", ".yuwfqzalvisedcmnort/x,gpbh'jk") // -rolling, +index balance
-	Layouts["0.7"] = NewLayout("0.7", "yhavzqwulfinotkcders/b.mjpg,'x")
-	Layouts["0.7a"] = NewLayout("0.7a", "yauvzqwhlfioetkcdnrs/.,mjpgb'x")
-	Layouts["0.7a3"] = NewLayout("0.7a3", "ylhvzqwuofirntkcdeas/'bmjpg,.x")
+	//Layouts["0.1"] = NewLayout("0.1", "vlafqzgu,ytronbmdeiskj/hpcw'.x")
+	//Layouts["0.2"] = NewLayout("0.2", "ydlwkzfuo,strmcbneaiqj'gvph/x.")
+	//Layouts["0.2mb"] = NewLayout("0.2mb", "kdl.gxfuoystrm,pneaivz'cwbh/qj")
+	//Layouts["0.3"] = NewLayout("0.3", "kfawxqbulytsodchnerizv'gmp.,j/")
+	//Layouts["0.4"] = NewLayout("0.4", "ymlkjqfau,scrtdbnoeixw'gvph/z.")
+	//Layouts["0.5"] = NewLayout("0.5", "yluwqkfha.sredcmtnoixj'gpzvb/,")
+	//Layouts["0.6"] = NewLayout("0.6", ".yuwfqzalvisedcmnort/x,gpbh'jk") // -rolling, +index balance
+	//Layouts["0.7"] = NewLayout("0.7", "yhavzqwulfinotkcders/b.mjpg,'x")
+	//Layouts["0.7a"] = NewLayout("0.7a", "yauvzqwhlfioetkcdnrs/.,mjpgb'x")
+	//Layouts["0.7a3"] = NewLayout("0.7a3", "ylhvzqwuofirntkcdeas/'bmjpg,.x")
 	Layouts["a"] = NewLayout("a", "yauwbxkclvioenpdhsrtj/,.qfmg'z")
 	Layouts["1.0"] = NewLayout("1.0", "flhvzqwuoysrntkcdeaix'bmjpg,./")
-	Layouts["1,0"] = NewLayout("1,0", "flhvzqwuoysrntkcdeaix'bmjpg/.,")
+	//Layouts["1.0x"] = NewLayout("1.0x", "flhvzqwuoysrntkcdeai'xbmjpg,./")
+
 	// Layouts["0.7mv"] = NewLayout("0.7mv", "yhamzqwulfinotkcders/b.vjpg,'x")
 	// Layouts["0.7idk"] = NewLayout("0.7idk", "yhamkqwulfinotvcders/b.jzpg,'x")
 
@@ -93,6 +96,9 @@ func main() {
 	// Layouts["beakl"] = "qyouxgcrfzkhea.dstnbj/,i'wmlpv"
 	// Layouts["owomak"] = "qwfpbjluy;arstdhneioxvcbzkm,./"
 	Layouts["boo"] = NewLayout("Boo", ",.ucvzfmlyaoesgpntri;x'djbhkwq")
+	Layouts["boo2"] = NewLayout("Boo 2", ",.ucvzfdlyaoesgpntri;x'wjbhmkq")
+
+	Layouts["x1"] = NewLayout("X1", "kyo,'fclpvhieaudstnrzqj.;wgmbx")
 	// Layouts["colemake"] = ";lgwvqpdu.arstkfnhio,jcmzb'y/x"
 	// //Layouts["ctgap"] = "qwgdbmhuy'orstplneiazxcfkjv/.,"
 	// Layouts["ctgap"] = "wcldkjyou/rsthmpneiazvgfbqx',."
