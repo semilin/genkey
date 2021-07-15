@@ -1,4 +1,5 @@
 # genlayout
+This is the layout analyzer and generator that was used to create [Semimak](https://semilin.github.io/semimak). It is centered around the novel finger-speed metric. This program was made for myself, and because of that **it's not very easy to use,** especially if you don't have any programming experience. I am currently working on a powerful, configurable, and user-friendly web-based and desktop analyzer+generator. 
 
 ## Usage
 `./genkey command argument`
