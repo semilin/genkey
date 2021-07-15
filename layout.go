@@ -113,13 +113,13 @@ func FingerSpeed(l []string) []float64 {
 		sfb := Data.Bigrams[k1+k2]
 		dsfb := Data.Skipgrams[k1+k2]
 
-		dist := 0.03+twoKeyDist(pair[0], pair[1])
+		dist := twoKeyDist(pair[0], pair[1])
 
 		f := finger(pair[0])
 
 		if SlideFlag && dist <= 1 {
 			if pair[1] > pair[0] {
-				speed[f] += 0.02+(float64(dsfb)*0.5*dist)
+				speed[f] += (float64(dsfb)*0.5*dist)
 				continue
 			}
 		}
@@ -143,7 +143,7 @@ func FingerSpeed(l []string) []float64 {
 		}
 	}
 	for i, _ := range speed {
-		speed[i] = 500*speed[i] / float64(Data.TotalBigrams)
+		speed[i] = 100*speed[i] / float64(Data.TotalBigrams)
 	}
 	return speed
 }
@@ -435,6 +435,16 @@ func IndexUsage(l []string) (float64, float64) {
 			left += Data.Letters[l[x+(10*y)]]
 			right += Data.Letters[l[x+2+(10*y)]]
 		}
+	}
+	return (100 * float64(left) / float64(Data.Total)), (100 * float64(right) / float64(Data.Total))
+}
+
+func CenterColumnUsage(l []string) (float64, float64) {
+	left := 0
+	right := 0
+	for y := 0; y < 3; y++ {
+		left += Data.Letters[l[4+(10*y)]]
+		right += Data.Letters[l[5+(10*y)]]
 	}
 	return (100 * float64(left) / float64(Data.Total)), (100 * float64(right) / float64(Data.Total))
 }

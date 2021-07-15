@@ -72,21 +72,21 @@ func main() {
 	// "qulmkzbocyairtgpnesh.,wdjvf;x/"
 	Layouts["isrt"] = NewLayout("ISRT", "yclmkzfu,'isrtgpneaoqvwdjbh/.x")
 	// Layouts["hands down"] = "qchpvkyoj/rsntgwueiaxmldbzf',."
-	// Layouts["norman"] = "qwdfkjurl;asetgyniohzxcvbpm,./"
+	Layouts["norman"] = NewLayout("Norman","qwdfkjurl;asetgyniohzxcvbpm,./")
 	Layouts["mtgap"] = NewLayout("MTGAP", "ypoujkdlcwinea,mhtsrqz/.;bfgvx")
 	Layouts["mtgap 2.0"] = NewLayout("MTGAP 2.0", ",fhdkjcul.oantgmseriqxbpzyw'v;")
-	// Layouts["sind"] = "y,hwfqkouxsindcvtaerj.lpbgm;/z"
+	Layouts["sind"] = NewLayout("SIND", "y,hwfqkouxsindcvtaerj.lpbgm;/z")
 	// Layouts["rtna"] = "xdh.qbfoujrtna;gweislkm,/pczyv"
 	// //Layouts["funny colemaq"] = "'wgdbmhuyqarstplneiozxcfkjv/.,"
 	Layouts["workman"] = NewLayout("Workman", "qdrwbjfup;ashtgyneoizxmcvkl,./")
 	// Layouts["workman ct"] = "wcldkjyru/ashtmpneoiqvgfbzx',."
 	//Layouts["Colby's Funny"] = "/wgdbmho,qarstflneuizxcpkjv'.y"
 	//Layouts["ISRT-AI"] = ",lcmkzfuy.arstgpneio;wvdjbh'qx"
-	// Layouts["halmak"] = "wlrbz;qudjshnt,.aeoifmvc/gpxky"
+	Layouts["halmak"] = NewLayout("Halmak","wlrbz;qudjshnt,.aeoifmvc/gpxky")
 	//Layouts["Balance Twelve but Funny"] = "pclmb'uoyknsrtg,aeihzfwdj/.'-x"
 	//Layouts["Dynamica 0.1"] = "lfawqzghu,rnoibysetdjp/m'xckv."
 	// Layouts["abc"] = "abcdefghijklmnopqrstuvwxyz,./'"
-	//Layouts["TypeHack"] = "jghpfqvou;rsntkyiaelzwmdbc,'.x"
+	Layouts["typehack"] = NewLayout("TypeHack", "jghpfqvou;rsntkyiaelzwmdbc,'.x") 
 	// Layouts["qgmlwy"] = "qgmlwyfub;dstnriaeohzxcvjkp,./"
 	//Layouts["TNWMLC"] = "tnwmlcbprhsgxjfkqzv;eadioyu,./"
 	//Layouts["0.1"] = NewLayout("0.1", "vlafqzgu,ytronbmdeiskj/hpcw'.x")
@@ -99,8 +99,8 @@ func main() {
 	//Layouts["0.7"] = NewLayout("0.7", "yhavzqwulfinotkcders/b.mjpg,'x")
 	//Layouts["0.7a"] = NewLayout("0.7a", "yauvzqwhlfioetkcdnrs/.,mjpgb'x")
 	//Layouts["0.7a3"] = NewLayout("0.7a3", "ylhvzqwuofirntkcdeas/'bmjpg,.x")
-	Layouts["a"] = NewLayout("a", "yauwbxkclvioenpdhsrtj/,.qfmg'z")
-	Layouts["1.0"] = NewLayout("1.0", "flhvzqwuoysrntkcdeaix'bmjpg,./")
+	Layouts["rolll"] = NewLayout("rolll", "yauwbxkclvioenpdhsrtj/,.qfmg'z")
+	Layouts["semimak"] = NewLayout("Semimak", "flhvzqwuoysrntkcdeaix'bmjpg,./")
 	//Layouts["1.0x"] = NewLayout("1.0x", "flhvzqwuoysrntkcdeai'xbmjpg,./")
 
 	// Layouts["0.7mv"] = NewLayout("0.7mv", "yhamzqwulfinotkcders/b.vjpg,'x")
@@ -109,34 +109,24 @@ func main() {
 	Layouts["whorf"] = NewLayout("Whorf", "flhdmvwou,srntkgyaeixjbzqpc';.")
 	Layouts["strtyp"] = NewLayout("strtyp", "jyuozkdlcwhiea,gtnsr'x/.qpbmfv")
 
-	// Layouts["flaw"] = "flawpzkur/hsoycmtenibj'gvqd.x,"
+	Layouts["flaw"] = NewLayout("FLAW", "flawpzkur/hsoycmtenibj'gvqd.x,")
 	// Layouts["beakl"] = "qyouxgcrfzkhea.dstnbj/,i'wmlpv"
 	// Layouts["owomak"] = "qwfpbjluy;arstdhneioxvcbzkm,./"
-	Layouts["boo"] = NewLayout("Boo", ",.ucvzfmlyaoesgpntri;x'djbhkwq")
-	Layouts["boo2"] = NewLayout("Boo 2", ",.ucvzfdlyaoesgpntri;x'wjbhmkq")
+	//Layouts["boo"] = NewLayout("Boo", ",.ucvzfmlyaoesgpntri;x'djbhkwq") // old version, deprecated
+	Layouts["boo"] = NewLayout("Boo", ",.ucvzfdlyaoesgpntri;x'wjbhmkq")
 
 	Layouts["x1"] = NewLayout("X1", "kyo,'fclpvhieaudstnrzqj.;wgmbx")
 	// Layouts["colemake"] = ";lgwvqpdu.arstkfnhio,jcmzb'y/x"
 	// //Layouts["ctgap"] = "qwgdbmhuy'orstplneiazxcfkjv/.,"
-	// Layouts["ctgap"] = "wcldkjyou/rsthmpneiazvgfbqx',."
-	// Layouts["aptap"] = "wcdl'/youqrsthmpneiavbgk,.fjxz"
+	Layouts["ctgap"] = NewLayout("CTGAP", "wcldkjyou/rsthmpneiazvgfbqx',.")
+	Layouts["aptap"] = NewLayout("APTAP", "wcdl'/youqrsthmpneiavbgk,.fjxz")
+	//Layouts["qwerg"] = NewLayout("QWERG", "qwergkpmb;asdtvyhniozcflxju,./")
 	// Layouts["rsthd"] = "jcyfkzl,uqrsthdmnaio/vgpbxw.;-"
 	// Layouts["notgate"] = "youwg.vdlpiaescmhtrn'q;xzf,kjb"
 	// Layouts["slider"] = "qwfpbjvuyzarscgmneio'ktdxlh/.,"
 	// Layouts["paper 200"] = " wldk mic asthy nero bgf vpuj "
 
 	//trigrams := Trigrams(Layouts["mtgap"].Keys)
-	//ft100 := FastTrigrams(Layouts["mtgap"], 100)
-	// ft250 := FastTrigrams(Layouts["qwerty"], 250)
-	// ft500 := FastTrigrams(Layouts["qwerty"], 500)
-	// ft1000 := FastTrigrams(Layouts["qwerty"], 1000)
-	// ftfull := FastTrigrams(Layouts["qwerty"], 26000)
-	//fmt.Println(ft100[0], ft100[1], ft100[2], ft100[3])
-	// fmt.Println(ft250[0], ft250[1], ft250[2], ft250[3])
-	// fmt.Println(ft500[0], ft500[1], ft500[2], ft500[3])
-	// fmt.Println(ft1000[0], ft1000[1], ft1000[2], ft1000[3])
-	// fmt.Println(ftfull[0], ftfull[1], ftfull[2], ftfull[3])
-	//fmt.Println(trigrams[0], trigrams[1], trigrams[2], trigrams[3])
 
 	if len(args) > 0 {
 		if args[0] == "a" || args[0] == "analyze" {

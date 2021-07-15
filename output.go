@@ -78,7 +78,9 @@ func PrintAnalysis(l Layout) {
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
 	left, right := IndexUsage(l.Keys)
+	cleft, cright := CenterColumnUsage(l.Keys)
 	fmt.Printf("Index Usage: %.1f%% %1.f%%\n", left, right)
+	fmt.Printf("Center Column Usage: %.1f%% %1.f%%\n", cleft, cright)
 	var sfb int
 	var sfbs []FreqPair
 	if !DynamicFlag {
