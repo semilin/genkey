@@ -36,9 +36,9 @@ type TextData struct {
 	Total        int
 }
 
-func GetTextData() TextData {
+func GetTextData(f string) TextData {
 	println("Reading...")
-	file, err := os.Open("text.txt")
+	file, err := os.Open(f)
 	if err != nil {
 		panic(err)
 	}

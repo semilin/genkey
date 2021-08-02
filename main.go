@@ -35,9 +35,8 @@ func init() {
 }
 
 func main() {
-	flag.StringVar(&ImproveFlag, "improve", "", "if set, decides which layout to improve")
-	flag.BoolVar(&StaggerFlag, "stagger", false, "if true, calculates distance for row-stagger form factor")
-	flag.BoolVar(&SlideFlag, "slide", false, "if true, ignores slideable sfbs")
+	flag.BoolVar(&StaggerFlag, "stagger", false, "if true, calculates distance for ANSI row-stagger form factor")
+	flag.BoolVar(&SlideFlag, "slide", false, "if true, ignores slideable sfbs (made for Oats) (might not work)")
 	flag.BoolVar(&DynamicFlag, "dynamic", false, "")
 	flag.Parse()
 	origargs := os.Args[1:]
@@ -273,7 +272,7 @@ func main() {
 			// 	input := strings.ToLower(args[1])
 			// 	InteractiveAnalysis(Layouts[input])
 		} else if args[0] == "load" {
-			Data = GetTextData()
+			Data = GetTextData(args[1])
 			WriteData(Data)
 		}
 	}

@@ -55,9 +55,6 @@ func Score(l Layout) float64 {
 }
 
 func randomLayout() string {
-	if ImproveFlag != "" {
-		//return strings.Join(Layouts[ImproveFlag].Keys, "07.a2")
-		}
 	chars := "abcdefghijklmnopqrstuvwxyz,./'"
 	length := len(chars)
 	var l string

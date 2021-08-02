@@ -12,10 +12,8 @@ Copyright (C) 2021 Colin Hughes
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 package main
 
-var ImproveFlag string
 var StaggerFlag bool
 var SlideFlag bool
 var DynamicFlag bool
