@@ -493,6 +493,22 @@ func finger(pos int) int {
 	return FingerMap[pos]
 }
 
+func Similarity(a, b []string) int {
+	var score int
+	for i:=0;i<30;i++ {
+		weight := 1
+		if i >= 10 && i <= 13 {
+			weight = 2
+		} else if i >= 16 && i <= 19 {
+			weight = 2
+		}
+		if a[i] == b[i] {
+			score += weight
+		}
+	}
+	return score
+}
+
 func twoKeyDist(a int, b int) float64 {
 	col1, row1 := ColRow(a)
 	col2, row2 := ColRow(b)
