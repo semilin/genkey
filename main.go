@@ -152,7 +152,16 @@ func main() {
 			for i, v := range weighted {
 				fmt.Printf("\t%s: %.2f\n", FingerNames[i], v)
 			}
-
+		} else if args[0] == "bigrams" {
+			input := strings.ToLower(args[1])
+			l := Layouts[input]
+			bigrams := ListWorstBigrams(l)
+			SortFreqList(bigrams)
+			amount := 8
+			if len(args) > 2 {
+				amount, _ = strconv.Atoi(args[2])
+			}
+			PrintFreqList(bigrams, amount, false)
 		} else if args[0] == "h" {
 			Heatmap(Layouts[args[1]])
 		} else if args[0] == "ngram" {
