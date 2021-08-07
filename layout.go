@@ -210,6 +210,33 @@ func ListSFBs(l Layout, skipgrams bool) []FreqPair {
 	return list
 }
 
+func ListWorstBigrams(l Layout) []FreqPair {
+	var bigrams []FreqPair
+	sfbweight := Weight.FSpeed.SFB
+	dsfbweight := Weight.FSpeed.DSFB
+	for f, posits := range l.Fingermap {
+		for i := 0; i < len(posits); i++ {
+			for j := i; j < len(posits); j++ {
+				p1 := &posits[i]
+				p2 := &posits[j]
+				k1 := &l.Keys[p1.Row][p1.Col]
+				k2 := &l.Keys[p2.Row][p2.Col]
+				sfb := float64(Data.Bigrams[*k1+*k2])
+				dsfb := Data.Skipgrams[*k1+*k2]
+				if i != j {
+					sfb += float64(Data.Bigrams[*k2+*k1])
+					dsfb += Data.Skipgrams[*k2+*k1]
+				}
+
+				dist := twoKeyDist(*p1, *p2) + (2*Weight.FSpeed.KeyTravel)
+				cost := 100* (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / Weight.FSpeed.KPS[f]
+				bigrams = append(bigrams, FreqPair{*k1+"_"+*k2,cost})
+			}
+		}
+	}
+	return bigrams
+}
+
 // FastTrigrams approximates trigram counts with a given precision
 // (precision=0 gives full data). It returns a count of {rolls,
 // alternates, onehands, redirects, total}

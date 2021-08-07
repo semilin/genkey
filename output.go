@@ -86,15 +86,15 @@ func PrintAnalysis(l Layout) {
 	sfbs = ListSFBs(l, false)
 	fmt.Printf("SFBs: %.3f%%\n", 100*sfb/l.Total)
 	fmt.Printf("DSFBs: %.3f%%\n", 100*SFBs(l, true)/l.Total)
-	dsfbs := ListSFBs(l, true)
+	bigrams := ListWorstBigrams(l)
 	SortFreqList(sfbs)
-	SortFreqList(dsfbs)
+	SortFreqList(bigrams)
 
 	fmt.Println("Top SFBs:")
-	PrintFreqList(sfbs, 8)
+	PrintFreqList(sfbs, 8, true)
 	
-	fmt.Println("Top DSFBs:")
-	PrintFreqList(dsfbs, 8)
+	fmt.Println("Worst Bigrams:")
+	PrintFreqList(bigrams, 8, false)
 
 	fmt.Printf("Score: %.2f\n", Score(l))
 	fmt.Println()
@@ -148,9 +148,13 @@ func PrintAnalysis(l Layout) {
 // 	fmt.Println(l)
 // }
 
-func PrintFreqList(list []FreqPair, length int) {
+func PrintFreqList(list []FreqPair, length int, percent bool) {
+	pc := ""
+	if percent {
+		pc = "%"
+	}
 	for i, v := range list[0:length] {
-		fmt.Printf("\t%s %.3f%%", v.Ngram, 100*float64(v.Count)/float64(Data.TotalBigrams))
+		fmt.Printf("\t%s %.3f%s", v.Ngram, 100*float64(v.Count)/float64(Data.TotalBigrams), pc)
 		if (i+1)%4 == 0 {
 			fmt.Println()
 		}

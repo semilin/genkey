@@ -121,7 +121,7 @@ func main() {
 			if len(args) > 2 {
 				amount, _ = strconv.Atoi(args[2])
 			}
-			PrintFreqList(sfbs, amount)
+			PrintFreqList(sfbs, amount, true)
 		} else if args[0] == "dsfbs" {
 			if len(args) == 1 {
 				fmt.Println("You must specify a layout!")
@@ -137,7 +137,7 @@ func main() {
 			if len(args) > 2 {
 				amount, _ = strconv.Atoi(args[2])
 			}
-			PrintFreqList(dsfbs, amount)
+			PrintFreqList(dsfbs, amount, true)
 		} else if args[0] == "speed" {
 			input := strings.ToLower(args[1])
 			l := Layouts[input]
