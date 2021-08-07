@@ -230,7 +230,7 @@ func ListWorstBigrams(l Layout) []FreqPair {
 
 				dist := twoKeyDist(*p1, *p2) + (2*Weight.FSpeed.KeyTravel)
 				cost := 100* (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / Weight.FSpeed.KPS[f]
-				bigrams = append(bigrams, FreqPair{*k1+"_"+*k2,cost})
+				bigrams = append(bigrams, FreqPair{*k1+*k2,cost})
 			}
 		}
 	}
