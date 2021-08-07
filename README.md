@@ -12,12 +12,14 @@ Outputs a sorted list of all the layouts with their scores.
 Outputs detailed analysis of a given layout.
 #### [g]enerate
 Attempts to find the optimal layout according to the scoring algorithm.
-#### [sfbs] layout
-Lists the sfb frequency and most frequent sfbs.
-#### [dsfbs] layout
-Lists the dsfb frequency and most frequent dsfbs.
-#### [speed] layout
-Lists each finger and its unweighted speed for the layout.
+#### [sfbs] layout (x)
+Lists the sfb frequency and most frequent sfbs. Optionally, x can be provided to set how many are listed.
+#### [dsfbs] layout (x)
+Lists the dsfb frequency and most frequent dsfbs. Optionally, x can be provided to set how many are listed.
+#### [speed] layout (x)
+Lists each finger and its unweighted speed for the layout. Optionally, x can be provided to set how many are listed.
+### [bigrams] layout (x)
+Lists the worst bigrams for the layout. Optionally, x can be provided to set how many are listed.
 
 ## License
 Copyright © 2021 Colin Hughes
