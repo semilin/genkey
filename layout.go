@@ -220,6 +220,10 @@ func FastTrigrams(l Layout, precision int) [5]int {
 	var redirects int
 	var total int
 
+	if precision == 0 {
+		precision = len(Data.TopTrigrams)
+	}
+
 	for _, tg := range Data.TopTrigrams[:precision] {
 		f1 := l.Fingermatrix[l.Keymap[string(tg.Ngram[0])]]
 		f2 := l.Fingermatrix[l.Keymap[string(tg.Ngram[1])]]
