@@ -12,7 +12,6 @@ Copyright (C) 2021 Colin Hughes
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 package main
 
 import (
@@ -24,52 +23,64 @@ import (
 
 	"strings"
 	"time"
-
 )
 
 // Max Rolls: 30%
 
 func Score(l Layout) float64 {
 	var score float64
-	speeds := FingerSpeed(l.Keys)
+	s := &Weight.Score
+	if s.FSpeed != 0 {
+		speeds := FingerSpeed(&l, true)
+		total := 1.0
+		for _, s := range speeds {
+			total += s
+		}
+		score += s.FSpeed * total
+	}
+	if s.TrigramPrecision != -1 {
+		tri := FastTrigrams(l, s.TrigramPrecision)
+		score += s.Roll * (100 - (100 * float64(tri[0]) / float64(tri[4])))
+		score += s.Alternate * (100 - (100 * float64(tri[1]) / float64(tri[4])))
+		score += s.Onehand * (100 - (100 * float64(tri[2]) / float64(tri[4])))
+		score += s.Redirect * (100 * float64(tri[3]) / float64(tri[4]))
+	}
 
-	weighted, highest, _ := WeightedSpeed(speeds)
+	if s.IndexBalance != 0 {
+		left, right := IndexUsage(l)
+		score += s.IndexBalance * math.Abs(right-left)
+	}
 
-	score += 3*weighted
-	score += 2*highest
-
-	//tri := FastTrigrams(l, 100)
-
-	//score += 0.03*(100-(100*float64(tri[0]) / float64(tri[4])))
-	//score += 0.3*(100*float64(tri[3]) / float64(tri[4]))
-
-	left, right := IndexUsage(l.Keys)
-
-	//score += 0.1*math.Abs(11-right)
-	//score += 0.1*math.Abs(11-left)
-	score += 0.1*math.Abs(right-left)
-
-	//score += float64(sfb)
+	Analyzed++
 
 	return score
 }
 
-func randomLayout() string {
+func randomLayout() Layout {
 	chars := "abcdefghijklmnopqrstuvwxyz,./'"
-	length := len(chars)
-	var l string
-	for i := 0; i < length; i++ {
-		char := string([]rune(chars)[rand.Intn(len(chars))])
-		l += char
-		chars = strings.ReplaceAll(chars, char, "")
+	var k [][]string
+	k = make([][]string, 3)
+	var l Layout
+	for row := 0; row < 3; row++ {
+		k[row] = make([]string, 10)
+		for col := 0; col < 10; col++ {
+			char := string([]rune(chars)[rand.Intn(len(chars))])
+			k[row][col] += char
+			l.Total += float64(Data.Letters[char])
+			chars = strings.ReplaceAll(chars, char, "")
+		}
 	}
-	return l
 
-	//return Layouts["isrt"]
+	l.Keys = k
+	l.Keymap = GenKeymap(k)
+	l.Fingermap = GeneratedFingermap
+	l.Fingermatrix = GeneratedFingermatrix
+
+	return l
 }
 
 type layoutScore struct {
-	l Layout
+	l     Layout
 	score float64
 }
 
@@ -98,7 +109,7 @@ func Populate(n int) Layout {
 	rand.Seed(time.Now().Unix())
 	layouts := []layoutScore{}
 	for i := 0; i < n; i++ {
-		layouts = append(layouts, layoutScore{NewLayout("generated", randomLayout()), 0})
+		layouts = append(layouts, layoutScore{randomLayout(), 0})
 		fmt.Printf("%d random created...\r", i+1)
 
 	}
@@ -108,12 +119,11 @@ func Populate(n int) Layout {
 		layouts[i].score = 0
 		go greedyImprove(&layouts[i].l)
 	}
-	last := runtime.NumGoroutine() + 1
+	analyzed := 0
 	for runtime.NumGoroutine() > 1 {
-		if runtime.NumGoroutine() != last {
-			last = runtime.NumGoroutine()
-			fmt.Printf("%d improving...\r", runtime.NumGoroutine()-1)
-		}
+		fmt.Printf("%d greedy improving at %d analyzed/s       \r", runtime.NumGoroutine()-1, Analyzed - analyzed)
+		analyzed = Analyzed
+		time.Sleep(time.Second)
 	}
 	fmt.Println()
 
@@ -133,7 +143,9 @@ func Populate(n int) Layout {
 		go fullImprove(&layouts[i].l)
 	}
 	for runtime.NumGoroutine() > 1 {
-		fmt.Printf("%d fully improving...\r", runtime.NumGoroutine()-1)
+		fmt.Printf("%d fully improving at %d analyzed/s      \r", runtime.NumGoroutine()-1, Analyzed - analyzed)
+		analyzed = Analyzed
+		time.Sleep(time.Second)
 	}
 
 	sortLayouts(layouts)
@@ -141,23 +153,14 @@ func Populate(n int) Layout {
 	fmt.Println()
 	best := layouts[0]
 
-	if !SlideFlag {
-		for i:=0;i<10;i++ {
-			if i >= 3 && i <= 6 {
-				continue
-			}
-			p1 := i
-			p2 := i+20
-			k1 := best.l.Keys[p1]
-			k2 := best.l.Keys[p2]
-			if Data.Letters[k1] < Data.Letters[k2] {
-				swap(&best.l, p1, p2)
-			}
+	for col := 0; col < 10; col++ {
+		if Data.Letters[best.l.Keys[0][col]] < Data.Letters[best.l.Keys[2][col]] {
+			swap(&best.l, Pos{col, 0}, Pos{col, 2})
 		}
 	}
 
 	PrintAnalysis(best.l)
-	Heatmap(best.l.Keys)
+	Heatmap(best.l)
 
 	//improved := ImproveRedirects(layouts[0].keys)
 	//PrintAnalysis("Generated (improved redirects)", improved)
@@ -166,17 +169,23 @@ func Populate(n int) Layout {
 	return layouts[0].l
 }
 
+func randPos() Pos {
+	var p Pos
+	p.Row = rand.Intn(3)
+	p.Col = rand.Intn(10)
+	return p
+}
+
 func greedyImprove(layout *Layout) {
 	stuck := 0
 	for {
 		first := Score(*layout)
 
-		a := rand.Intn(29)
-		b := rand.Intn(29)
+		a := randPos()
+		b := randPos()
 		swap(layout, a, b)
-		
-		second := Score(*layout)
 
+		second := Score(*layout)
 
 		if second < first {
 			// accept
@@ -193,11 +202,6 @@ func greedyImprove(layout *Layout) {
 	}
 }
 
-type pair struct {
-	a int
-	b int
-}
-
 func fullImprove(layout *Layout) {
 	i := 0
 	tier := 2
@@ -205,16 +209,16 @@ func fullImprove(layout *Layout) {
 	changes := 0
 	rejected := 0
 	max := 600
-	swaps := make([]pair, 7)
+	swaps := make([]Pair, 7)
 	for {
 		i += 1
 		first := Score(*layout)
 
-		for j:=tier-1;j>=0;j-- {
-			a := rand.Intn(30)
-			b := rand.Intn(30)
+		for j := tier - 1; j >= 0; j-- {
+			a := randPos()
+			b := randPos()
 			swap(layout, a, b)
-			swaps[j] = pair{a,b}
+			swaps[j] = Pair{a, b}
 		}
 		second := Score(*layout)
 
@@ -224,8 +228,8 @@ func fullImprove(layout *Layout) {
 			changes++
 			continue
 		} else {
-			for j:=0;j<tier;j++ {
-				swap(layout, swaps[j].a, swaps[j].b)
+			for j := 0; j < tier; j++ {
+				swap(layout, swaps[j][0], swaps[j][1])
 			}
 
 			rejected++
@@ -237,7 +241,7 @@ func fullImprove(layout *Layout) {
 					tier++
 				}
 
-				max = 600*tier*tier
+				max = 600 * tier * tier
 
 				changed = false
 
@@ -252,99 +256,19 @@ func fullImprove(layout *Layout) {
 	}
 
 }
+
 // func betterImprove(layout *string) {
 // 	raw := FingerSpeed(*layout)
 // 	s, h, hf := WeightedSpeed(raw)
 
-
 // }
 
-func Anneal(l *Layout) {
-	for temp := 80; temp > -5; temp-- {
-		for i := 0; i < 100; i++ {
-			prop := swapRandKeys(*l, 1)
-			first := Score(*l)
-			second := Score(prop)
-			if second < first || rand.Intn(100) < temp {
-				*l = prop
-			}
-
-		}
-	}
-}
-
-// func ImproveRedirects(l Layout) Layout {
-// 	orig := Score(l)
-// 	orolls, _, _, oredirects := Trigrams(l.Keys)
-// 	lowest := (60 * oredirects) - orolls
-// 	best := l
-
-// 	columns := []int{0, 1, 2, 3, 6, 7, 8, 9}
-
-// 	p := prmt.New(prmt.IntSlice(columns))
-// 	for p.Next() {
-// 		prop := ""
-// 		for i := 0; i < 30; i++ {
-// 			col, row := ColRow(i)
-// 			if col <= 3 {
-// 				prop += string(l[columns[col]+(row*10)])
-// 			} else if col >= 6 {
-// 				prop += string(l[columns[col-2]+(row*10)])
-// 			} else {
-// 				prop += string(l[i])
-// 			}
-// 		}
-
-// 		if Score(prop) <= orig {
-// 			rolls, _, _, redirects := Trigrams(prop)
-// 			result := (60 * redirects) - rolls
-// 			if result < lowest {
-// 				lowest = redirects
-// 				best = prop
-// 			}
-// 		}
-// 	}
-
-// 	return best
-// }
-
-func swapRandKeys(l Layout, count int) Layout {
-	var possibilities []int
-	//if ImproveFlag != "" {
-	possibilities = []int{0, 1,2,3,4,5,6,7,8,9,14,15,16,17,20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
-	//} else {
-	possibilities = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
-	//}
-	length := len(possibilities)
-	for i := 0; i < count; i++ {
-		a := rand.Intn(length)
-		b := rand.Intn(length)
-		swap(&l, possibilities[a], possibilities[b])
-	}
-
-	return l
-}
-
-func cyleRandKeys(l Layout, count int) Layout {
-	var possibilities []int
-	possibilities = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}
-	length := len(possibilities)
-
-	a := rand.Intn(length)
-	for i := 0; i < count; i++ {
-		b := rand.Intn(length)
-		swap(&l, possibilities[a], possibilities[b])
-		a = b
-	}
-	return l
-}
-
-func swap(l *Layout, a int, b int) {
+func swap(l *Layout, a, b Pos) {
 	k := l.Keys
 	m := l.Keymap
-	k[a], k[b] = k[b], k[a]
-	m[k[a]] = a
-	m[k[b]] = b
+	k[a.Row][a.Col], k[b.Row][b.Col] = k[b.Row][b.Col], k[a.Row][a.Col]
+	m[k[a.Row][a.Col]] = a
+	m[k[b.Row][b.Col]] = b
 
 	l.Keys = k
 	l.Keymap = m

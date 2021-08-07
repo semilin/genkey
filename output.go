@@ -23,29 +23,21 @@ import (
 	"github.com/fogleman/gg"
 )
 
-func PrintLayout(keys []string) {
-	for i, k := range keys {
-		fmt.Printf("%s ", k)
-		if (i+1) % 5 == 0 {
-			fmt.Printf(" ")
-		}
-		if (i+1) % 10 == 0 {
-			fmt.Println()
-			if StaggerFlag {
-				if i == 9 {
-					fmt.Printf(" ")
-			} else {
-				fmt.Printf("  ")
+func PrintLayout(keys [][]string) {
+	for _, row := range keys {
+		for x, key := range row {
+			fmt.Printf("%s ", key)
+			if x == 4 {
+				fmt.Printf(" ")
 			}
 		}
-	}
+		fmt.Println()
 	}
 }
 
 func PrintAnalysis(l Layout) {
 	fmt.Println(l.Name)
 	PrintLayout(l.Keys)
-	k := l.Keys
 	//tri := Trigrams(k)
 	ftri := FastTrigrams(l, 500)
 	//total := float64(Data.Total)
@@ -59,40 +51,42 @@ func PrintAnalysis(l Layout) {
 	//fmt.Printf("Redirects: %.2f%%\n", float64(100*Redirects(k)) / total)
 	fmt.Printf("Redirects: ~%.2f%%\n", 100*float64(ftri[3]) / ftotal)
 
-	speeds := FingerSpeed(k)
-	speed, highestWeighted, f := WeightedSpeed(speeds)
-	highestWeightedFinger := FingerNames[f]
+	weighted := FingerSpeed(&l, true)
+	unweighted := FingerSpeed(&l, false)
 	
 	var highestUnweightedFinger string
 	var highestUnweighted float64
-	var unweighted float64
-	for i, v := range speeds {
-		unweighted += v
-		if v > highestUnweighted {
-			highestUnweighted = v
+	var utotal float64
+
+	var highestWeightedFinger string
+	var highestWeighted float64
+	var wtotal float64
+	for i := 0; i < 8; i ++ {
+		utotal += unweighted[i]
+		if unweighted[i] > highestUnweighted {
+			highestUnweighted = unweighted[i]
 			highestUnweightedFinger = FingerNames[i]
 		}
+
+		wtotal += weighted[i]
+		if weighted[i] > highestWeighted {
+			highestWeighted = weighted[i]
+			highestWeightedFinger = FingerNames[i]
+		}
 	}
-	fmt.Printf("Finger Speed (weighted): %.2f\n", speed)		
+	fmt.Printf("Finger Speed (weighted): %.2f\n", weighted)		
 	fmt.Printf("Finger Speed (unweighted): %.2f\n", unweighted)		
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
-	left, right := IndexUsage(l.Keys)
-	cleft, cright := CenterColumnUsage(l.Keys)
+	left, right := IndexUsage(l)
 	fmt.Printf("Index Usage: %.1f%% %1.f%%\n", left, right)
-	fmt.Printf("Center Column Usage: %.1f%% %1.f%%\n", cleft, cright)
-	var sfb int
+	var sfb float64
 	var sfbs []FreqPair
-	if !DynamicFlag {
-		sfb = SFBs(k)
-		sfbs = ListSFBs(k)
-	} else {
-		_, sfbs = ListRepeats(k)
-		sfb, _ = SFBsMinusTop(k)		
-	}
-	fmt.Printf("SFBs: %.3f%%\n", 100*float64(sfb)/float64(Data.TotalBigrams))
-	fmt.Printf("DSFBs: %.3f%%\n", 100*float64(DSFBs(k))/float64(Data.TotalBigrams))
-	dsfbs := ListDSFBs(k)
+	sfb = SFBs(l, false)
+	sfbs = ListSFBs(l, false)
+	fmt.Printf("SFBs: %.3f%%\n", 100*sfb/l.Total)
+	fmt.Printf("DSFBs: %.3f%%\n", 100*SFBs(l, true)/l.Total)
+	dsfbs := ListSFBs(l, true)
 	SortFreqList(sfbs)
 	SortFreqList(dsfbs)
 
@@ -100,15 +94,7 @@ func PrintAnalysis(l Layout) {
 	PrintFreqList(sfbs, 8)
 	
 	fmt.Println("Top DSFBs:")
-	PrintFreqList(dsfbs, 16)
-
-	if DynamicFlag {
-		dynamic, _ := ListRepeats(k)
-		SortFreqList(dynamic)	
-		fmt.Println("Dynamic Completions:")
-
-		PrintFreqList(dynamic, 30)	
-	}
+	PrintFreqList(dsfbs, 8)
 
 	fmt.Printf("Score: %.2f\n", Score(l))
 	fmt.Println()
@@ -164,7 +150,7 @@ func PrintAnalysis(l Layout) {
 
 func PrintFreqList(list []FreqPair, length int) {
 	for i, v := range list[0:length] {
-		fmt.Printf("\t%s %.3f%%", v.Bigram, 100*float64(v.Count)/float64(Data.TotalBigrams))
+		fmt.Printf("\t%s %.3f%%", v.Ngram, 100*float64(v.Count)/float64(Data.TotalBigrams))
 		if (i+1)%4 == 0 {
 			fmt.Println()
 		}
@@ -172,41 +158,36 @@ func PrintFreqList(list []FreqPair, length int) {
 	fmt.Println()
 }
 
-func Heatmap(l []string) {
-	dc := gg.NewContext(500, 170)
+func Heatmap(layout Layout) {
+	l := layout.Keys
+	dc := gg.NewContext(500, 160)
 
 	cols := []float64{0,0,0,0,0,0,0,0,0,0}
 	
-	for i, r := range l {
-		c := r
-		col, row := ColRow(i)
-		dc.DrawRectangle(float64(50*col), float64(50*row), 50, 50)
-		freq := float64(Data.Letters[c]) / float64(Data.Total)
-		cols[col] += freq
-		pc := freq/0.1 //percent
-		log := math.Log(1+pc)
-		base := 0.3
-		dc.SetRGB(0.8*(base+log), base*(1-pc), base+log)
-		dc.Fill()
-		dc.SetRGB(0, 0, 0)
-		dc.DrawString(c, 22.5+float64(50*col), 27.5+float64(50*row))
+	for row, r := range l {
+		for col, c := range r {
+			if col > 9 {
+				continue
+			}
+			dc.DrawRectangle(float64(50*col), float64(50*row), 50, 50)
+			freq := float64(Data.Letters[c]) / (layout.Total*1.15)
+			cols[col] += freq
+			pc := freq/0.1 //percent
+			log := math.Log(1+pc)
+			base := 0.3
+			dc.SetRGB(0.6*(base+log), base*(1-pc), base+log)
+			dc.Fill()
+			dc.SetRGB(0, 0, 0)
+			dc.DrawString(c, 22.5+float64(50*col), 27.5+float64(50*row))
+		}
 	}
-
-	speeds := FingerSpeed(l)
-	_, highest, _ := WeightedSpeed(speeds)
 
 	for i, c := range cols {
 		dc.DrawRectangle(float64(50*i), 150, 50, 10)
 		pc := c / 0.2
 		log := math.Log(1+pc)
 		base := 0.3
-		dc.SetRGB(0.8*(base+log), base*(1-pc), base+log)
-		dc.Fill()
-
-		dc.DrawRectangle(float64(50*i), 160, 50, 10)
-		speed := speeds[finger(i)] / (10*highest)
-		log = math.Log(1+speed)
-		dc.SetRGB(0.5*(base+log), base, base+log)
+		dc.SetRGB(0.6*(base+log), base*(1-pc), base+log)
 		dc.Fill()
 	}
 

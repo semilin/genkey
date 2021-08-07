@@ -1,0 +1,32 @@
+{
+  Dist: {
+    Lateral: 1.6 # lateral movement multiplier
+  }
+  FSpeed: {
+    SFB: 1.0  # SFB weight
+    DSFB: 0.5 # DSFB weight
+    
+    # KPS is how dexterous each finger is
+    KPS: [
+      1.5  # lp
+      3.6  # lr
+      4.8  # lm
+      5.5  # li
+      5.5  # ri
+      4.8  # rm
+      3.6  # rr
+      1.5  # rp
+    ]
+    KeyTravel: 0.01 # how much baseline distance there is per keypress 
+  }
+  Score: {
+  	FSpeed: 3
+  	IndexBalance: 0.3
+
+  	TrigramPrecision: -1 # -1 for no trigram calculation, 0 for full precision.
+	Roll: 0
+	Alternate: 0
+	Redirect: 0 
+	Onehand: 0
+  }
+}

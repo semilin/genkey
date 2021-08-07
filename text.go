@@ -44,7 +44,7 @@ func GetTextData(f string) TextData {
 	}
 	defer file.Close()
 
-	valid := "abcdefghijklmnopqrstuvwxyz,./?;:-_'\""
+	valid := "etaoinshrdlubcfgjkmpqvwxyz,./?;:-_'\""
 
 	var data TextData
 	data.Letters = make(map[string]int)
