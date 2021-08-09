@@ -72,16 +72,27 @@ func LoadLayout(f string) Layout {
 	l.Fingermatrix = make(map[Pos]Finger, 3)
 	l.Fingermap = make(map[Finger][]Pos)
 	for y, row := range lines[4:7] {
-		for x, c := range strings.Split(strings.TrimSpace(row), " ") {
+		separated := true
+
+		tx := 0
+		for _, c := range strings.Split(strings.TrimSpace(row), "") {
+			if c == " " {
+				separated = true
+				continue
+			} else if !separated {
+				continue
+			}
 			n, err := strconv.Atoi(c)
 			if err != nil {
 				fmt.Printf("%s layout fingermatrix is badly formatted!\n", f)
 				fmt.Println(err)
 				return l
 			}
+			separated = false
 			fg := Finger(n)
-			l.Fingermatrix[Pos{x, y}] = fg
-			l.Fingermap[fg] = append(l.Fingermap[fg], Pos{x, y})
+			l.Fingermatrix[Pos{tx, y}] = fg
+			l.Fingermap[fg] = append(l.Fingermap[fg], Pos{tx, y})
+			tx++
 		}
 	}
 
