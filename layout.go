@@ -52,13 +52,21 @@ func LoadLayout(f string) Layout {
 	lines := strings.Split(s, "\n")
 	l.Name = strings.TrimSpace(lines[0])
 	l.Keys = make([][]string, 3)
-	l.Keys[0] = strings.Split(strings.TrimSpace(lines[1]), " ")
-	l.Keys[1] = strings.Split(strings.TrimSpace(lines[2]), " ")
-	l.Keys[2] = strings.Split(strings.TrimSpace(lines[3]), " ")
-	for y := range l.Keys {
-		for x := range l.Keys[y] {
-			l.Keys[y][x] = string(l.Keys[y][x][0])
-			l.Total += float64(Data.Letters[l.Keys[y][x]])
+	keys := lines[1:4]
+	for line := range keys {
+		separated := true
+		for _, rune := range keys[line] {
+			c := string(rune)
+			if c == " " {
+				separated = true
+				continue
+			} else if !separated {
+				continue
+			} else {
+				separated = false
+				l.Keys[line] = append(l.Keys[line], c)
+				l.Total += float64(Data.Letters[c])
+			}
 		}
 	}
 	l.Fingermatrix = make(map[Pos]Finger, 3)
