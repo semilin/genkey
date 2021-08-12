@@ -154,6 +154,9 @@ func Populate(n int) Layout {
 	best := layouts[0]
 
 	for col := 0; col < 10; col++ {
+		if col >= 3 && col <= 6 {
+			continue
+		}
 		if Data.Letters[best.l.Keys[0][col]] < Data.Letters[best.l.Keys[2][col]] {
 			swap(&best.l, Pos{col, 0}, Pos{col, 2})
 		}
