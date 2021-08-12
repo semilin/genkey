@@ -57,6 +57,7 @@ func LoadLayout(f string) Layout {
 		separated := true
 		for _, rune := range keys[line] {
 			c := string(rune)
+			c = strings.ToLower(c)
 			if c == " " {
 				separated = true
 				continue
