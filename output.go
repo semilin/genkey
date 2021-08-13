@@ -79,7 +79,7 @@ func PrintAnalysis(l Layout) {
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
 	left, right := IndexUsage(l)
-	fmt.Printf("Index Usage: %.1f%% %.1f%%\n", left, right)
+	fmt.Printf("Index Usage: %.1f%% %1.f%%\n", left, right)
 	var sfb float64
 	var sfbs []FreqPair
 	sfb = SFBs(l, false)
