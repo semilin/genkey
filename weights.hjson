@@ -20,8 +20,8 @@
     KeyTravel: 0.01 # how much baseline distance there is per keypress 
   }
   Score: {
-  	FSpeed: 3
-  	IndexBalance: 0.3
+  	FSpeed: -3
+  	IndexBalance: 0
 
   	TrigramPrecision: -1 # -1 for no trigram calculation, 0 for full precision.
 	Roll: 0
