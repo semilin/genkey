@@ -158,7 +158,7 @@ func Populate(n int) Layout {
 			continue
 		}
 		if Data.Letters[best.l.Keys[0][col]] < Data.Letters[best.l.Keys[2][col]] {
-			swap(&best.l, Pos{col, 0}, Pos{col, 2})
+			Swap(&best.l, Pos{col, 0}, Pos{col, 2})
 		}
 	}
 
@@ -172,7 +172,7 @@ func Populate(n int) Layout {
 	return layouts[0].l
 }
 
-func randPos() Pos {
+func RandPos() Pos {
 	var p Pos
 	p.Row = rand.Intn(3)
 	p.Col = rand.Intn(10)
@@ -184,9 +184,9 @@ func greedyImprove(layout *Layout) {
 	for {
 		first := Score(*layout)
 
-		a := randPos()
-		b := randPos()
-		swap(layout, a, b)
+		a := RandPos()
+		b := RandPos()
+		Swap(layout, a, b)
 
 		second := Score(*layout)
 
@@ -194,7 +194,7 @@ func greedyImprove(layout *Layout) {
 			// accept
 			stuck = 0
 		} else {
-			swap(layout, a, b)
+			Swap(layout, a, b)
 			stuck++
 		}
 
@@ -212,16 +212,16 @@ func fullImprove(layout *Layout) {
 	changes := 0
 	rejected := 0
 	max := 600
-	swaps := make([]Pair, 7)
+	Swaps := make([]Pair, 7)
 	for {
 		i += 1
 		first := Score(*layout)
 
 		for j := tier - 1; j >= 0; j-- {
-			a := randPos()
-			b := randPos()
-			swap(layout, a, b)
-			swaps[j] = Pair{a, b}
+			a := RandPos()
+			b := RandPos()
+			Swap(layout, a, b)
+			Swaps[j] = Pair{a, b}
 		}
 		second := Score(*layout)
 
@@ -232,7 +232,7 @@ func fullImprove(layout *Layout) {
 			continue
 		} else {
 			for j := 0; j < tier; j++ {
-				swap(layout, swaps[j][0], swaps[j][1])
+				Swap(layout, Swaps[j][0], Swaps[j][1])
 			}
 
 			rejected++
@@ -266,7 +266,7 @@ func fullImprove(layout *Layout) {
 
 // }
 
-func swap(l *Layout, a, b Pos) {
+func Swap(l *Layout, a, b Pos) {
 	k := l.Keys
 	m := l.Keymap
 	k[a.Row][a.Col], k[b.Row][b.Col] = k[b.Row][b.Col], k[a.Row][a.Col]

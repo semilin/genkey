@@ -113,7 +113,7 @@ func main() {
 			}
 			input := strings.ToLower(args[1])
 			l := Layouts[input]
-			total := 100 * float64(SFBs(l, false)) / float64(Data.TotalBigrams)
+			total := 100 * float64(SFBs(l, false)) / float64(l.Total)
 			sfbs := ListSFBs(l, false)
 			SortFreqList(sfbs)
 			fmt.Printf("%.2f%%\n", total)
@@ -181,6 +181,12 @@ func main() {
 		} else if args[0] == "load" {
 			Data = GetTextData(args[1])
 			WriteData(Data)
+		} else if args[0] == "i" || args[0] == "interactive" {
+			if len(args) < 2 {
+				fmt.Println("Please provide the name of a layout to interactively analyze.")
+				os.Exit(1)
+			}
+			Interactive(Layouts[args[1]])
 		}
 	}
 }
