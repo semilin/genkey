@@ -39,7 +39,7 @@ func PrintAnalysis(l Layout) {
 	fmt.Println(l.Name)
 	PrintLayout(l.Keys)
 	//tri := Trigrams(k)
-	ftri := FastTrigrams(l, 500)
+	ftri := FastTrigrams(l, 0)
 	//total := float64(Data.Total)
 	ftotal := float64(ftri[4])
 	//fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(k)) / total)

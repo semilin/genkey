@@ -146,6 +146,9 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 				p2 := &posits[j]
 				k1 := &l.Keys[p1.Row][p1.Col]
 				k2 := &l.Keys[p2.Row][p2.Col]
+				if DynamicFlag {
+					
+				}
 				sfb := float64(Data.Bigrams[*k1+*k2])
 				dsfb := Data.Skipgrams[*k1+*k2]
 				if i != j {
