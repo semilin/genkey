@@ -146,9 +146,7 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 				p2 := &posits[j]
 				k1 := &l.Keys[p1.Row][p1.Col]
 				k2 := &l.Keys[p2.Row][p2.Col]
-				if DynamicFlag {
-					
-				}
+				
 				sfb := float64(Data.Bigrams[*k1+*k2])
 				dsfb := Data.Skipgrams[*k1+*k2]
 				if i != j {
@@ -159,6 +157,47 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 				dist := twoKeyDist(*p1, *p2) + (2*Weight.FSpeed.KeyTravel)
 				speeds[f] += ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 			}
+		}
+		if weighted {
+			speeds[f] /= Weight.FSpeed.KPS[f]
+		}
+		speeds[f] = 800 * speeds[f]/l.Total
+	}
+	return speeds
+}
+
+func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
+	speeds := []float64{0, 0, 0, 0, 0, 0, 0, 0}
+	sfbweight := Weight.FSpeed.SFB
+	dsfbweight := Weight.FSpeed.DSFB
+	for f, posits := range l.Fingermap {
+		for i := 0; i < len(posits); i++ {
+			var highestsfb float64
+			var highestdsfb float64
+			var highestdist float64
+			var highestspeed float64
+			for j := 0; j < len(posits); j++ {
+				p1 := &posits[i]
+				p2 := &posits[j]
+				k1 := &l.Keys[p1.Row][p1.Col]
+				k2 := &l.Keys[p2.Row][p2.Col]
+				
+				sfb := float64(Data.Bigrams[*k1+*k2])
+				dsfb := Data.Skipgrams[*k1+*k2]
+			
+				dist := twoKeyDist(*p1, *p2) + (2*Weight.FSpeed.KeyTravel)
+				speed := ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
+				if sfb > highestsfb {
+					highestsfb = sfb
+					highestdsfb = dsfb
+					highestdist = dist
+					highestspeed = speed
+				}
+				speeds[f] += speed
+			}
+			newspeed := (dsfbweight * highestdsfb) * highestdist
+			speeds[f] -= highestspeed
+			speeds[f] += newspeed
 		}
 		if weighted {
 			speeds[f] /= Weight.FSpeed.KPS[f]
@@ -186,6 +225,31 @@ func SFBs(l Layout, skipgrams bool) float64 {
 					count += Data.Skipgrams[*k1+*k2] + Data.Skipgrams[*k2+*k1]
 				}
 			}
+		}
+	}
+	return count
+}
+
+func DynamicSFBs(l Layout) float64 {
+	var count float64
+	for _, posits := range l.Fingermap {
+		for i := 0; i < len(posits); i++ {
+			var highest float64
+			for j := 0; j < len(posits); j++ {
+				if i == j {
+					continue
+				}
+				p1 := &posits[i]
+				p2 := &posits[j]
+				k1 := &l.Keys[p1.Row][p1.Col]
+				k2 := &l.Keys[p2.Row][p2.Col]
+				sfb := float64(Data.Bigrams[*k1+*k2])
+				if sfb > highest {
+					highest = sfb
+				}
+				count += sfb
+			}
+			count -= highest
 		}
 	}
 	return count
@@ -232,6 +296,26 @@ func ListSFBs(l Layout, skipgrams bool) []FreqPair {
 
 	return list
 }
+
+func ListDynamic(l Layout) ([]FreqPair, []FreqPair) {
+	sfbs := ListSFBs(l, false)
+	SortFreqList(sfbs)
+	var escaped []FreqPair
+	var real []FreqPair
+	highestfound := make(map[Pos]bool)
+	for _, bg := range sfbs {
+		prefix := l.Keymap[string(bg.Ngram[0])]
+		if highestfound[prefix] {
+			real = append(real, bg)
+		} else {
+			escaped = append(escaped, bg)
+			highestfound[prefix] = true
+		}
+	}
+
+	return escaped, real
+}
+
 
 func ListWorstBigrams(l Layout) []FreqPair {
 	var bigrams []FreqPair

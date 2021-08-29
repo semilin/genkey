@@ -31,8 +31,13 @@ func Score(l Layout) float64 {
 	var score float64
 	s := &Weight.Score
 	if s.FSpeed != 0 {
-		speeds := FingerSpeed(&l, true)
-		total := 1.0
+		var speeds []float64
+		if !DynamicFlag {
+			speeds = FingerSpeed(&l, true)
+		} else {
+			speeds = DynamicFingerSpeed(&l, true)
+		}
+		total := 0.0
 		for _, s := range speeds {
 			total += s
 		}
@@ -244,7 +249,7 @@ func fullImprove(layout *Layout) {
 					tier++
 				}
 
-				max = 600 * tier * tier
+				max = 900 * tier * tier
 
 				changed = false
 
