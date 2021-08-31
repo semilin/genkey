@@ -4,8 +4,8 @@ This is the layout analyzer and generator that was used to create [Semimak](http
 ## Usage
 `./genkey command argument`
 ### Commands
-#### [load]
-Reads `text.txt` in the same directory and outputs its bigram, trigram, and skipgram data into `data.json`. This data is used for every other command.
+#### [load] filepath
+Reads the file at filepath and outputs its bigram, trigram, and skipgram data into `data.json`. This data is used for every other command.
 #### [r]ank
 Outputs a sorted list of all the layouts with their scores.
 #### [a]nalyze layout
