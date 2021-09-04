@@ -471,8 +471,6 @@ func Interactive(l Layout) {
 			MinimizeLayout(&l, pins, 1, true, is33, noCross)
 		case "m":
 			MinimizeLayout(&l, pins, 0, true, is33, noCross)
-		case "a":
-			PrintAnalysis(l)
 		case "q":
 			os.Exit(0)
 		}
