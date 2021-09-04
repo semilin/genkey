@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math"
 	"math/rand"
@@ -10,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/eiannone/keyboard"
 
 	tm "github.com/buger/goterm"
 	"github.com/wayneashleyberry/truecolor/pkg/color"
@@ -84,6 +85,49 @@ func printworst(l *Layout) {
 	}
 }
 
+func printtrigrams(l *Layout) {
+	tg := FastTrigrams(*l, 0)
+	total := 0.0
+	for _, v := range tg[:4] {
+		total += float64(v)
+	}
+	tm.MoveCursor(1, 7)
+	tm.Printf("Trigrams")
+	tm.MoveCursor(1, 8)
+	x := 0
+	y := 0
+	for i, v := range tg[:4] {
+		var c color.Message
+		if i == 0 {
+			c = *c.Color(166, 188, 220)
+		} else if i == 1 {
+			c = *c.Color(162, 136, 227)
+		} else if i == 2 {
+			c = *c.Color(217, 90, 120) 
+		} else if i == 3 {
+			c = *c.Color(45, 167, 130)
+		}
+		
+		for pc := math.Ceil(100*float64(v) / total);pc > 0;pc-=1 {
+			//s := c.Sprint("█")
+			s := c.Sprint("=")
+			tm.Printf(s)
+			//tm.MoveCursorForward(1)
+			x++
+			if x > 19 {
+				tm.MoveCursorDown(1)
+				tm.MoveCursorBackward(x)
+				x = 0
+				y++
+				if y > 4 {
+					break
+				}
+			}
+		}
+		
+	}
+}
+
 type lScore struct {
 	l Layout
 	s float64
@@ -131,10 +175,11 @@ type psbl struct {
 	potential float64
 }
 
-func suggestswaps(l Layout, deep bool, potential *float64, wg *sync.WaitGroup) psbl {
+var threshold float64
+var focus Pos 
+func SuggestSwaps(l Layout, depth int, maxdepth int, p *psbl, wg *sync.WaitGroup) psbl {
 	s1 := Score(l)
 
-	best := s1
 	var possibilities []psbl
 	for r1 := 0; r1 < 3; r1++ {
 		for r2 := 0; r2 < 3; r2++ {
@@ -165,14 +210,20 @@ func suggestswaps(l Layout, deep bool, potential *float64, wg *sync.WaitGroup) p
 					Swap(&l, p1, p2)
 					s2 := Score(l)
 					diff := s1 - s2
-					if deep && diff > 1 {
-						possibilities = append(possibilities, psbl{Pair{p1, p2}, s2, s2})
+					if depth < maxdepth && diff > threshold {
+						if depth == 0 {
+							possibilities = append(possibilities, psbl{Pair{p1, p2}, s2, s2})
+							go SuggestSwaps(CopyLayout(l), depth+1, maxdepth, &possibilities[len(possibilities)-1], wg)
+						} else {
+							go SuggestSwaps(CopyLayout(l), depth+1, maxdepth, p, wg)
+							if s2 < *&p.potential {
+								*&p.potential = s2
+							}
+						}
 						wg.Add(1)
-						go suggestswaps(CopyLayout(l), false, &possibilities[len(possibilities)-1].potential, wg)
-					} else if !deep {
-						if s2 < best {
-							best = s2
-							*potential = best
+					} else if depth == maxdepth {
+						if s2 < *&p.potential {
+							*&p.potential = s2
 						}
 					}
 					Swap(&l, p1, p2)
@@ -180,7 +231,7 @@ func suggestswaps(l Layout, deep bool, potential *float64, wg *sync.WaitGroup) p
 			}
 		}
 	}
-	if !deep {
+	if depth != 0 {
 		wg.Done()
 		return psbl{}
 	} else {
@@ -201,9 +252,11 @@ func suggestswaps(l Layout, deep bool, potential *float64, wg *sync.WaitGroup) p
 }
 
 func message(s ...string) {
+	tm.MoveCursor(0, tm.Height()-2)
+	tm.Printf("                                    ")
 	for i, v := range s {
 		tm.MoveCursor(0, tm.Height()-(len(s)-i))
-		tm.Printf(v)
+		tm.Printf(v + "                          ")
 	}
 }
 
@@ -216,10 +269,17 @@ func Interactive(l Layout) {
 		}
 	}
 	tm.Clear()
-	reader := bufio.NewReader(os.Stdin)
 	aswaps := make([]Pos, 3)
 	bswaps := make([]Pos, 3)
 	var swapnum int
+
+	if err := keyboard.Open(); err != nil {
+		panic(err)
+	}
+	defer func() {
+		_ = keyboard.Close()
+	}()
+
 	start := time.Now()
 	for {
 		tm.MoveCursor(0, 0)
@@ -229,17 +289,43 @@ func Interactive(l Layout) {
 		tm.Printf("Score: %.2f", Score(l))
 		printsfbs(&l)
 		printworst(&l)
+		printtrigrams(&l)
 		end := time.Now()
 		elapsed := end.Sub(start)
 		s := elapsed.String()
-		tm.MoveCursor(tm.Width()-len(s), 1)
-		tm.Printf(s)
+		tm.MoveCursor(tm.Width()-len(s)-1, 1)
+		tm.Printf("  " + s)
 		tm.MoveCursor(0, tm.Height())
+		tm.Printf("%s\r", strings.Repeat(" ", tm.Width()-2))
 		tm.Printf(":")
 		tm.Flush()
-		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(input)
-		tm.Clear()
+		var runes []rune
+		for {
+			char, key, _ := keyboard.GetSingleKey()
+			if key == keyboard.KeyEnter {
+				break
+			} else if key == keyboard.KeyBackspace || key == keyboard.KeyBackspace2 {
+				if len (runes) > 0 {
+					runes = runes[:len(runes)-1]		
+	
+					tm.MoveCursorBackward(1)
+					tm.Printf("  ")
+				}
+			} else {
+				if len(runes) >= tm.Width()-1 {
+					continue
+				}
+				if key == keyboard.KeySpace {
+					char = ' '
+				}
+				runes = append(runes, char)
+			}
+			tm.MoveCursor(2, tm.Height())
+			tm.Printf(string(runes))
+			tm.Flush()
+		}
+		input := strings.TrimSpace(string(runes))
+		
 		args := strings.Split(input, " ")
 
 		start = time.Now()
@@ -375,13 +461,18 @@ func Interactive(l Layout) {
 			for i := 0; i < swapnum; i++ {
 				Swap(&l, aswaps[i], bswaps[i])
 			}
-			tm.MoveCursorUp(1)
-			tm.Println("reverted last swap")
+			message("reverted last swap")
 		case "g":
+			var max int
+			if len(args) < 2 {
+				max = 1
+			} else {
+				max, _ = strconv.Atoi(args[1])
+				threshold = 0
+			}
 			c := CopyLayout(l)
-			empty := 0.0
 			var wg sync.WaitGroup
-			swaps := suggestswaps(c, true, &empty, &wg)
+			swaps := SuggestSwaps(c, 0, max, &psbl{}, &wg)
 			k1 := l.Keys[swaps.pair[0].Row][swaps.pair[0].Col]
 			k2 := l.Keys[swaps.pair[1].Row][swaps.pair[1].Col]
 			if swaps.score == 0.0 {

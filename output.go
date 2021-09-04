@@ -39,7 +39,7 @@ func PrintAnalysis(l Layout) {
 	fmt.Println(l.Name)
 	PrintLayout(l.Keys)
 	//tri := Trigrams(k)
-	ftri := FastTrigrams(l, 500)
+	ftri := FastTrigrams(l, 0)
 	//total := float64(Data.Total)
 	ftotal := float64(ftri[4])
 	//fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(k)) / total)
@@ -51,9 +51,15 @@ func PrintAnalysis(l Layout) {
 	//fmt.Printf("Redirects: %.2f%%\n", float64(100*Redirects(k)) / total)
 	fmt.Printf("Redirects: ~%.2f%%\n", 100*float64(ftri[3]) / ftotal)
 
-	weighted := FingerSpeed(&l, true)
-	unweighted := FingerSpeed(&l, false)
-	
+	var weighted []float64
+	var unweighted []float64
+	if DynamicFlag {
+		weighted = DynamicFingerSpeed(&l, true)
+		unweighted = DynamicFingerSpeed(&l, false)
+	} else {
+		weighted = FingerSpeed(&l, true)
+		unweighted = FingerSpeed(&l, false)
+	}	
 	var highestUnweightedFinger string
 	var highestUnweighted float64
 	var utotal float64
@@ -82,20 +88,32 @@ func PrintAnalysis(l Layout) {
 	fmt.Printf("Index Usage: %.1f%% %.1f%%\n", left, right)
 	var sfb float64
 	var sfbs []FreqPair
-	sfb = SFBs(l, false)
-	sfbs = ListSFBs(l, false)
-	fmt.Printf("SFBs: %.3f%%\n", 100*sfb/l.Total)
-	fmt.Printf("DSFBs: %.3f%%\n", 100*SFBs(l, true)/l.Total)
-	bigrams := ListWorstBigrams(l)
-	SortFreqList(sfbs)
-	SortFreqList(bigrams)
+	if !DynamicFlag {
+		sfb = SFBs(l, false)
+		sfbs = ListSFBs(l, false)
+		fmt.Printf("SFBs: %.3f%%\n", 100*sfb/l.Total)
+		fmt.Printf("DSFBs: %.3f%%\n", 100*SFBs(l, true)/l.Total)
+		
+		SortFreqList(sfbs)
+		
+		fmt.Println("Top SFBs:")
+		PrintFreqList(sfbs, 8, true)
+	} else {
+		sfb = DynamicSFBs(l)
+		escaped, real := ListDynamic(l)
+		fmt.Printf("Real SFBs: %.3f%%\n", 100*sfb/l.Total)
+		PrintFreqList(real, 8, true)
+		fmt.Println("Dynamic Completions:")
+		PrintFreqList(escaped, 30, true)
+	}
 
-	fmt.Println("Top SFBs:")
-	PrintFreqList(sfbs, 8, true)
+	if !DynamicFlag {
+		bigrams := ListWorstBigrams(l)
+		SortFreqList(bigrams)
+		fmt.Println("Worst Bigrams:")
+		PrintFreqList(bigrams, 8, false)
+	}
 	
-	fmt.Println("Worst Bigrams:")
-	PrintFreqList(bigrams, 8, false)
-
 	fmt.Printf("Score: %.2f\n", Score(l))
 	fmt.Println()
 }
