@@ -15,7 +15,7 @@ func ReadWeights() {
 	}
 
 	var dat map[string]interface{}
-	
+
 	err = hjson.Unmarshal(b, &dat)
 	if err != nil {
 		panic(err)

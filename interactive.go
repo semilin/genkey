@@ -103,12 +103,12 @@ func printtrigrams(l *Layout) {
 		} else if i == 1 {
 			c = *c.Color(162, 136, 227)
 		} else if i == 2 {
-			c = *c.Color(217, 90, 120) 
+			c = *c.Color(217, 90, 120)
 		} else if i == 3 {
 			c = *c.Color(45, 167, 130)
 		}
-		
-		for pc := math.Ceil(100*float64(v) / total);pc > 0;pc-=1 {
+
+		for pc := math.Ceil(100 * float64(v) / total); pc > 0; pc -= 1 {
 			//s := c.Sprint("█")
 			s := c.Sprint("=")
 			tm.Printf(s)
@@ -124,7 +124,7 @@ func printtrigrams(l *Layout) {
 				}
 			}
 		}
-		
+
 	}
 }
 
@@ -198,7 +198,7 @@ func worsen(l Layout, is33 bool) {
 			if x < 12 {
 				xrow = 0
 				xcol = x
-			} else if x < 12 + 11 {
+			} else if x < 12+11 {
 				xrow = 1
 				xcol = x - 12
 			} else {
@@ -208,7 +208,7 @@ func worsen(l Layout, is33 bool) {
 			if y < 12 {
 				yrow = 0
 				ycol = y
-			} else if y < 12 + 11 {
+			} else if y < 12+11 {
 				yrow = 1
 				ycol = y - 12
 			} else {
@@ -229,11 +229,11 @@ func worsen(l Layout, is33 bool) {
 		}
 		px := pins[xrow][xcol]
 		py := pins[yrow][ycol]
-		if (px == "#" || py == "#") {
+		if px == "#" || py == "#" {
 			continue
 		}
-		kx := l.Keys[xrow][xcol] 
-		ky := l.Keys[yrow][ycol] 
+		kx := l.Keys[xrow][xcol]
+		ky := l.Keys[yrow][ycol]
 		if px == kx || px == ky || py == kx || py == ky {
 			continue
 		}
@@ -245,6 +245,7 @@ func worsen(l Layout, is33 bool) {
 }
 
 var threshold float64
+
 func SuggestSwaps(l Layout, depth int, maxdepth int, p *psbl, wg *sync.WaitGroup) psbl {
 	s1 := Score(l)
 
@@ -335,9 +336,9 @@ func Interactive(l Layout) {
 	}()
 
 	pins = [][]string{
-		{"@","#","#","#","@","@","#","#","#","@","#","#",},
-		{"#","#","#","#","@","@","#","#","#","#","#","@",},
-		{"@","@","@","@","@","@","@","@","@","@","@","@",},
+		{"@", "#", "#", "#", "@", "@", "#", "#", "#", "@", "#", "#"},
+		{"#", "#", "#", "#", "@", "@", "#", "#", "#", "#", "#", "@"},
+		{"@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@"},
 	}
 
 	start := time.Now()
@@ -366,9 +367,9 @@ func Interactive(l Layout) {
 			if key == keyboard.KeyEnter {
 				break
 			} else if key == keyboard.KeyBackspace || key == keyboard.KeyBackspace2 {
-				if len (runes) > 0 {
-					runes = runes[:len(runes)-1]		
-	
+				if len(runes) > 0 {
+					runes = runes[:len(runes)-1]
+
 					tm.MoveCursorBackward(1)
 					tm.Printf("  ")
 				}
@@ -386,7 +387,7 @@ func Interactive(l Layout) {
 			tm.Flush()
 		}
 		input := strings.TrimSpace(string(runes))
-		
+
 		args := strings.Split(input, " ")
 
 		start = time.Now()

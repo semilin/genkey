@@ -45,7 +45,7 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 	bestScore := Score(*init)
 	bestLayout := CopyLayout(*init)
 	var tot int
-  var r1len int
+	var r1len int
 	var r2len int
 	if is33 {
 		tot = 33
@@ -58,12 +58,12 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 	}
 	var foundBetter bool
 	for {
- 		foundBetter = false
+		foundBetter = false
 		bestSoFarScore := bestScore
 		bestSoFarLayout := bestLayout
-		
+
 		for i := 0; i < tot-1; i++ {
-			for j := i+1; j < tot; j++ {
+			for j := i + 1; j < tot; j++ {
 				var irow int
 				var icol int
 				if i < r1len {
@@ -103,16 +103,16 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 				}
 				pi := pins[irow][icol]
 				pj := pins[jrow][jcol]
-				if (pi == "#" || pj == "#") {
+				if pi == "#" || pj == "#" {
 					continue
 				}
 				swapped := CopyLayout(bestLayout)
-				ki := swapped.Keys[irow][icol] 
-				kj := swapped.Keys[jrow][jcol] 
+				ki := swapped.Keys[irow][icol]
+				kj := swapped.Keys[jrow][jcol]
 				if pi == ki || pi == kj || pj == ki || pj == kj {
 					continue
 				}
-				
+
 				// NewKeys := make([][]string, len(bestLayout.Keys))
 				// for k := range bestLayout.Keys {
 				// 	NewKeys[k] = make([]string, len(bestLayout.Keys[k]))
@@ -128,7 +128,7 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 				// swapped.Keys[jrow][jcol] = tmp
 				var swappedScore float64
 				if count != 0 {
-					MinimizeLayout(&swapped, pins, count - 1, false, is33, noCross)
+					MinimizeLayout(&swapped, pins, count-1, false, is33, noCross)
 					recBestScore := Score(swapped)
 					if recBestScore < bestSoFarScore {
 						bestSoFarScore = recBestScore
@@ -156,7 +156,7 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 			break
 		}
 	}
-	*init	= bestLayout
+	*init = bestLayout
 }
 
 func LoadLayout(f string) Layout {
@@ -264,7 +264,7 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 				p2 := &posits[j]
 				k1 := &l.Keys[p1.Row][p1.Col]
 				k2 := &l.Keys[p2.Row][p2.Col]
-				
+
 				sfb := float64(Data.Bigrams[*k1+*k2])
 				dsfb := Data.Skipgrams[*k1+*k2]
 				if i != j {
@@ -272,14 +272,14 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2) + (2*Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2) + (2 * Weight.FSpeed.KeyTravel)
 				speeds[f] += ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 			}
 		}
 		if weighted {
 			speeds[f] /= Weight.FSpeed.KPS[f]
 		}
-		speeds[f] = 800 * speeds[f]/l.Total
+		speeds[f] = 800 * speeds[f] / l.Total
 	}
 	return speeds
 }
@@ -299,11 +299,11 @@ func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 				p2 := &posits[j]
 				k1 := &l.Keys[p1.Row][p1.Col]
 				k2 := &l.Keys[p2.Row][p2.Col]
-				
+
 				sfb := float64(Data.Bigrams[*k1+*k2])
 				dsfb := Data.Skipgrams[*k1+*k2]
-			
-				dist := twoKeyDist(*p1, *p2) + (2*Weight.FSpeed.KeyTravel)
+
+				dist := twoKeyDist(*p1, *p2) + (2 * Weight.FSpeed.KeyTravel)
 				speed := ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 				if sfb > highestsfb {
 					highestsfb = sfb
@@ -320,7 +320,7 @@ func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 		if weighted {
 			speeds[f] /= Weight.FSpeed.KPS[f]
 		}
-		speeds[f] = 800 * speeds[f]/l.Total
+		speeds[f] = 800 * speeds[f] / l.Total
 	}
 	return speeds
 }
@@ -434,7 +434,6 @@ func ListDynamic(l Layout) ([]FreqPair, []FreqPair) {
 	return escaped, real
 }
 
-
 func ListWorstBigrams(l Layout) []FreqPair {
 	var bigrams []FreqPair
 	sfbweight := Weight.FSpeed.SFB
@@ -453,9 +452,9 @@ func ListWorstBigrams(l Layout) []FreqPair {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2) + (2*Weight.FSpeed.KeyTravel)
-				cost := 100* (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / Weight.FSpeed.KPS[f]
-				bigrams = append(bigrams, FreqPair{*k1+*k2,cost})
+				dist := twoKeyDist(*p1, *p2) + (2 * Weight.FSpeed.KeyTravel)
+				cost := 100 * (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / Weight.FSpeed.KPS[f]
+				bigrams = append(bigrams, FreqPair{*k1 + *k2, cost})
 			}
 		}
 	}

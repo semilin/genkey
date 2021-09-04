@@ -54,7 +54,7 @@ func Score(l Layout) float64 {
 	if s.IndexBalance != 0 {
 		left, right := IndexUsage(l)
 		score += s.IndexBalance * math.Abs(right-left)
-	} 
+	}
 
 	Analyzed++
 
@@ -126,7 +126,7 @@ func Populate(n int) Layout {
 	}
 	analyzed := 0
 	for runtime.NumGoroutine() > 1 {
-		fmt.Printf("%d greedy improving at %d analyzed/s       \r", runtime.NumGoroutine()-1, Analyzed - analyzed)
+		fmt.Printf("%d greedy improving at %d analyzed/s       \r", runtime.NumGoroutine()-1, Analyzed-analyzed)
 		analyzed = Analyzed
 		time.Sleep(time.Second)
 	}
@@ -148,7 +148,7 @@ func Populate(n int) Layout {
 		go fullImprove(&layouts[i].l)
 	}
 	for runtime.NumGoroutine() > 1 {
-		fmt.Printf("%d fully improving at %d analyzed/s      \r", runtime.NumGoroutine()-1, Analyzed - analyzed)
+		fmt.Printf("%d fully improving at %d analyzed/s      \r", runtime.NumGoroutine()-1, Analyzed-analyzed)
 		analyzed = Analyzed
 		time.Sleep(time.Second)
 	}

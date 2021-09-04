@@ -83,14 +83,13 @@ func main() {
 			}
 		} else if args[0] == "g" {
 			best := Populate(1000)
-			
+
 			optimal := Score(best)
 
 			type x struct {
 				name  string
 				score float64
 			}
-			
 
 			var sorted []x
 
