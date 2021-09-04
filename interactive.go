@@ -183,24 +183,8 @@ func SuggestSwaps(l Layout, depth int, maxdepth int, p *psbl, wg *sync.WaitGroup
 	var possibilities []psbl
 	for r1 := 0; r1 < 3; r1++ {
 		for r2 := 0; r2 < 3; r2++ {
-      var c1lim int
-      var c2lim int
-      if r1 == 0 {
-        c1lim = 12
-      } else if r1 == 1 {
-        c1lim = 11
-      } else {
-        c1lim = 10
-      }
-      if r2 == 0 {
-        c2lim = 12
-      } else if r2 == 1 {
-        c2lim = 11
-      } else {
-        c2lim = 10
-      }
-			for c1 := 0; c1 < c1lim; c1++ {
-				for c2 := 0; c2 < c2lim; c2++ {
+			for c1 := 0; c1 < len(l.Keys[r1]); c1++ {
+				for c2 := 0; c2 < len(l.Keys[r2]); c2++ {
 					if c1 == c2 && r1 == r2 {
 						continue
 					}
@@ -282,6 +266,7 @@ func Interactive(l Layout) {
 
 	start := time.Now()
 	for {
+		tm.Clear()
 		tm.MoveCursor(0, 0)
 		tm.Printf(l.Name)
 		printlayout(&l, 1, 2)
@@ -345,78 +330,6 @@ func Interactive(l Layout) {
 			} else {
 				Weight.Score.TrigramPrecision = 0
 				message("enabled trigram precision")
-			}
-		case "l":
-			var n int
-			if len(args) == 2 {
-				n, _ = strconv.Atoi(args[1])
-			} else {
-				n = 1000
-			}
-			i := 0
-			var klen int
-			if is33 {
-				klen = 33
-			} else {
-				klen = 30
-			}
-			for i < n {
-				x := rand.Intn(klen)
-				y := rand.Intn(klen)
-				if x == y {
-					continue
-				}
-				var xrow int
-				var xcol int
-				var yrow int
-				var ycol int
-				if is33 {
-					if x < 12 {
-						xrow = 0
-						xcol = x
-					} else if x < 12 + 11 {
-						xrow = 1
-						xcol = x - 12
-					} else {
-						xrow = 2
-						xcol = x - 12 - 11
-					}
-					if y < 12 {
-						yrow = 0
-						ycol = y
-					} else if y < 12 + 11 {
-						yrow = 1
-						ycol = y - 12
-					} else {
-						yrow = 2
-						ycol = y - 12 - 11
-					}
-				} else {
-					if x < 10 {
-						xrow = 0
-						xcol = x
-					} else if x < 20 {
-						xrow = 1
-						xcol = x - 10
-					} else {
-						xrow = 2
-						xcol = x - 20
-					}
-				}
-				px := pins[xrow][xcol]
-				py := pins[yrow][ycol]
-				if (px == "#" || py == "#") {
-					continue
-				}
-				kx := l.Keys[xrow][xcol] 
-				ky := l.Keys[yrow][ycol] 
-				if px == kx || px == ky || py == kx || py == ky {
-					continue
-				}
-				p1 := l.Keymap[kx]
-				p2 := l.Keymap[ky]
-				Swap(&l, p1, p2)
-				i = i + 1
 			}
 		case "s":
 			if len(args) < 3 {
