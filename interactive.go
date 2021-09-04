@@ -176,7 +176,6 @@ type psbl struct {
 }
 
 var threshold float64
-var focus Pos 
 func SuggestSwaps(l Layout, depth int, maxdepth int, p *psbl, wg *sync.WaitGroup) psbl {
 	s1 := Score(l)
 
