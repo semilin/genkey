@@ -397,7 +397,7 @@ func Interactive(l Layout) {
 
 		i := input()
 		args := strings.Split(i, " ")
-		
+
 		start = time.Now()
 		is33 := false
 		noCross := true
@@ -506,7 +506,7 @@ func Interactive(l Layout) {
 			content[3] = strings.Join(l.Keys[2], " ")
 
 			fingermatrix := make([][]string, 3)
-			for i:=0;i<3;i++ {
+			for i := 0; i < 3; i++ {
 				fingermatrix[i] = make([]string, 20)
 			}
 
