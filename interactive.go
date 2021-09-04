@@ -103,12 +103,12 @@ func printtrigrams(l *Layout) {
 		} else if i == 1 {
 			c = *c.Color(162, 136, 227)
 		} else if i == 2 {
-			c = *c.Color(217, 90, 120) 
+			c = *c.Color(217, 90, 120)
 		} else if i == 3 {
 			c = *c.Color(45, 167, 130)
 		}
-		
-		for pc := math.Ceil(100*float64(v) / total);pc > 0;pc-=1 {
+
+		for pc := math.Ceil(100 * float64(v) / total); pc > 0; pc -= 1 {
 			//s := c.Sprint("█")
 			s := c.Sprint("=")
 			tm.Printf(s)
@@ -124,7 +124,7 @@ func printtrigrams(l *Layout) {
 				}
 			}
 		}
-		
+
 	}
 }
 
@@ -175,17 +175,86 @@ type psbl struct {
 	potential float64
 }
 
+func worsen(l Layout, is33 bool) {
+	n := 1000
+	i := 0
+	var klen int
+	if is33 {
+		klen = 33
+	} else {
+		klen = 30
+	}
+	for i < n {
+		x := rand.Intn(klen)
+		y := rand.Intn(klen)
+		if x == y {
+			continue
+		}
+		var xrow int
+		var xcol int
+		var yrow int
+		var ycol int
+		if is33 {
+			if x < 12 {
+				xrow = 0
+				xcol = x
+			} else if x < 12+11 {
+				xrow = 1
+				xcol = x - 12
+			} else {
+				xrow = 2
+				xcol = x - 12 - 11
+			}
+			if y < 12 {
+				yrow = 0
+				ycol = y
+			} else if y < 12+11 {
+				yrow = 1
+				ycol = y - 12
+			} else {
+				yrow = 2
+				ycol = y - 12 - 11
+			}
+		} else {
+			if x < 10 {
+				xrow = 0
+				xcol = x
+			} else if x < 20 {
+				xrow = 1
+				xcol = x - 10
+			} else {
+				xrow = 2
+				xcol = x - 20
+			}
+		}
+		px := pins[xrow][xcol]
+		py := pins[yrow][ycol]
+		if px == "#" || py == "#" {
+			continue
+		}
+		kx := l.Keys[xrow][xcol]
+		ky := l.Keys[yrow][ycol]
+		if px == kx || px == ky || py == kx || py == ky {
+			continue
+		}
+		p1 := l.Keymap[kx]
+		p2 := l.Keymap[ky]
+		Swap(&l, p1, p2)
+		i = i + 1
+	}
+}
+
 var threshold float64
-var focus Pos 
+
 func SuggestSwaps(l Layout, depth int, maxdepth int, p *psbl, wg *sync.WaitGroup) psbl {
 	s1 := Score(l)
 
 	var possibilities []psbl
 	for r1 := 0; r1 < 3; r1++ {
 		for r2 := 0; r2 < 3; r2++ {
-			for c1 := 0; c1 < 10; c1++ {
-				for c2 := c1; c2 < 10; c2++ {
-					if r1 == r2 {
+			for c1 := 0; c1 < len(l.Keys[r1]); c1++ {
+				for c2 := 0; c2 < len(l.Keys[r2]); c2++ {
+					if c1 == c2 && r1 == r2 {
 						continue
 					}
 					p1 := Pos{c1, r1}
@@ -244,6 +313,8 @@ func message(s ...string) {
 	}
 }
 
+var pins [][]string
+
 func Interactive(l Layout) {
 	for _, row := range l.Keys {
 		for x := range row {
@@ -264,8 +335,15 @@ func Interactive(l Layout) {
 		_ = keyboard.Close()
 	}()
 
+	pins = [][]string{
+		{"@", "#", "#", "#", "@", "@", "#", "#", "#", "@", "#", "#"},
+		{"#", "#", "#", "#", "@", "@", "#", "#", "#", "#", "#", "@"},
+		{"@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@", "@"},
+	}
+
 	start := time.Now()
 	for {
+		tm.Clear()
 		tm.MoveCursor(0, 0)
 		tm.Printf(l.Name)
 		printlayout(&l, 1, 2)
@@ -289,9 +367,9 @@ func Interactive(l Layout) {
 			if key == keyboard.KeyEnter {
 				break
 			} else if key == keyboard.KeyBackspace || key == keyboard.KeyBackspace2 {
-				if len (runes) > 0 {
-					runes = runes[:len(runes)-1]		
-	
+				if len(runes) > 0 {
+					runes = runes[:len(runes)-1]
+
 					tm.MoveCursorBackward(1)
 					tm.Printf("  ")
 				}
@@ -309,12 +387,22 @@ func Interactive(l Layout) {
 			tm.Flush()
 		}
 		input := strings.TrimSpace(string(runes))
-		
+
 		args := strings.Split(input, " ")
 
 		start = time.Now()
+		is33 := false
+		noCross := true
 
 		switch args[0] {
+		case "t":
+			if Weight.Score.TrigramPrecision == 0 {
+				Weight.Score.TrigramPrecision = -1
+				message("disabled trigram precision")
+			} else {
+				Weight.Score.TrigramPrecision = 0
+				message("enabled trigram precision")
+			}
 		case "s":
 			if len(args) < 3 {
 				message("usage: s key1 key2", "example: s a b")
@@ -377,6 +465,14 @@ func Interactive(l Layout) {
 			} else {
 				message(fmt.Sprintf("try %s (%.1f immediate, %.1f potential)", k1+k2, swaps.score, swaps.potential))
 			}
+		case "w":
+			worsen(l, is33)
+		case "m2":
+			MinimizeLayout(&l, pins, 1, true, is33, noCross)
+		case "m":
+			MinimizeLayout(&l, pins, 0, true, is33, noCross)
+		case "a":
+			PrintAnalysis(l)
 		case "q":
 			os.Exit(0)
 		}
