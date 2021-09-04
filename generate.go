@@ -91,7 +91,7 @@ func randomLayout() Layout {
 			char := string([]rune(chars3)[rand.Intn(len(chars3))])
 			k[row][col] += char
 			l.Total += float64(Data.Letters[char])
-			chars = strings.ReplaceAll(chars, char, "")
+			chars = strings.Replace(chars, char, "", 1)
 		}
 	}
 
