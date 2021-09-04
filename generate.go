@@ -49,7 +49,7 @@ func Score(l Layout) float64 {
 	if s.IndexBalance != 0 {
 		left, right := IndexUsage(l)
 		score += s.IndexBalance * math.Abs(right-left)
-	}
+	} 
 
 	Analyzed++
 
@@ -57,14 +57,33 @@ func Score(l Layout) float64 {
 }
 
 func randomLayout() Layout {
-	chars := "abcdefghijklmnopqrstuvwxyz,./'"
+	chars := "abcdefghijklmnopqrstuvwxyz,./'-=;"
+	//chars2 := "yluo.zfhcvwqirea,dtnsm-=j';/pkbgx"
+	chars3 := "abcdefghijklmnopqrstuvwxyz"
 	var k [][]string
 	k = make([][]string, 3)
 	var l Layout
 	for row := 0; row < 3; row++ {
-		k[row] = make([]string, 10)
-		for col := 0; col < 10; col++ {
-			char := string([]rune(chars)[rand.Intn(len(chars))])
+		var cols int
+		if row == 0 {
+			cols = 10
+		} else if row == 1 {
+			cols = 9
+		} else {
+			cols = 7
+		}
+		k[row] = make([]string, cols)
+		for col := 0; col < cols; col++ {
+			//var i int
+			//if row == 0 {
+			//	i = col
+			//} else if row == 1 {
+			//	i = 10 + col
+			//} else {
+			//	i = 10 + 9 + col
+			//}
+			//char := string([]rune(chars)[rand.Intn(len(chars))])
+			char := string([]rune(chars3)[rand.Intn(len(chars3))])
 			k[row][col] += char
 			l.Total += float64(Data.Letters[char])
 			chars = strings.ReplaceAll(chars, char, "")
@@ -175,7 +194,14 @@ func Populate(n int) Layout {
 func RandPos() Pos {
 	var p Pos
 	p.Row = rand.Intn(3)
-	p.Col = rand.Intn(10)
+	if p.Row == 0 {
+		p.Col = rand.Intn(10)
+	} else if p.Row == 1 {
+		p.Col = rand.Intn(9)
+	} else {
+		p.Col = rand.Intn(7)
+	}
+	//p.Col = rand.Intn(10)
 	return p
 }
 

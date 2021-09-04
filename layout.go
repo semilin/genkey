@@ -41,6 +41,124 @@ type Layout struct {
 	Total        float64
 }
 
+func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 bool, noCross bool) {
+	bestScore := Score(*init)
+	bestLayout := CopyLayout(*init)
+	var tot int
+  var r1len int
+	var r2len int
+	if is33 {
+		tot = 33
+		r1len = 12
+		r2len = 11
+	} else {
+		tot = 30
+		r1len = 10
+		r2len = 10
+	}
+	var foundBetter bool
+	for {
+ 		foundBetter = false
+		bestSoFarScore := bestScore
+		bestSoFarLayout := bestLayout
+		
+		for i := 0; i < tot-1; i++ {
+			for j := i+1; j < tot; j++ {
+				var irow int
+				var icol int
+				if i < r1len {
+					irow = 0
+				} else if i < (r1len + r2len) {
+					irow = 1
+				} else {
+					irow = 2
+				}
+				if i < r1len {
+					icol = i
+				} else if i < (r1len + r2len) {
+					icol = i - r1len
+				} else {
+					icol = i - (r1len + r2len)
+				}
+				var jrow int
+				var jcol int
+				if j < r1len {
+					jrow = 0
+				} else if j < (r1len + r2len) {
+					jrow = 1
+				} else {
+					jrow = 2
+				}
+				if j < r1len {
+					jcol = j
+				} else if j < (r1len + r2len) {
+					jcol = j - r1len
+				} else {
+					jcol = j - (r1len + r2len)
+				}
+				if noCross {
+					if !((icol <= 4 && jcol <= 4) || (icol >= 5 && jcol >= 5)) {
+						continue
+					}
+				}
+				pi := pins[irow][icol]
+				pj := pins[jrow][jcol]
+				if (pi == "#" || pj == "#") {
+					continue
+				}
+				swapped := CopyLayout(bestLayout)
+				ki := swapped.Keys[irow][icol] 
+				kj := swapped.Keys[jrow][jcol] 
+				if pi == ki || pi == kj || pj == ki || pj == kj {
+					continue
+				}
+				
+				// NewKeys := make([][]string, len(bestLayout.Keys))
+				// for k := range bestLayout.Keys {
+				// 	NewKeys[k] = make([]string, len(bestLayout.Keys[k]))
+				// 	copy(NewKeys[k], bestLayout.Keys[k])
+				// }
+				// swapped.Keys = NewKeys
+				Swap(&swapped, swapped.Keymap[ki], swapped.Keymap[kj])
+				// tmp := swapped.Keys[irow][icol]
+				//fmt.Printf("< %s\n", swapped.Keys[irow][icol])
+				//fmt.Printf("- %s\n", swapped.Keys[jrow][jcol])
+				// swapped.Keys[irow][icol] = swapped.Keys[jrow][jcol]
+				//fmt.Printf("> %s\n", swapped.Keys[irow][icol])
+				// swapped.Keys[jrow][jcol] = tmp
+				var swappedScore float64
+				if count != 0 {
+					MinimizeLayout(&swapped, pins, count - 1, false, is33, noCross)
+					recBestScore := Score(swapped)
+					if recBestScore < bestSoFarScore {
+						bestSoFarScore = recBestScore
+						bestSoFarLayout = swapped
+						foundBetter = true
+					}
+				}
+				swappedScore = Score(swapped)
+				if swappedScore < bestSoFarScore {
+					bestSoFarScore = swappedScore
+					bestSoFarLayout = swapped
+					foundBetter = true
+				}
+			}
+		}
+		if bestSoFarScore < bestScore {
+			bestScore = bestSoFarScore
+			bestLayout = bestSoFarLayout
+			if top {
+				PrintLayout(bestLayout.Keys)
+				fmt.Printf("Score: %.2f\n", Score(bestLayout))
+			}
+		}
+		if !foundBetter {
+			break
+		}
+	}
+	*init	= bestLayout
+}
+
 func LoadLayout(f string) Layout {
 	var l Layout
 	b, err := ioutil.ReadFile(f)

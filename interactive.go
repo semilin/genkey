@@ -138,8 +138,24 @@ func suggestswaps(l Layout, deep bool, potential *float64, wg *sync.WaitGroup) p
 	var possibilities []psbl
 	for r1 := 0; r1 < 3; r1++ {
 		for r2 := 0; r2 < 3; r2++ {
-			for c1 := 0; c1 < 10; c1++ {
-				for c2 := 0; c2 < 10; c2++ {
+      var c1lim int
+      var c2lim int
+      if r1 == 0 {
+        c1lim = 12
+      } else if r1 == 1 {
+        c1lim = 11
+      } else {
+        c1lim = 10
+      }
+      if r2 == 0 {
+        c2lim = 12
+      } else if r2 == 1 {
+        c2lim = 11
+      } else {
+        c2lim = 10
+      }
+			for c1 := 0; c1 < c1lim; c1++ {
+				for c2 := 0; c2 < c2lim; c2++ {
 					if c1 == c2 && r1 == r2 {
 						continue
 					}
@@ -227,8 +243,95 @@ func Interactive(l Layout) {
 		args := strings.Split(input, " ")
 
 		start = time.Now()
+		pins := [][]string{
+			[]string{"@","#","#","#","@","@","#","#","#","@","#","#",},
+			[]string{"#","#","#","#","@","@","#","#","#","#","#","@",},
+			[]string{"@","@","@","@","@","@","@","@","@","@","@","@",},
+		}
+		is33 := false
+		noCross := true
 
 		switch args[0] {
+		case "t":
+			if Weight.Score.TrigramPrecision == 0 {
+				Weight.Score.TrigramPrecision = -1
+				message("disabled trigram precision")
+			} else {
+				Weight.Score.TrigramPrecision = 0
+				message("enabled trigram precision")
+			}
+		case "l":
+			var n int
+			if len(args) == 2 {
+				n, _ = strconv.Atoi(args[1])
+			} else {
+				n = 1000
+			}
+			i := 0
+			var klen int
+			if is33 {
+				klen = 33
+			} else {
+				klen = 30
+			}
+			for i < n {
+				x := rand.Intn(klen)
+				y := rand.Intn(klen)
+				if x == y {
+					continue
+				}
+				var xrow int
+				var xcol int
+				var yrow int
+				var ycol int
+				if is33 {
+					if x < 12 {
+						xrow = 0
+						xcol = x
+					} else if x < 12 + 11 {
+						xrow = 1
+						xcol = x - 12
+					} else {
+						xrow = 2
+						xcol = x - 12 - 11
+					}
+					if y < 12 {
+						yrow = 0
+						ycol = y
+					} else if y < 12 + 11 {
+						yrow = 1
+						ycol = y - 12
+					} else {
+						yrow = 2
+						ycol = y - 12 - 11
+					}
+				} else {
+					if x < 10 {
+						xrow = 0
+						xcol = x
+					} else if x < 20 {
+						xrow = 1
+						xcol = x - 10
+					} else {
+						xrow = 2
+						xcol = x - 20
+					}
+				}
+				px := pins[xrow][xcol]
+				py := pins[yrow][ycol]
+				if (px == "#" || py == "#") {
+					continue
+				}
+				kx := l.Keys[xrow][xcol] 
+				ky := l.Keys[yrow][ycol] 
+				if px == kx || px == ky || py == kx || py == ky {
+					continue
+				}
+				p1 := l.Keymap[kx]
+				p2 := l.Keymap[ky]
+				Swap(&l, p1, p2)
+				i = i + 1
+			}
 		case "s":
 			if len(args) < 3 {
 				message("usage: s key1 key2", "example: s a b")
@@ -286,6 +389,12 @@ func Interactive(l Layout) {
 			} else {
 				message(fmt.Sprintf("try %s (%.1f immediate, %.1f potential)", k1+k2, swaps.score, swaps.potential))
 			}
+		case "m2":
+			MinimizeLayout(&l, pins, 1, true, is33, noCross)
+		case "m":
+			MinimizeLayout(&l, pins, 0, true, is33, noCross)
+		case "a":
+			PrintAnalysis(l)
 		case "q":
 			os.Exit(0)
 		}
