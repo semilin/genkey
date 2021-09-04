@@ -314,6 +314,7 @@ func message(s ...string) {
 	}
 }
 
+<<<<<<< HEAD
 func input() string {
 	var runes []rune
 	for {
@@ -344,6 +345,8 @@ func input() string {
 	return input
 }
 
+=======
+>>>>>>> 2cbdbcf3996a8f3507a3408365239977b96b19fd
 var pins [][]string
 
 func Interactive(l Layout) {
@@ -392,9 +395,40 @@ func Interactive(l Layout) {
 		tm.Printf("%s\r", strings.Repeat(" ", tm.Width()-2))
 		tm.Printf(":")
 		tm.Flush()
+<<<<<<< HEAD
 
 		i := input()
 		args := strings.Split(i, " ")
+=======
+		var runes []rune
+		for {
+			char, key, _ := keyboard.GetSingleKey()
+			if key == keyboard.KeyEnter {
+				break
+			} else if key == keyboard.KeyBackspace || key == keyboard.KeyBackspace2 {
+				if len(runes) > 0 {
+					runes = runes[:len(runes)-1]
+
+					tm.MoveCursorBackward(1)
+					tm.Printf("  ")
+				}
+			} else {
+				if len(runes) >= tm.Width()-1 {
+					continue
+				}
+				if key == keyboard.KeySpace {
+					char = ' '
+				}
+				runes = append(runes, char)
+			}
+			tm.MoveCursor(2, tm.Height())
+			tm.Printf(string(runes))
+			tm.Flush()
+		}
+		input := strings.TrimSpace(string(runes))
+
+		args := strings.Split(input, " ")
+>>>>>>> 2cbdbcf3996a8f3507a3408365239977b96b19fd
 
 		start = time.Now()
 		is33 := false

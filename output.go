@@ -12,7 +12,6 @@ Copyright (C) 2021 Colin Hughes
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 package main
 
 import (
@@ -43,13 +42,13 @@ func PrintAnalysis(l Layout) {
 	//total := float64(Data.Total)
 	ftotal := float64(ftri[4])
 	//fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(k)) / total)
-	fmt.Printf("Rolls: ~%.2f%%\n", 100*float64(ftri[0]) / ftotal)
-	//fmt.Printf("Alternates: %.2f%%\n", float64(100*tri[1]) / total)		
-	fmt.Printf("Alternates: ~%.2f%%\n", 100*float64(ftri[1]) / ftotal)
+	fmt.Printf("Rolls: ~%.2f%%\n", 100*float64(ftri[0])/ftotal)
+	//fmt.Printf("Alternates: %.2f%%\n", float64(100*tri[1]) / total)
+	fmt.Printf("Alternates: ~%.2f%%\n", 100*float64(ftri[1])/ftotal)
 	//fmt.Printf("Onehands: %.2f%%\n", float64(100*tri[2]) / total)
-	fmt.Printf("Onehands: ~%.2f%%\n", 100*float64(ftri[2]) / ftotal)
+	fmt.Printf("Onehands: ~%.2f%%\n", 100*float64(ftri[2])/ftotal)
 	//fmt.Printf("Redirects: %.2f%%\n", float64(100*Redirects(k)) / total)
-	fmt.Printf("Redirects: ~%.2f%%\n", 100*float64(ftri[3]) / ftotal)
+	fmt.Printf("Redirects: ~%.2f%%\n", 100*float64(ftri[3])/ftotal)
 
 	var weighted []float64
 	var unweighted []float64
@@ -59,7 +58,7 @@ func PrintAnalysis(l Layout) {
 	} else {
 		weighted = FingerSpeed(&l, true)
 		unweighted = FingerSpeed(&l, false)
-	}	
+	}
 	var highestUnweightedFinger string
 	var highestUnweighted float64
 	var utotal float64
@@ -67,7 +66,7 @@ func PrintAnalysis(l Layout) {
 	var highestWeightedFinger string
 	var highestWeighted float64
 	var wtotal float64
-	for i := 0; i < 8; i ++ {
+	for i := 0; i < 8; i++ {
 		utotal += unweighted[i]
 		if unweighted[i] > highestUnweighted {
 			highestUnweighted = unweighted[i]
@@ -80,8 +79,8 @@ func PrintAnalysis(l Layout) {
 			highestWeightedFinger = FingerNames[i]
 		}
 	}
-	fmt.Printf("Finger Speed (weighted): %.2f\n", weighted)		
-	fmt.Printf("Finger Speed (unweighted): %.2f\n", unweighted)		
+	fmt.Printf("Finger Speed (weighted): %.2f\n", weighted)
+	fmt.Printf("Finger Speed (unweighted): %.2f\n", unweighted)
 	fmt.Printf("Highest Speed (weighted): %.2f (%s)\n", highestWeighted, highestWeightedFinger)
 	fmt.Printf("Highest Speed (unweighted): %.2f (%s)\n", highestUnweighted, highestUnweightedFinger)
 	left, right := IndexUsage(l)
@@ -93,9 +92,9 @@ func PrintAnalysis(l Layout) {
 		sfbs = ListSFBs(l, false)
 		fmt.Printf("SFBs: %.3f%%\n", 100*sfb/l.Total)
 		fmt.Printf("DSFBs: %.3f%%\n", 100*SFBs(l, true)/l.Total)
-		
+
 		SortFreqList(sfbs)
-		
+
 		fmt.Println("Top SFBs:")
 		PrintFreqList(sfbs, 8, true)
 	} else {
@@ -113,7 +112,7 @@ func PrintAnalysis(l Layout) {
 		fmt.Println("Worst Bigrams:")
 		PrintFreqList(bigrams, 8, false)
 	}
-	
+
 	fmt.Printf("Score: %.2f\n", Score(l))
 	fmt.Println()
 }
@@ -136,18 +135,18 @@ func Heatmap(layout Layout) {
 	l := layout.Keys
 	dc := gg.NewContext(500, 160)
 
-	cols := []float64{0,0,0,0,0,0,0,0,0,0}
-	
+	cols := []float64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
 	for row, r := range l {
 		for col, c := range r {
 			if col > 9 {
 				continue
 			}
 			dc.DrawRectangle(float64(50*col), float64(50*row), 50, 50)
-			freq := float64(Data.Letters[c]) / (layout.Total*1.15)
+			freq := float64(Data.Letters[c]) / (layout.Total * 1.15)
 			cols[col] += freq
-			pc := freq/0.1 //percent
-			log := math.Log(1+pc)
+			pc := freq / 0.1 //percent
+			log := math.Log(1 + pc)
 			base := 0.3
 			dc.SetRGB(0.6*(base+log), base*(1-pc), base+log)
 			dc.Fill()
@@ -159,7 +158,7 @@ func Heatmap(layout Layout) {
 	for i, c := range cols {
 		dc.DrawRectangle(float64(50*i), 150, 50, 10)
 		pc := c / 0.2
-		log := math.Log(1+pc)
+		log := math.Log(1 + pc)
 		base := 0.3
 		dc.SetRGB(0.6*(base+log), base*(1-pc), base+log)
 		dc.Fill()
@@ -167,4 +166,3 @@ func Heatmap(layout Layout) {
 
 	dc.SavePNG("heatmap.png")
 }
-

@@ -126,7 +126,7 @@ func Populate(n int) Layout {
 	}
 	analyzed := 0
 	for runtime.NumGoroutine() > 1 {
-		fmt.Printf("%d greedy improving at %d analyzed/s       \r", runtime.NumGoroutine()-1, Analyzed - analyzed)
+		fmt.Printf("%d greedy improving at %d analyzed/s       \r", runtime.NumGoroutine()-1, Analyzed-analyzed)
 		analyzed = Analyzed
 		time.Sleep(time.Second)
 	}
@@ -145,10 +145,10 @@ func Populate(n int) Layout {
 
 	for i := range layouts {
 		layouts[i].score = 0
-		go Anneal(&layouts[i].l)
+		go fullImprove(&layouts[i].l)
 	}
 	for runtime.NumGoroutine() > 1 {
-		fmt.Printf("%d fully improving at %d analyzed/s      \r", runtime.NumGoroutine()-1, Analyzed - analyzed)
+		fmt.Printf("%d fully improving at %d analyzed/s      \r", runtime.NumGoroutine()-1, Analyzed-analyzed)
 		analyzed = Analyzed
 		time.Sleep(time.Second)
 	}
@@ -263,22 +263,6 @@ func fullImprove(layout *Layout) {
 		continue
 	}
 
-}
-
-func Anneal(l *Layout) {
-	for temp:=100;temp>-3;temp-- {
-		for i:=0;i<300;i++ {
-			a, b := RandPos(), RandPos()
-			first := Score(*l)
-			Swap(l, a, b)
-			second := Score(*l)
-			if second < first || rand.Intn(100) < temp {
-				continue
-			} else {
-				Swap(l, a, b)
-			}
-		}
-	}
 }
 
 func Swap(l *Layout, a, b Pos) {

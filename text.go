@@ -12,7 +12,6 @@ Copyright (C) 2021 Colin Hughes
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 package main
 
 import (
@@ -122,11 +121,11 @@ func GetTextData(f string) TextData {
 	fmt.Println()
 
 	var sorted []FreqPair
-	
+
 	for k, v := range data.Trigrams {
 		sorted = append(sorted, FreqPair{k, float64(v)})
 	}
-	
+
 	sort.Slice(sorted, func(i, j int) bool {
 		return sorted[i].Count > sorted[j].Count
 	})
