@@ -175,6 +175,75 @@ type psbl struct {
 	potential float64
 }
 
+func worsen(l Layout, is33 bool) {
+	n := 1000
+	i := 0
+	var klen int
+	if is33 {
+		klen = 33
+	} else {
+		klen = 30
+	}
+	for i < n {
+		x := rand.Intn(klen)
+		y := rand.Intn(klen)
+		if x == y {
+			continue
+		}
+		var xrow int
+		var xcol int
+		var yrow int
+		var ycol int
+		if is33 {
+			if x < 12 {
+				xrow = 0
+				xcol = x
+			} else if x < 12 + 11 {
+				xrow = 1
+				xcol = x - 12
+			} else {
+				xrow = 2
+				xcol = x - 12 - 11
+			}
+			if y < 12 {
+				yrow = 0
+				ycol = y
+			} else if y < 12 + 11 {
+				yrow = 1
+				ycol = y - 12
+			} else {
+				yrow = 2
+				ycol = y - 12 - 11
+			}
+		} else {
+			if x < 10 {
+				xrow = 0
+				xcol = x
+			} else if x < 20 {
+				xrow = 1
+				xcol = x - 10
+			} else {
+				xrow = 2
+				xcol = x - 20
+			}
+		}
+		px := pins[xrow][xcol]
+		py := pins[yrow][ycol]
+		if (px == "#" || py == "#") {
+			continue
+		}
+		kx := l.Keys[xrow][xcol] 
+		ky := l.Keys[yrow][ycol] 
+		if px == kx || px == ky || py == kx || py == ky {
+			continue
+		}
+		p1 := l.Keymap[kx]
+		p2 := l.Keymap[ky]
+		Swap(&l, p1, p2)
+		i = i + 1
+	}
+}
+
 var threshold float64
 func SuggestSwaps(l Layout, depth int, maxdepth int, p *psbl, wg *sync.WaitGroup) psbl {
 	s1 := Score(l)
@@ -243,6 +312,8 @@ func message(s ...string) {
 	}
 }
 
+var pins [][]string
+
 func Interactive(l Layout) {
 	for _, row := range l.Keys {
 		for x := range row {
@@ -262,6 +333,12 @@ func Interactive(l Layout) {
 	defer func() {
 		_ = keyboard.Close()
 	}()
+
+	pins = [][]string{
+		{"@","#","#","#","@","@","#","#","#","@","#","#",},
+		{"#","#","#","#","@","@","#","#","#","#","#","@",},
+		{"@","@","@","@","@","@","@","@","@","@","@","@",},
+	}
 
 	start := time.Now()
 	for {
@@ -313,11 +390,6 @@ func Interactive(l Layout) {
 		args := strings.Split(input, " ")
 
 		start = time.Now()
-		pins := [][]string{
-			{"@","#","#","#","@","@","#","#","#","@","#","#",},
-			{"#","#","#","#","@","@","#","#","#","#","#","@",},
-			{"@","@","@","@","@","@","@","@","@","@","@","@",},
-		}
 		is33 := false
 		noCross := true
 
@@ -392,6 +464,8 @@ func Interactive(l Layout) {
 			} else {
 				message(fmt.Sprintf("try %s (%.1f immediate, %.1f potential)", k1+k2, swaps.score, swaps.potential))
 			}
+		case "w":
+			worsen(l, is33)
 		case "m2":
 			MinimizeLayout(&l, pins, 1, true, is33, noCross)
 		case "m":
