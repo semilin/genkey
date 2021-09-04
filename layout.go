@@ -147,10 +147,6 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 		if bestSoFarScore < bestScore {
 			bestScore = bestSoFarScore
 			bestLayout = bestSoFarLayout
-			if top {
-				PrintLayout(bestLayout.Keys)
-				fmt.Printf("Score: %.2f\n", Score(bestLayout))
-			}
 		}
 		if !foundBetter {
 			break
