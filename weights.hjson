@@ -1,6 +1,6 @@
 {
   Dist: {
-    Lateral: 1.6 # lateral movement multiplier
+    Lateral: 1.4 # lateral movement multiplier
   }
   FSpeed: {
     SFB: 1.0  # SFB weight
