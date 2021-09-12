@@ -138,7 +138,7 @@ func main() {
 				amount, _ = strconv.Atoi(args[2])
 			}
 			PrintFreqList(dsfbs, amount, true)
-			
+
 		} else if args[0] == "lsbs" {
 			if len(args) == 1 {
 				fmt.Println("You must specify a layout!")
