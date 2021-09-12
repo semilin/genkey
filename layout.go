@@ -535,6 +535,7 @@ func LSBs(l Layout) int {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
 				count += Data.Bigrams[k1+k2]
+				count += Data.Bigrams[k2+k1]
 			}
 		}
 	}
@@ -546,6 +547,7 @@ func LSBs(l Layout) int {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
 				count += Data.Bigrams[k1+k2]
+				count += Data.Bigrams[k2+k2]
 			}
 		}
 	}
@@ -561,6 +563,7 @@ func ListLSBs(l Layout) []FreqPair {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
 				list = append(list, FreqPair{k1+k2, float64(Data.Bigrams[k1+k2])})
+				list = append(list, FreqPair{k2+k1, float64(Data.Bigrams[k2+k1])})
 			}
 		}
 	}
@@ -571,7 +574,8 @@ func ListLSBs(l Layout) []FreqPair {
 			if dist >= 2 {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
-				list = append(list, FreqPair{k1+k2, float64(Data.Bigrams[k1+k2])})
+				list = append(list, FreqPair{k2+k1, float64(Data.Bigrams[k1+k2])})
+				list = append(list, FreqPair{k2+k1, float64(Data.Bigrams[k2+k1])})
 			}
 		}
 	}
