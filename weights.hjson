@@ -22,6 +22,7 @@
   Score: {
   	FSpeed: 3
   	IndexBalance: 0.3
+  	LSB: 1
 
   	TrigramPrecision: -1 # -1 for no trigram calculation, 0 for full precision.
 	Roll: 0

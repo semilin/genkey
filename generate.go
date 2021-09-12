@@ -43,6 +43,9 @@ func Score(l Layout) float64 {
 		}
 		score += s.FSpeed * total
 	}
+	if s.LSB != 0 {
+		score += 100 * float64(LSBs(l)) / l.Total
+	}
 	if s.TrigramPrecision != -1 {
 		tri := FastTrigrams(l, s.TrigramPrecision)
 		score += s.Roll * (100 - (100 * float64(tri[0]) / float64(tri[4])))

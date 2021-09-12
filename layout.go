@@ -17,6 +17,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -268,7 +269,7 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2) + (2 * Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
 				speeds[f] += ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 			}
 		}
@@ -299,7 +300,7 @@ func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 				sfb := float64(Data.Bigrams[*k1+*k2])
 				dsfb := Data.Skipgrams[*k1+*k2]
 
-				dist := twoKeyDist(*p1, *p2) + (2 * Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
 				speed := ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 				if sfb > highestsfb {
 					highestsfb = sfb
@@ -448,7 +449,7 @@ func ListWorstBigrams(l Layout) []FreqPair {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2) + (2 * Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
 				cost := 100 * (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / Weight.FSpeed.KPS[f]
 				bigrams = append(bigrams, FreqPair{*k1 + *k2, cost})
 			}
@@ -524,6 +525,59 @@ func IndexUsage(l Layout) (float64, float64) {
 	return (100 * float64(left) / l.Total), (100 * float64(right) / l.Total)
 }
 
+func LSBs(l Layout) int {
+	var count int
+
+	for _, p1 := range l.Fingermap[3] {
+		for _, p2 := range l.Fingermap[2] {
+			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			if dist >= 2 {
+				k1 := l.Keys[p1.Row][p1.Col]
+				k2 := l.Keys[p2.Row][p2.Col]
+				count += Data.Bigrams[k1+k2]
+			}
+		}
+	}
+
+	for _, p1 := range l.Fingermap[4] {
+		for _, p2 := range l.Fingermap[5] {
+			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			if dist >= 2 {
+				k1 := l.Keys[p1.Row][p1.Col]
+				k2 := l.Keys[p2.Row][p2.Col]
+				count += Data.Bigrams[k1+k2]
+			}
+		}
+	}
+	return count
+}
+
+func ListLSBs(l Layout) []FreqPair {
+	var list []FreqPair
+	for _, p1 := range l.Fingermap[3] {
+		for _, p2 := range l.Fingermap[2] {
+			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			if dist >= 2 {
+				k1 := l.Keys[p1.Row][p1.Col]
+				k2 := l.Keys[p2.Row][p2.Col]
+				list = append(list, FreqPair{k1+k2, float64(Data.Bigrams[k1+k2])})
+			}
+		}
+	}
+
+	for _, p1 := range l.Fingermap[4] {
+		for _, p2 := range l.Fingermap[5] {
+			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			if dist >= 2 {
+				k1 := l.Keys[p1.Row][p1.Col]
+				k2 := l.Keys[p2.Row][p2.Col]
+				list = append(list, FreqPair{k1+k2, float64(Data.Bigrams[k1+k2])})
+			}
+		}
+	}
+	return list
+}
+
 func ColRow(pos int) (int, int) {
 	var col int
 	var row int
@@ -557,26 +611,25 @@ func Similarity(a, b []string) int {
 	return score
 }
 
-func twoKeyDist(a, b Pos) float64 {
+func staggeredX(c, r int) float64 {
+	var sx float64
+	if r == 0 {
+		sx = float64(c) - 0.25
+	} else if r == 2 {
+		sx = float64(c) + 0.5
+	} else {
+		sx = float64(c)
+	}
+	return sx
+} 
+
+func twoKeyDist(a, b Pos, weighted bool) float64 {
 	var ax float64
 	var bx float64
 
 	if StaggerFlag {
-		if a.Row == 0 {
-			ax = float64(a.Col) - 0.25
-		} else if a.Row == 2 {
-			ax = float64(a.Col) + 0.5
-		} else {
-			ax = float64(a.Col)
-		}
-
-		if b.Row == 0 {
-			bx = float64(b.Col) - 0.25
-		} else if b.Row == 2 {
-			bx = float64(b.Col) + 0.5
-		} else {
-			bx = float64(b.Col)
-		}
+		ax = staggeredX(a.Col, a.Row)
+		bx = staggeredX(b.Col, b.Row)
 	} else {
 		ax = float64(a.Col)
 		bx = float64(b.Col)
@@ -585,6 +638,11 @@ func twoKeyDist(a, b Pos) float64 {
 	x := ax - bx
 	y := float64(a.Row - b.Row)
 
-	dist := (Weight.Dist.Lateral * x * x) + (y * y)
+	var dist float64
+	if weighted {
+		dist = (Weight.Dist.Lateral * x * x) + (y * y)
+	} else {
+		dist = math.Sqrt((x * x) + (y * y))
+	}
 	return dist
 }

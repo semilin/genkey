@@ -113,7 +113,7 @@ func main() {
 			}
 			input := strings.ToLower(args[1])
 			l := Layouts[input]
-			total := 100 * float64(SFBs(l, false)) / float64(l.Total)
+			total := 100 * float64(SFBs(l, false)) / l.Total
 			sfbs := ListSFBs(l, false)
 			SortFreqList(sfbs)
 			fmt.Printf("%.2f%%\n", total)
@@ -129,7 +129,7 @@ func main() {
 			}
 			input := strings.ToLower(args[1])
 			l := Layouts[input]
-			total := 100 * float64(SFBs(l, true)) / float64(Data.TotalBigrams)
+			total := 100 * float64(SFBs(l, true)) / l.Total
 			dsfbs := ListSFBs(l, true)
 			SortFreqList(dsfbs)
 			fmt.Printf("%.2f%%\n", total)
@@ -138,6 +138,19 @@ func main() {
 				amount, _ = strconv.Atoi(args[2])
 			}
 			PrintFreqList(dsfbs, amount, true)
+			
+		} else if args[0] == "lsbs" {
+			if len(args) == 1 {
+				fmt.Println("You must specify a layout!")
+				os.Exit(1)
+			}
+			input := strings.ToLower(args[1])
+			l := Layouts[input]
+			total := 100 * float64(LSBs(l)) / l.Total
+			lsbs := ListLSBs(l)
+			SortFreqList(lsbs)
+			fmt.Printf("%.2f%%\n", total)
+			PrintFreqList(lsbs, 12, true)
 		} else if args[0] == "speed" {
 			input := strings.ToLower(args[1])
 			l := Layouts[input]

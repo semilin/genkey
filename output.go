@@ -92,6 +92,9 @@ func PrintAnalysis(l Layout) {
 		sfbs = ListSFBs(l, false)
 		fmt.Printf("SFBs: %.3f%%\n", 100*sfb/l.Total)
 		fmt.Printf("DSFBs: %.3f%%\n", 100*SFBs(l, true)/l.Total)
+		lsb := float64(LSBs(l))
+		fmt.Printf("LSBs: %.2f%%\n", 100*lsb/l.Total)
+
 
 		SortFreqList(sfbs)
 
@@ -112,6 +115,7 @@ func PrintAnalysis(l Layout) {
 		fmt.Println("Worst Bigrams:")
 		PrintFreqList(bigrams, 8, false)
 	}
+	
 
 	fmt.Printf("Score: %.2f\n", Score(l))
 	fmt.Println()

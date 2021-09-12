@@ -39,6 +39,7 @@ var Weight struct {
 	Score struct {
 		FSpeed       float64
 		IndexBalance float64
+		LSB float64
 
 		TrigramPrecision int
 		Roll             float64
