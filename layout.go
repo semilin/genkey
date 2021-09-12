@@ -530,7 +530,12 @@ func LSBs(l Layout) int {
 
 	for _, p1 := range l.Fingermap[3] {
 		for _, p2 := range l.Fingermap[2] {
-			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			var dist float64
+			if StaggerFlag {
+				dist = math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			} else {
+				dist = math.Abs(float64(p1.Col - p2.Col))
+			}
 			if dist >= 2 {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
@@ -542,7 +547,12 @@ func LSBs(l Layout) int {
 
 	for _, p1 := range l.Fingermap[4] {
 		for _, p2 := range l.Fingermap[5] {
-			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			var dist float64
+			if StaggerFlag {
+				dist = math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			} else {
+				dist = math.Abs(float64(p1.Col - p2.Col))
+			}
 			if dist >= 2 {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
@@ -558,7 +568,12 @@ func ListLSBs(l Layout) []FreqPair {
 	var list []FreqPair
 	for _, p1 := range l.Fingermap[3] {
 		for _, p2 := range l.Fingermap[2] {
-			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			var dist float64
+			if StaggerFlag {
+				dist = math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			} else {
+				dist = math.Abs(float64(p1.Col - p2.Col))
+			}
 			if dist >= 2 {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
@@ -570,7 +585,12 @@ func ListLSBs(l Layout) []FreqPair {
 
 	for _, p1 := range l.Fingermap[4] {
 		for _, p2 := range l.Fingermap[5] {
-			dist := math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			var dist float64
+			if StaggerFlag {
+				dist = math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			} else {
+				dist = math.Abs(float64(p1.Col - p2.Col))
+			}
 			if dist >= 2 {
 				k1 := l.Keys[p1.Row][p1.Col]
 				k2 := l.Keys[p2.Row][p2.Col]
