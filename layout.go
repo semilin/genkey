@@ -459,12 +459,14 @@ func ListWorstBigrams(l Layout) []FreqPair {
 }
 
 type TrigramValues struct {
-	InwardRolls  int
-	OutwardRolls int
-	Alternates   int
-	Onehands     int
-	Redirects    int
-	Total        int
+	RightInwardRolls  int
+	RightOutwardRolls int
+	LeftInwardRolls   int
+	LeftOutwardRolls  int
+	Alternates        int
+	Onehands          int
+	Redirects         int
+	Total             int
 }
 
 // FastTrigrams approximates trigram counts with a given precision
@@ -501,18 +503,18 @@ func FastTrigrams(l Layout, precision int) TrigramValues {
 			} else if h1 != h2 && h2 != h3 {
 				tgs.Alternates += int(tg.Count)
 			} else {
-				rh := (h1 == h2)
-				if rh { // left hand
+				left := (h1 == h2)
+				if left { // left hand
 					if f1 < f2 { // inward roll
-						tgs.InwardRolls += int(tg.Count)
+						tgs.LeftInwardRolls += int(tg.Count)
 					} else {
-						tgs.OutwardRolls += int(tg.Count)
+						tgs.LeftOutwardRolls += int(tg.Count)
 					}
 				} else { // right hand
-					if f1 > f2 { // inward roll
-						tgs.InwardRolls += int(tg.Count)
+					if f2 > f3 { // inward roll
+						tgs.RightInwardRolls += int(tg.Count)
 					} else {
-						tgs.OutwardRolls += int(tg.Count)
+						tgs.RightOutwardRolls += int(tg.Count)
 					}
 				}
 			}
