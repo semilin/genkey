@@ -48,10 +48,10 @@ func Score(l Layout) float64 {
 	}
 	if s.TrigramPrecision != -1 {
 		tri := FastTrigrams(l, s.TrigramPrecision)
-		score += s.Roll * (100 - (100 * float64(tri[0]) / float64(tri[4])))
-		score += s.Alternate * (100 - (100 * float64(tri[1]) / float64(tri[4])))
-		score += s.Onehand * (100 - (100 * float64(tri[2]) / float64(tri[4])))
-		score += s.Redirect * (100 * float64(tri[3]) / float64(tri[4]))
+		score += s.InwardRoll * (100 - (100 * float64(tri.InwardRolls) / float64(tri.Total)))
+		score += s.Alternate * (100 - (100 * float64(tri.Alternates) / float64(tri.Total)))
+		score += s.Onehand * (100 - (100 * float64(tri.Onehands) / float64(tri.Total)))
+		score += s.Redirect * (100 * float64(tri.Redirects) / float64(tri.Total))
 	}
 
 	if s.IndexBalance != 0 {

@@ -42,7 +42,8 @@ var Weight struct {
 		LSB          float64
 
 		TrigramPrecision int
-		Roll             float64
+		InwardRoll       float64
+		OutwardRoll      float64
 		Alternate        float64
 		Redirect         float64
 		Onehand          float64

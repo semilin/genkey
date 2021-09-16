@@ -88,16 +88,17 @@ func printworst(l *Layout) {
 
 func printtrigrams(l *Layout) {
 	tg := FastTrigrams(*l, 0)
-	total := 0.0
-	for _, v := range tg[:4] {
-		total += float64(v)
-	}
+	total := float64(tg.Alternates)
+	total += float64(tg.Onehands)
+	total += float64(tg.InwardRolls)
+	total += float64(tg.OutwardRolls)
+	total += float64(tg.Redirects)
 	tm.MoveCursor(1, 7)
 	tm.Printf("Trigrams")
 	tm.MoveCursor(1, 8)
 	x := 0
 	y := 0
-	for i, v := range tg[:4] {
+	for i, v := range []float64{float64(tg.InwardRolls + tg.OutwardRolls), float64(tg.Alternates), float64(tg.Onehands), float64(tg.Redirects)} {
 		var c color.Message
 		if i == 0 {
 			c = *c.Color(166, 188, 220)

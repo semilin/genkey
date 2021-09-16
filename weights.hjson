@@ -25,7 +25,8 @@
   	LSB: 1
 
   	TrigramPrecision: -1 # -1 for no trigram calculation, 0 for full precision.
-	Roll: 0
+	InwardRoll: 0
+  OutwardRoll: 0
 	Alternate: 0
 	Redirect: 0 
 	Onehand: 0

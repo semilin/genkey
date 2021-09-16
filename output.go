@@ -37,18 +37,13 @@ func PrintLayout(keys [][]string) {
 func PrintAnalysis(l Layout) {
 	fmt.Println(l.Name)
 	PrintLayout(l.Keys)
-	//tri := Trigrams(k)
 	ftri := FastTrigrams(l, 0)
-	//total := float64(Data.Total)
-	ftotal := float64(ftri[4])
-	//fmt.Printf("Rolls: %.2f%%\n", float64(100*Rolls(k)) / total)
-	fmt.Printf("Rolls: ~%.2f%%\n", 100*float64(ftri[0])/ftotal)
-	//fmt.Printf("Alternates: %.2f%%\n", float64(100*tri[1]) / total)
-	fmt.Printf("Alternates: ~%.2f%%\n", 100*float64(ftri[1])/ftotal)
-	//fmt.Printf("Onehands: %.2f%%\n", float64(100*tri[2]) / total)
-	fmt.Printf("Onehands: ~%.2f%%\n", 100*float64(ftri[2])/ftotal)
-	//fmt.Printf("Redirects: %.2f%%\n", float64(100*Redirects(k)) / total)
-	fmt.Printf("Redirects: ~%.2f%%\n", 100*float64(ftri[3])/ftotal)
+	ftotal := float64(ftri.Total)
+	fmt.Printf("Inward Rolls: ~%.2f%%\n", 100*float64(ftri.InwardRolls)/ftotal)
+	fmt.Printf("Outward Rolls: ~%.2f%%\n", 100*float64(ftri.OutwardRolls)/ftotal)
+	fmt.Printf("Alternates: ~%.2f%%\n", 100*float64(ftri.Alternates)/ftotal)
+	fmt.Printf("Onehands: ~%.2f%%\n", 100*float64(ftri.Onehands)/ftotal)
+	fmt.Printf("Redirects: ~%.2f%%\n", 100*float64(ftri.Redirects)/ftotal)
 
 	var weighted []float64
 	var unweighted []float64

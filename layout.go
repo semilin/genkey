@@ -458,15 +458,20 @@ func ListWorstBigrams(l Layout) []FreqPair {
 	return bigrams
 }
 
+type TrigramValues struct {
+	InwardRolls  int
+	OutwardRolls int
+	Alternates   int
+	Onehands     int
+	Redirects    int
+	Total        int
+}
+
 // FastTrigrams approximates trigram counts with a given precision
 // (precision=0 gives full data). It returns a count of {rolls,
 // alternates, onehands, redirects, total}
-func FastTrigrams(l Layout, precision int) [5]int {
-	var rolls int
-	var alternates int
-	var onehands int
-	var redirects int
-	var total int
+func FastTrigrams(l Layout, precision int) TrigramValues {
+	var tgs TrigramValues
 
 	if precision == 0 {
 		precision = len(Data.TopTrigrams)
@@ -477,7 +482,7 @@ func FastTrigrams(l Layout, precision int) [5]int {
 		f2 := l.Fingermatrix[l.Keymap[string(tg.Ngram[1])]]
 		f3 := l.Fingermatrix[l.Keymap[string(tg.Ngram[2])]]
 
-		total += int(tg.Count)
+		tgs.Total += int(tg.Count)
 
 		if f1 != f2 && f2 != f3 {
 			h1 := (f1 >= 4)
@@ -489,24 +494,33 @@ func FastTrigrams(l Layout, precision int) [5]int {
 				dir2 := f2 < f3
 
 				if dir1 == dir2 {
-					onehands += int(tg.Count)
-					//fmt.Println(tg.Bigram, "onehand")
+					tgs.Onehands += int(tg.Count)
 				} else {
-					redirects += int(tg.Count)
-					//fmt.Println(tg.Bigram, "redirect")
+					tgs.Redirects += int(tg.Count)
 				}
 			} else if h1 != h2 && h2 != h3 {
-				alternates += int(tg.Count)
-				//fmt.Println(tg.Bigram, "alternate")
+				tgs.Alternates += int(tg.Count)
 			} else {
-				rolls += int(tg.Count)
-				//fmt.Println(tg.Bigram, "roll")
+				rh := (h1 == h2)
+				if rh { // left hand
+					if f1 < f2 { // inward roll
+						tgs.InwardRolls += int(tg.Count)
+					} else {
+						tgs.OutwardRolls += int(tg.Count)
+					}
+				} else { // right hand
+					if f1 > f2 { // inward roll
+						tgs.InwardRolls += int(tg.Count)
+					} else {
+						tgs.OutwardRolls += int(tg.Count)
+					}
+				}
 			}
 
 		}
 	}
 
-	return [5]int{rolls, alternates, onehands, redirects, total}
+	return tgs
 }
 
 func IndexUsage(l Layout) (float64, float64) {
