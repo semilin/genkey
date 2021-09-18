@@ -503,18 +503,32 @@ func FastTrigrams(l Layout, precision int) TrigramValues {
 			} else if h1 != h2 && h2 != h3 {
 				tgs.Alternates += int(tg.Count)
 			} else {
-				left := (h1 == h2)
-				if left { // left hand
-					if f1 < f2 { // inward roll
+				rollhand := h2
+				rollfirst := (h1 == rollhand)
+				var first Finger
+				var second Finger
+				if rollfirst {
+					first = f1
+					second = f2
+				} else {
+					first = f2
+					second = f3
+				}
+				if rollhand == false { // left hand
+					if first < second { // inward roll
 						tgs.LeftInwardRolls += int(tg.Count)
+						//println("Left Inward Roll: ", tg.Ngram)
 					} else {
 						tgs.LeftOutwardRolls += int(tg.Count)
+						//println("Left Outward Roll: ", tg.Ngram)
 					}
-				} else { // right hand
-					if f2 > f3 { // inward roll
+				} else if rollhand == true { // right hand
+					if first > second { // inward roll
 						tgs.RightInwardRolls += int(tg.Count)
+						//println("Right Inward Roll: ", tg.Ngram)
 					} else {
 						tgs.RightOutwardRolls += int(tg.Count)
+						//println("Right Outward Roll:", tg.Ngram)
 					}
 				}
 			}
