@@ -39,12 +39,12 @@ func PrintAnalysis(l Layout) {
 	PrintLayout(l.Keys)
 	ftri := FastTrigrams(l, 0)
 	ftotal := float64(ftri.Total)
-	left := ftri.LeftInwardRolls + ftri.LeftOutwardRolls
-	right := ftri.RightInwardRolls + ftri.RightOutwardRolls
-	fmt.Printf("Rolls (l): %.2f\n", left)
+	leftrolls := 100*float64(ftri.LeftInwardRolls)/ftotal + 100*float64(ftri.LeftOutwardRolls)/ftotal
+	rightrolls := 100*float64(ftri.RightInwardRolls)/ftotal + 100*float64(ftri.RightOutwardRolls)/ftotal
+	fmt.Printf("Rolls (l): %.2f%%\n", leftrolls)
 	fmt.Printf("\tInward: ~%.2f%%\n", 100*float64(ftri.LeftInwardRolls)/ftotal)
 	fmt.Printf("\tOutward: ~%.2f%%\n", 100*float64(ftri.LeftOutwardRolls)/ftotal)
-	fmt.Printf("Rolls (r): %.2f\n", right)
+	fmt.Printf("Rolls (r): %.2f%%\n", rightrolls)
 	fmt.Printf("\tInward: ~%.2f%%\n", 100*float64(ftri.RightInwardRolls)/ftotal)
 	fmt.Printf("\tOutward: ~%.2f%%\n", 100*float64(ftri.RightOutwardRolls)/ftotal)
 	fmt.Printf("Alternates: ~%.2f%%\n", 100*float64(ftri.Alternates)/ftotal)
