@@ -238,7 +238,6 @@ func LoadLayoutDir() {
 					}
 				}
 			}
-			fmt.Println(SwapPossibilities)
 		}
 	}
 }
