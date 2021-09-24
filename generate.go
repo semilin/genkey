@@ -120,7 +120,11 @@ func Populate(n int) Layout {
 	rand.Seed(time.Now().Unix())
 	layouts := []layoutScore{}
 	for i := 0; i < n; i++ {
-		layouts = append(layouts, layoutScore{randomLayout(), 0})
+		if !ImproveFlag {
+			layouts = append(layouts, layoutScore{randomLayout(), 0})			
+		} else {
+			layouts = append(layouts, layoutScore{CopyLayout(ImproveLayout), 0})
+		}
 		fmt.Printf("%d random created...\r", i+1)
 
 	}
@@ -185,8 +189,14 @@ func Populate(n int) Layout {
 
 func RandPos() Pos {
 	var p Pos
-	p.Row = rand.Intn(3)
-	p.Col = rand.Intn(10)
+	if ImproveFlag {
+		n := len(SwapPossibilities)
+		p = SwapPossibilities[rand.Intn(n)]
+	} else {
+		col := rand.Intn(10)
+		row := rand.Intn(3)
+		p = Pos{col, row}
+	}
 	return p
 }
 
@@ -234,6 +244,7 @@ func fullImprove(layout *Layout) {
 			Swap(layout, a, b)
 			Swaps[j] = Pair{a, b}
 		}
+
 		second := Score(*layout)
 
 		if second < first {

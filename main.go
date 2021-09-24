@@ -200,6 +200,24 @@ func main() {
 				os.Exit(1)
 			}
 			Interactive(Layouts[args[1]])
+		} else if args[0] == "improve" {
+			if len(args) < 2 {
+				fmt.Println("Please provide the name of a layout to interactively analyze.")
+				os.Exit(1)
+			}
+			input := strings.ToLower(args[1])
+			ImproveLayout = Layouts[input]
+			ImproveFlag = true
+			best := Populate(1000)
+			
+			optimal := Score(best)
+			
+			type x struct {
+				name  string
+				score float64
+			}
+
+			fmt.Printf("%s %d%%\n", ImproveLayout.Name, int(100*optimal/(Score(ImproveLayout))))
 		}
 	}
 }

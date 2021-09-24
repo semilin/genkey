@@ -231,6 +231,14 @@ func LoadLayoutDir() {
 		} else {
 			GeneratedFingermap = l.Fingermap
 			GeneratedFingermatrix = l.Fingermatrix
+			for y, row := range l.Keys {
+				for x, k := range row {
+					if k == "*" {
+						SwapPossibilities = append(SwapPossibilities, Pos{x, y})
+					}
+				}
+			}
+			fmt.Println(SwapPossibilities)
 		}
 	}
 }
