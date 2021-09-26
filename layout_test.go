@@ -13,10 +13,10 @@ func init() {
 // input layout must be 3x10
 func mirror(l Layout) Layout {
 	n := CopyLayout(l)
-	for y:=0;y<3;y++ {
-		for x:=0;x<5;x++ {
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 5; x++ {
 			p1 := Pos{x, y}
-			p2 := Pos{9-x, y}
+			p2 := Pos{9 - x, y}
 			Swap(&n, p1, p2)
 		}
 	}
@@ -73,7 +73,7 @@ func TestTrigrams(t *testing.T) {
 	if re1 != re2 {
 		t.Errorf("Original layout has %d redirects; Mirrored has %d", re1, re2)
 	}
-if r1.Total != r2.Total {
+	if r1.Total != r2.Total {
 		t.Errorf("Original layout has a total of %d; Mirrored has %d", r1.Total, r2.Total)
 	}
 }
