@@ -204,9 +204,9 @@ func main() {
 			ImproveLayout = Layouts[input]
 			ImproveFlag = true
 			best := Populate(1000)
-			
+
 			optimal := Score(best)
-			
+
 			type x struct {
 				name  string
 				score float64

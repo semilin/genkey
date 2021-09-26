@@ -121,7 +121,7 @@ func Populate(n int) Layout {
 	layouts := []layoutScore{}
 	for i := 0; i < n; i++ {
 		if !ImproveFlag {
-			layouts = append(layouts, layoutScore{randomLayout(), 0})			
+			layouts = append(layouts, layoutScore{randomLayout(), 0})
 		} else {
 			layouts = append(layouts, layoutScore{CopyLayout(ImproveLayout), 0})
 		}
