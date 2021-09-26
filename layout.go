@@ -487,9 +487,17 @@ func FastTrigrams(l Layout, precision int) TrigramValues {
 	}
 
 	for _, tg := range Data.TopTrigrams[:precision] {
-		f1 := l.Fingermatrix[l.Keymap[string(tg.Ngram[0])]]
-		f2 := l.Fingermatrix[l.Keymap[string(tg.Ngram[1])]]
-		f3 := l.Fingermatrix[l.Keymap[string(tg.Ngram[2])]]
+		km1, ok1 := l.Keymap[string(tg.Ngram[0])]
+		km2, ok2 := l.Keymap[string(tg.Ngram[1])]
+		km3, ok3 := l.Keymap[string(tg.Ngram[2])]
+
+		if !ok1 || !ok2 || !ok3 {
+			continue
+		}
+
+		f1 := l.Fingermatrix[km1]
+		f2 := l.Fingermatrix[km2]
+		f3 := l.Fingermatrix[km3]
 
 		tgs.Total += int(tg.Count)
 
