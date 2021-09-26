@@ -40,7 +40,6 @@ func main() {
 	flag.BoolVar(&DynamicFlag, "dynamic", false, "")
 	flag.Parse()
 	args := flag.Args()
-	fmt.Println(args)
 	Data = LoadData()
 
 	Layouts = make(map[string]Layout)
