@@ -39,13 +39,8 @@ func main() {
 	flag.BoolVar(&SlideFlag, "slide", false, "if true, ignores slideable sfbs (made for Oats) (might not work)")
 	flag.BoolVar(&DynamicFlag, "dynamic", false, "")
 	flag.Parse()
-	origargs := os.Args[1:]
-	var args []string
-	for _, v := range origargs {
-		if string(v[0]) != "-" {
-			args = append(args, v)
-		}
-	}
+	args := flag.Args()
+	fmt.Println(args)
 	Data = LoadData()
 
 	Layouts = make(map[string]Layout)
