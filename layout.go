@@ -33,6 +33,17 @@ type Pos struct {
 type Pair [2]Pos
 type Finger int
 
+const (
+	LP Finger = iota
+	LR
+	LM
+	LI
+	RI
+	RM
+	RR
+	RP
+)
+
 type Layout struct {
 	Name         string
 	Keys         [][]string

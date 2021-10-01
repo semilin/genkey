@@ -34,6 +34,16 @@ var KPS []float64
 func init() {
 }
 
+func getLayout(s string) Layout{
+	s = strings.ToLower(s)
+	if l, ok := Layouts[s]; ok {
+		return l
+	}
+	fmt.Println("Layout not found.")
+	os.Exit(1)
+	return Layout{}
+}
+
 func main() {
 	flag.BoolVar(&StaggerFlag, "stagger", false, "if true, calculates distance for ANSI row-stagger form factor")
 	flag.BoolVar(&SlideFlag, "slide", false, "if true, ignores slideable sfbs (made for Oats) (might not work)")
@@ -53,8 +63,7 @@ func main() {
 				os.Exit(1)
 			}
 
-			input := strings.ToLower(args[1])
-			PrintAnalysis(Layouts[input])
+			PrintAnalysis(getLayout(args[1]))
 		} else if args[0] == "r" {
 			type x struct {
 				name  string
@@ -105,8 +114,7 @@ func main() {
 				fmt.Println("You must specify a layout!")
 				os.Exit(1)
 			}
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			l := getLayout(args[1])
 			total := 100 * float64(SFBs(l, false)) / l.Total
 			sfbs := ListSFBs(l, false)
 			SortFreqList(sfbs)
@@ -121,8 +129,7 @@ func main() {
 				fmt.Println("You must specify a layout!")
 				os.Exit(1)
 			}
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			l := getLayout(args[1])
 			total := 100 * float64(SFBs(l, true)) / l.Total
 			dsfbs := ListSFBs(l, true)
 			SortFreqList(dsfbs)
@@ -138,16 +145,14 @@ func main() {
 				fmt.Println("You must specify a layout!")
 				os.Exit(1)
 			}
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			l := getLayout(args[1])
 			total := 100 * float64(LSBs(l)) / l.Total
 			lsbs := ListLSBs(l)
 			SortFreqList(lsbs)
 			fmt.Printf("%.2f%%\n", total)
 			PrintFreqList(lsbs, 12, true)
 		} else if args[0] == "speed" {
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			l := getLayout(args[1])
 			unweighted := FingerSpeed(&l, false)
 			fmt.Println("Unweighted Speed")
 			for i, v := range unweighted {
@@ -160,8 +165,7 @@ func main() {
 				fmt.Printf("\t%s: %.2f\n", FingerNames[i], v)
 			}
 		} else if args[0] == "bigrams" {
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			l := getLayout(args[1])
 			bigrams := ListWorstBigrams(l)
 			SortFreqList(bigrams)
 			amount := 8
@@ -170,7 +174,7 @@ func main() {
 			}
 			PrintFreqList(bigrams, amount, false)
 		} else if args[0] == "h" {
-			Heatmap(Layouts[args[1]])
+			Heatmap(getLayout(args[1]))
 		} else if args[0] == "ngram" {
 			total := float64(Data.Total)
 			ngram := args[1]
@@ -193,14 +197,13 @@ func main() {
 				fmt.Println("Please provide the name of a layout to interactively analyze.")
 				os.Exit(1)
 			}
-			Interactive(Layouts[args[1]])
+			Interactive(getLayout(args[1]))
 		} else if args[0] == "improve" {
 			if len(args) < 2 {
-				fmt.Println("Please provide the name of a layout to interactively analyze.")
+				fmt.Println("Please provide the name of a layout to improve.")
 				os.Exit(1)
 			}
-			input := strings.ToLower(args[1])
-			ImproveLayout = Layouts[input]
+			ImproveLayout = getLayout(args[1])
 			ImproveFlag = true
 			best := Populate(1000)
 
