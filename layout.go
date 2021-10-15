@@ -165,6 +165,10 @@ func LoadLayout(f string) Layout {
 
 	s := string(b)
 	lines := strings.Split(s, "\n")
+	if len(lines) < 7 {
+		fmt.Printf("WARNING: Layout in file %s is formatted incorrectly, ignoring\n", f)
+		return Layout{}
+	}
 	l.Name = strings.TrimSpace(lines[0])
 	l.Keys = make([][]string, 3)
 	keys := lines[1:4]
@@ -226,6 +230,9 @@ func LoadLayoutDir() {
 	files, _ := dir.Readdirnames(0)
 	for _, f := range files {
 		l := LoadLayout(filepath.Join("layouts", f))
+		if l.Name == "" {
+			continue
+		}
 		if !strings.HasPrefix(f, "_") {
 			Layouts[strings.ToLower(l.Name)] = l
 		} else {
