@@ -573,6 +573,7 @@ func IndexUsage(l Layout) (float64, float64) {
 func LSBs(l Layout) int {
 	var count int
 
+	// LI LM
 	for _, p1 := range l.Fingermap[3] {
 		for _, p2 := range l.Fingermap[2] {
 			var dist float64
@@ -590,8 +591,45 @@ func LSBs(l Layout) int {
 		}
 	}
 
+	// RI RM
 	for _, p1 := range l.Fingermap[4] {
 		for _, p2 := range l.Fingermap[5] {
+			var dist float64
+			if StaggerFlag {
+				dist = math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			} else {
+				dist = math.Abs(float64(p1.Col - p2.Col))
+			}
+			if dist >= 2 {
+				k1 := l.Keys[p1.Row][p1.Col]
+				k2 := l.Keys[p2.Row][p2.Col]
+				count += Data.Bigrams[k1+k2]
+				count += Data.Bigrams[k2+k1]
+			}
+		}
+	}
+
+	// LP LR
+	for _, p1 := range l.Fingermap[0] {
+		for _, p2 := range l.Fingermap[1] {
+			var dist float64
+			if StaggerFlag {
+				dist = math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
+			} else {
+				dist = math.Abs(float64(p1.Col - p2.Col))
+			}
+			if dist >= 2 {
+				k1 := l.Keys[p1.Row][p1.Col]
+				k2 := l.Keys[p2.Row][p2.Col]
+				count += Data.Bigrams[k1+k2]
+				count += Data.Bigrams[k2+k1]
+			}
+		}
+	}
+
+	// RP RR
+	for _, p1 := range l.Fingermap[7] {
+		for _, p2 := range l.Fingermap[6] {
 			var dist float64
 			if StaggerFlag {
 				dist = math.Abs(staggeredX(p1.Col, p1.Row) - staggeredX(p2.Col, p2.Row))
