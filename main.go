@@ -31,7 +31,21 @@ var KPS []float64
 
 //var SameKeyKPS []float64
 
-func init() {
+func getLayout(s string) (Layout) {
+	s = strings.ToLower(s)
+	if l, ok := Layouts[s]; ok {
+		return l
+	}
+	fmt.Printf("layout [%s] was not found\n", s)
+	os.Exit(1)
+	return Layout{}
+}
+
+func checkLayoutProvided(args []string) {
+	if len(args) <= 1 {
+		fmt.Println("You must provide the name of a layout!")
+		os.Exit(1)
+	}
 }
 
 func main() {
@@ -48,13 +62,8 @@ func main() {
 
 	if len(args) > 0 {
 		if args[0] == "a" || args[0] == "analyze" {
-			if len(args) == 1 {
-				fmt.Println("You must provide the name of a layout to analyze")
-				os.Exit(1)
-			}
-
-			input := strings.ToLower(args[1])
-			PrintAnalysis(Layouts[input])
+			checkLayoutProvided(args)
+			PrintAnalysis(getLayout(args[1]))
 		} else if args[0] == "r" {
 			type x struct {
 				name  string
@@ -101,12 +110,8 @@ func main() {
 			}
 
 		} else if args[0] == "sfbs" {
-			if len(args) == 1 {
-				fmt.Println("You must specify a layout!")
-				os.Exit(1)
-			}
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			checkLayoutProvided(args)
+			l := getLayout(args[1])
 			total := 100 * float64(SFBs(l, false)) / l.Total
 			sfbs := ListSFBs(l, false)
 			SortFreqList(sfbs)
@@ -117,12 +122,8 @@ func main() {
 			}
 			PrintFreqList(sfbs, amount, true)
 		} else if args[0] == "dsfbs" {
-			if len(args) == 1 {
-				fmt.Println("You must specify a layout!")
-				os.Exit(1)
-			}
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			checkLayoutProvided(args)
+			l := getLayout(args[1])
 			total := 100 * float64(SFBs(l, true)) / l.Total
 			dsfbs := ListSFBs(l, true)
 			SortFreqList(dsfbs)
@@ -134,20 +135,16 @@ func main() {
 			PrintFreqList(dsfbs, amount, true)
 
 		} else if args[0] == "lsbs" {
-			if len(args) == 1 {
-				fmt.Println("You must specify a layout!")
-				os.Exit(1)
-			}
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			checkLayoutProvided(args)
+			l := getLayout(args[1])
 			total := 100 * float64(LSBs(l)) / l.Total
 			lsbs := ListLSBs(l)
 			SortFreqList(lsbs)
 			fmt.Printf("%.2f%%\n", total)
 			PrintFreqList(lsbs, 12, true)
 		} else if args[0] == "speed" {
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			checkLayoutProvided(args)
+			l := getLayout(args[1])
 			unweighted := FingerSpeed(&l, false)
 			fmt.Println("Unweighted Speed")
 			for i, v := range unweighted {
@@ -160,8 +157,8 @@ func main() {
 				fmt.Printf("\t%s: %.2f\n", FingerNames[i], v)
 			}
 		} else if args[0] == "bigrams" {
-			input := strings.ToLower(args[1])
-			l := Layouts[input]
+			checkLayoutProvided(args)
+			l := getLayout(args[1])
 			bigrams := ListWorstBigrams(l)
 			SortFreqList(bigrams)
 			amount := 8
@@ -169,8 +166,9 @@ func main() {
 				amount, _ = strconv.Atoi(args[2])
 			}
 			PrintFreqList(bigrams, amount, false)
-		} else if args[0] == "h" {
-			Heatmap(Layouts[args[1]])
+		} else if args[0] == "h" || args[0] == "heatmap" {
+			checkLayoutProvided(args)
+			Heatmap(getLayout(args[1]))
 		} else if args[0] == "ngram" {
 			total := float64(Data.Total)
 			ngram := args[1]
@@ -182,25 +180,15 @@ func main() {
 			} else if len(ngram) == 3 {
 				fmt.Printf("trigram: %.3f%%\n", 100*float64(Data.Trigrams[ngram])/total)
 			}
-			// } else if args[0] == "i" {
-			// 	input := strings.ToLower(args[1])
-			// 	InteractiveAnalysis(Layouts[input])
 		} else if args[0] == "load" {
 			Data = GetTextData(args[1])
 			WriteData(Data)
 		} else if args[0] == "i" || args[0] == "interactive" {
-			if len(args) < 2 {
-				fmt.Println("Please provide the name of a layout to interactively analyze.")
-				os.Exit(1)
-			}
-			Interactive(Layouts[args[1]])
+			checkLayoutProvided(args)
+			Interactive(getLayout(args[1]))
 		} else if args[0] == "improve" {
-			if len(args) < 2 {
-				fmt.Println("Please provide the name of a layout to interactively analyze.")
-				os.Exit(1)
-			}
-			input := strings.ToLower(args[1])
-			ImproveLayout = Layouts[input]
+			checkLayoutProvided(args)
+			ImproveLayout = getLayout(args[1])
 			ImproveFlag = true
 			best := Populate(1000)
 
@@ -212,6 +200,37 @@ func main() {
 			}
 
 			fmt.Printf("%s %d%%\n", ImproveLayout.Name, int(100*optimal/(Score(ImproveLayout))))
+		} else {
+			usage()
+		}
+	} else {
+		usage()
+	}
+}
+
+func usage() {
+	commands := [][]string{
+		{"load filepath", "loads a text file as a corpus"},
+		{"rank", "returns a ranked list of layouts"},
+		{"analyze layout", "outputs detailed analysis of a layout"},
+		{"interactive layout", "enters an interactive analysis mode for a given layout"},
+		{"generate", "attempts to generate an optimal layout according to weights.hjson"},
+		{"sfbs layout (x)",
+			"lists the sfb frequency and most frequent sfbs",
+			"optionally, x can be provided to set how many are listed"},
+		{"dsfbs layout (x)", "lists the dsfb frequency and most frequent dsfbs"},
+		{"speed layout (x)", "lists each finger and its unweighted speed"},
+		{"bigrams layout (x)", "lists the worst key pair relationships"}}
+	fmt.Println("usage: genkey command argument (optional)")
+	fmt.Println("commands:")
+	for _, c := range commands {
+		fmt.Printf("  %s", c[0])
+		spaces := strings.Repeat(" ", 20-len(c[0]))
+		for i, d := range c[1:] {
+			if i > 0 {
+				fmt.Printf("  %s", strings.Repeat(" ", len(c[0])))
+			}
+			fmt.Printf("  %s%s\n", spaces, d)
 		}
 	}
 }

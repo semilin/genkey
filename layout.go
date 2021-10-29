@@ -554,7 +554,6 @@ func FastTrigrams(l Layout, precision int) TrigramValues {
 					}
 				}
 			}
-
 		}
 	}
 
