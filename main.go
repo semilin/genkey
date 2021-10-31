@@ -215,6 +215,8 @@ func usage() {
 		{"analyze layout", "outputs detailed analysis of a layout"},
 		{"interactive layout", "enters an interactive analysis mode for a given layout"},
 		{"generate", "attempts to generate an optimal layout according to weights.hjson"},
+		{"improve layout", "attempts to improve a layout according to the restrictions in layouts/_generate"},
+		{"heatmap layout", "outputs a heatmap for the layout given at heatmap.png"},
 		{"sfbs layout (x)",
 			"lists the sfb frequency and most frequent sfbs",
 			"optionally, x can be provided to set how many are listed"},
