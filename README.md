@@ -1,25 +1,7 @@
-# genlayout
-This is the layout analyzer and generator that was used to create [Semimak](https://semilin.github.io/semimak). It is centered around the novel finger-speed metric. This program was made for myself, and because of that **it's not very easy to use,** especially if you don't have any programming experience. I am currently working on a powerful, configurable, and user-friendly web-based and desktop analyzer+generator. 
+# genkey
+Genkey is a powerful tool for analyzing and creating keyboard layouts that was used to create [Semimak](https://semilin.github.io/semimak). It features detailed analysis output, generation, customizable weighting, individual layout improvement, heatmap output, interactive analysis, and much more! 
 
-## Usage
-`./genkey command argument`
-### Commands
-#### [load] filepath
-Reads the file at filepath and outputs its bigram, trigram, and skipgram data into `data.json`. This data is used for every other command.
-#### [r]ank
-Outputs a sorted list of all the layouts with their scores.
-#### [a]nalyze layout
-Outputs detailed analysis of a given layout.
-#### [g]enerate
-Attempts to find the optimal layout according to the scoring algorithm.
-#### [sfbs] layout (x)
-Lists the sfb frequency and most frequent sfbs. Optionally, x can be provided to set how many are listed.
-#### [dsfbs] layout (x)
-Lists the dsfb frequency and most frequent dsfbs. Optionally, x can be provided to set how many are listed.
-#### [speed] layout (x)
-Lists each finger and its unweighted speed for the layout. Optionally, x can be provided to set how many are listed.
-### [bigrams] layout (x)
-Lists the worst bigrams for the layout. Optionally, x can be provided to set how many are listed.
+For installation instructions and documentation, see [the website](https://semilin.github.io/genkey).
 
 ## License
 Copyright © 2021 Colin Hughes
