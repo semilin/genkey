@@ -37,6 +37,16 @@ func PrintLayout(keys [][]string) {
 func PrintAnalysis(l Layout) {
 	fmt.Println(l.Name)
 	PrintLayout(l.Keys)
+
+	duplicates, missing := DuplicatesAndMissing(l)
+	if len(duplicates) > 0 {
+		println(len(duplicates))
+		fmt.Printf("Duplicate characters: %s\n", duplicates)
+	}
+	if len(missing) > 0 {
+		fmt.Printf("Missing characters: %s\n", missing)
+	}
+	
 	ftri := FastTrigrams(l, 0)
 	ftotal := float64(ftri.Total)
 	leftrolls := 100*float64(ftri.LeftInwardRolls)/ftotal + 100*float64(ftri.LeftOutwardRolls)/ftotal
