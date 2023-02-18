@@ -1,10 +1,10 @@
 # genkey
-Genkey is a powerful tool for analyzing and creating keyboard layouts that was used to create [Semimak](https://semilin.github.io/semimak). It features detailed analysis output, generation, customizable weighting, individual layout improvement, heatmap output, interactive analysis, and much more! 
+Genkey is a powerful tool for analyzing and creating keyboard layouts that was used to create [Semimak](https://semilin.github.io/pages/semimak.html). It features detailed analysis output, generation, customizable weighting, individual layout improvement, heatmap output, interactive analysis, and much more! 
 
 For installation instructions and documentation, see [the website](https://semilin.github.io/pages/genkey.html).
 
 ## License
-Copyright © 2021 Colin Hughes
+Copyright © 2021 semi
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
