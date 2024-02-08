@@ -51,9 +51,10 @@ func GetTextData(f string) TextData {
 	data.Trigrams = make(map[string]int)
 	data.Skipgrams = make(map[string]float64)
 
+	maxSkipgramSize := 10
 	powers := []float64{}
 
-	for i := 0; i < 20; i++ {
+	for i := 0; i < maxSkipgramSize; i++ {
 		powers = append(powers, 1/math.Pow(2, float64(i)))
 	}
 
@@ -107,8 +108,8 @@ func GetTextData(f string) TextData {
 				}
 				lastchars = append(lastchars, char)
 
-				if len(lastchars) > 10 {
-					lastchars = lastchars[1:11] // remove first character
+				if len(lastchars) > maxSkipgramSize {
+					lastchars = lastchars[1:maxSkipgramSize+1] // remove first character
 				}
 			}
 		}
