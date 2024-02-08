@@ -18,7 +18,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
 	"sort"
@@ -154,7 +153,7 @@ func WriteData(data TextData) {
 }
 
 func LoadData() TextData {
-	b, err := ioutil.ReadFile("data.json")
+	b, err := os.ReadFile("data.json")
 	if err != nil {
 		panic(err)
 	}

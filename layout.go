@@ -16,7 +16,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -158,7 +157,7 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 
 func LoadLayout(f string) Layout {
 	var l Layout
-	b, err := ioutil.ReadFile(f)
+	b, err := os.ReadFile(f)
 	if err != nil {
 		panic(err)
 	}

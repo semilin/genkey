@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
 	"github.com/hjson/hjson-go"
-	"io/ioutil"
 )
 
 func ReadWeights() {
-	b, err := ioutil.ReadFile("weights.hjson")
+	b, err := os.ReadFile("weights.hjson")
 	if err != nil {
 		fmt.Printf("There was an issue reading the weights file.\nPlease make sure there is a 'weights.json' in this directory.")
 		panic(err)
