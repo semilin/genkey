@@ -1,10 +1,16 @@
 # genkey
+Note: genkey 1.2 is the last major version of genkey. It mostly consists of a cleaned up codebase with less bugs, so that its code can maybe be helpful for someone. I will no longer make any changes to the project, but pull requests are welcome. See the Alternatives section.
+
 Genkey is a powerful tool for analyzing and creating keyboard layouts that was used to create [Semimak](https://semilin.github.io/pages/semimak.html). It features detailed analysis output, generation, customizable weighting, individual layout improvement, heatmap output, interactive analysis, and much more! 
 
 For installation instructions and documentation, see [the website](https://semilin.github.io/pages/genkey.html).
 
+## Alternatives
+- For what is essentially a better version of genkey, I recommend Oxey's [Oxeylyzer](https://github.com/o-x-e-y/oxeylyzer).
+- For something very different, I'm currently working on a graphical analyzer called [Keymui](https://github.com/semilin/). It's much more powerful and flexible than genkey.
+
 ## License
-Copyright © 2021 semi
+Copyright © 2024 semi
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
