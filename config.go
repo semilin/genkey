@@ -1,27 +1,21 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/hjson/hjson-go"
+	"github.com/BurntSushi/toml"
 )
 
 func ReadWeights() {
-	b, err := os.ReadFile("weights.hjson")
+	b, err := os.ReadFile("config.toml")
 	if err != nil {
 		fmt.Printf("There was an issue reading the weights file.\nPlease make sure there is a 'weights.json' in this directory.")
 		panic(err)
 	}
 
-	var dat map[string]interface{}
-
-	err = hjson.Unmarshal(b, &dat)
+	_, err = toml.Decode(string(b), &Config)
 	if err != nil {
 		panic(err)
 	}
-
-	j, _ := json.Marshal(dat)
-	json.Unmarshal(j, &Weight)
 }

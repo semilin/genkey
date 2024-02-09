@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024 semi
+   Copyright (C) 2024 semi
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -30,28 +30,33 @@ var SwapPossibilities []Pos
 
 var Analyzed int
 
-var Weight struct {
-	FSpeed struct {
-		SFB       float64
-		DSFB      float64
-		KeyTravel float64
-		KPS       [8]float64
-	}
-	Dist struct {
-		Lateral float64
-	}
-	Score struct {
-		FSpeed       float64
-		IndexBalance float64
-		LSB          float64
+var Config struct {
+	Weights struct {
+		FSpeed struct {
+			SFB       float64
+			DSFB      float64
+			KeyTravel float64
+			KPS       [8]float64
+		}
+		Dist struct {
+			Lateral float64
+		}
+		Score struct {
+			FSpeed       float64
+			IndexBalance float64
+			LSB          float64
 
-		TrigramPrecision int
-		LeftInwardRoll   float64
-		LeftOutwardRoll  float64
-		RightInwardRoll  float64
-		RightOutwardRoll float64
-		Alternate        float64
-		Redirect         float64
-		Onehand          float64
+			Trigrams struct {
+				Enabled          bool
+				Precision        int
+				LeftInwardRoll   float64
+				LeftOutwardRoll  float64
+				RightInwardRoll  float64
+				RightOutwardRoll float64
+				Alternate        float64
+				Redirect         float64
+				Onehand          float64
+			}
+		}
 	}
 }

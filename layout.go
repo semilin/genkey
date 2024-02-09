@@ -265,8 +265,9 @@ func GenKeymap(keys [][]string) map[string]Pos {
 
 func FingerSpeed(l *Layout, weighted bool) []float64 {
 	speeds := []float64{0, 0, 0, 0, 0, 0, 0, 0}
-	sfbweight := Weight.FSpeed.SFB
-	dsfbweight := Weight.FSpeed.DSFB
+	weight := &Config.Weights
+	sfbweight := weight.FSpeed.SFB
+	dsfbweight := weight.FSpeed.DSFB
 	for f, posits := range l.Fingermap {
 		for i := 0; i < len(posits); i++ {
 			for j := i; j < len(posits); j++ {
@@ -282,12 +283,12 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2, true) + (2 * weight.FSpeed.KeyTravel)
 				speeds[f] += ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 			}
 		}
 		if weighted {
-			speeds[f] /= Weight.FSpeed.KPS[f]
+			speeds[f] /= weight.FSpeed.KPS[f]
 		}
 		speeds[f] = 800 * speeds[f] / l.Total
 	}
@@ -296,8 +297,9 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 
 func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 	speeds := []float64{0, 0, 0, 0, 0, 0, 0, 0}
-	sfbweight := Weight.FSpeed.SFB
-	dsfbweight := Weight.FSpeed.DSFB
+	weight := &Config.Weights
+	sfbweight := weight.FSpeed.SFB
+	dsfbweight := weight.FSpeed.DSFB
 	for f, posits := range l.Fingermap {
 		for i := 0; i < len(posits); i++ {
 			var highestsfb float64
@@ -313,7 +315,7 @@ func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 				sfb := float64(Data.Bigrams[*k1+*k2])
 				dsfb := Data.Skipgrams[*k1+*k2]
 
-				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2, true) + (2 * weight.FSpeed.KeyTravel)
 				speed := ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 				if sfb > highestsfb {
 					highestsfb = sfb
@@ -328,7 +330,7 @@ func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 			speeds[f] += newspeed
 		}
 		if weighted {
-			speeds[f] /= Weight.FSpeed.KPS[f]
+			speeds[f] /= weight.FSpeed.KPS[f]
 		}
 		speeds[f] = 800 * speeds[f] / l.Total
 	}
@@ -446,8 +448,9 @@ func ListDynamic(l Layout) ([]FreqPair, []FreqPair) {
 
 func ListWorstBigrams(l Layout) []FreqPair {
 	var bigrams []FreqPair
-	sfbweight := Weight.FSpeed.SFB
-	dsfbweight := Weight.FSpeed.DSFB
+	weight := Config.Weights
+	sfbweight := weight.FSpeed.SFB
+	dsfbweight := weight.FSpeed.DSFB
 	for f, posits := range l.Fingermap {
 		for i := 0; i < len(posits); i++ {
 			for j := i; j < len(posits); j++ {
@@ -462,8 +465,8 @@ func ListWorstBigrams(l Layout) []FreqPair {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
-				cost := 100 * (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / Weight.FSpeed.KPS[f]
+				dist := twoKeyDist(*p1, *p2, true) + (2 * weight.FSpeed.KeyTravel)
+				cost := 100 * (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / weight.FSpeed.KPS[f]
 				bigrams = append(bigrams, FreqPair{*k1 + *k2, cost})
 			}
 		}
@@ -774,7 +777,7 @@ func twoKeyDist(a, b Pos, weighted bool) float64 {
 
 	var dist float64
 	if weighted {
-		dist = (Weight.Dist.Lateral * x * x) + (y * y)
+		dist = (Config.Weights.Dist.Lateral * x * x) + (y * y)
 	} else {
 		dist = math.Sqrt((x * x) + (y * y))
 	}

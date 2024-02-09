@@ -1,0 +1,41 @@
+[Weights]
+Dist.Lateral = 1.4 # Lateral movement multiplier
+
+[Weights.Fspeed]
+SFB = 1.0 # Weight of sfbs
+DSFB = 0.5 # Weight of dsfbs
+KeyTravel = 0.01 # How much baseline distance there is per keypress
+
+# Keys per second, or how dexterous each finger is
+KPS = [
+    1.5, # lp
+    3.6, # lr
+    4.8, # lm
+    5.5, # li
+    5.5, # ri
+    4.8, # rm
+    3.6, # rr
+    1.5, # rp
+]
+
+[Weights.Score]
+Fspeed = 3 # Weight of fspeed
+IndexBalance = 0.3 # Weight of difference in usage between index fingers
+Lsb = 1 # Weight of lsb frequency
+
+[Weights.Score.Trigrams]
+# No trigrams will be calculated if enabled = false
+Enabled = false
+
+# Number of most frequent trigrams to analyze.
+# Set to 0 to analyze all trigrams (will slow down analysis a lot).
+Precision = 100
+
+LeftInwardRoll = 0
+LeftOutwardRoll = 0
+RightInwardRoll = 0
+RightOutwardRoll = 0
+
+Alternate = 0
+Redirect = 0
+Onehand = 0

@@ -407,13 +407,15 @@ func Interactive(l Layout) {
 
 		switch args[0] {
 		case "t":
-			if Weight.Score.TrigramPrecision == 0 {
-				Weight.Score.TrigramPrecision = -1
-				message("disabled trigram precision")
+			var changeMessage string
+			enabled := &Config.Weights.Score.Trigrams.Enabled
+			*enabled = !*enabled
+			if *enabled {
+				changeMessage = "enabled"
 			} else {
-				Weight.Score.TrigramPrecision = 0
-				message("enabled trigram precision")
+				changeMessage = "disabled"
 			}
+			message(fmt.Sprintf("%s trigrams", changeMessage))
 		case "s":
 			if len(args) < 3 {
 				message("usage: s key1 key2", "example: s a b")
