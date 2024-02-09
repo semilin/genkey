@@ -47,7 +47,7 @@ func Score(l Layout) float64 {
 		score += s.LSB * 100 * float64(LSBs(l)) / l.Total
 	}
 	if s.Trigrams.Enabled {
-		tri := FastTrigrams(l, s.Trigrams.Precision)
+		tri := FastTrigrams(&l, s.Trigrams.Precision)
 		score += s.Trigrams.LeftInwardRoll * (100 - (100 * float64(tri.LeftInwardRolls) / float64(tri.Total)))
 		score += s.Trigrams.RightInwardRoll * (100 - (100 * float64(tri.RightInwardRolls) / float64(tri.Total)))
 		score += s.Trigrams.LeftOutwardRoll * (100 - (100 * float64(tri.LeftOutwardRolls) / float64(tri.Total)))

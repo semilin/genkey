@@ -87,7 +87,7 @@ func printworst(l *Layout) {
 }
 
 func printtrigrams(l *Layout) {
-	tg := FastTrigrams(*l, 0)
+	tg := FastTrigrams(l, 0)
 	total := float64(tg.Alternates)
 	total += float64(tg.Onehands)
 	total += float64(tg.LeftInwardRolls)

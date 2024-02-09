@@ -47,7 +47,7 @@ func PrintAnalysis(l Layout) {
 		fmt.Printf("Missing characters: %s\n", missing)
 	}
 	
-	ftri := FastTrigrams(l, 0)
+	ftri := FastTrigrams(&l, 0)
 	ftotal := float64(ftri.Total)
 	leftrolls := 100*float64(ftri.LeftInwardRolls)/ftotal + 100*float64(ftri.LeftOutwardRolls)/ftotal
 	rightrolls := 100*float64(ftri.RightInwardRolls)/ftotal + 100*float64(ftri.RightOutwardRolls)/ftotal

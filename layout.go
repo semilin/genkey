@@ -488,7 +488,7 @@ type TrigramValues struct {
 // FastTrigrams approximates trigram counts with a given precision
 // (precision=0 gives full data). It returns a count of {rolls,
 // alternates, onehands, redirects, total}
-func FastTrigrams(l Layout, precision int) TrigramValues {
+func FastTrigrams(l *Layout, precision int) TrigramValues {
 	var tgs TrigramValues
 
 	if precision == 0 {
