@@ -495,7 +495,7 @@ func FastTrigrams(l *Layout, precision int) TrigramValues {
 		precision = len(Data.TopTrigrams)
 	}
 
-	for _, tg := range Data.TopTrigrams[:precision] {
+	for _, tg := range Data.TopTrigrams[:min(len(Data.TopTrigrams), precision)] {
 		km1, ok1 := l.Keymap[string(tg.Ngram[0])]
 		km2, ok2 := l.Keymap[string(tg.Ngram[1])]
 		km3, ok3 := l.Keymap[string(tg.Ngram[2])]
