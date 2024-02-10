@@ -3,14 +3,46 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 )
 
-func ReadWeights() {
-	b, err := os.ReadFile("config.toml")
+func fileExists(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		return true
+	}
+	return false
+}
+
+func findConfig() string {
+	if fileExists("./config.toml") {
+		return "config.toml"
+	}
+	config_dir := os.Getenv("XDG_CONFIG_DIR")
+	path := filepath.Join(config_dir, "genkey", "config.toml")
+	if fileExists(path) {
+		return path
+	}
+	home, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Printf("There was an issue reading the weights file.\nPlease make sure there is a 'weights.json' in this directory.")
+		panic(err)
+	}
+	path = filepath.Join(home, ".config", "genkey", "config.toml")
+	if fileExists(path) {
+		return path
+	}
+	
+	println("Couldn't find config.toml in any of local directory, $XDG_CONFIG_DIR/genkey/config.toml, or ~/.config/genkey/config.toml.")
+	os.Exit(1)
+	return ""
+}
+
+func ReadWeights() {
+	path := findConfig()
+	b, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Printf("There was an issue reading the config file.")
 		panic(err)
 	}
 

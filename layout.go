@@ -221,14 +221,14 @@ func LoadLayout(f string) Layout {
 }
 
 func LoadLayoutDir() {
-	dir, err := os.Open("layouts")
+	dir, err := os.Open(Config.Paths.Layouts)
 	if err != nil {
-		fmt.Println("Please make sure there is a folder called 'layouts' in this directory!")
+		fmt.Printf("Layouts directory could not be opened at %s\n", Config.Paths.Layouts)
 		panic(err)
 	}
 	files, _ := dir.Readdirnames(0)
 	for _, f := range files {
-		l := LoadLayout(filepath.Join("layouts", f))
+		l := LoadLayout(filepath.Join(Config.Paths.Layouts, f))
 		if l.Name == "" {
 			continue
 		}
