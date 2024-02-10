@@ -1,9 +1,12 @@
 Corpus = "shai"
 
 [Paths]
-Layouts = "layouts"
-Corpora = "corpora"
-Heatmap = "heatmap.png"
+# The paths that genkey should operate using. Useful if running genkey
+# as a standalone executable rather than using a dedicated directory.
+
+Layouts = "./layouts"
+Corpora = "./corpora"
+Heatmap = "./heatmap.png"
 
 [Weights]
 Dist.Lateral = 1.4 # Lateral movement multiplier
