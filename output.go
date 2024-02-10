@@ -177,5 +177,5 @@ func Heatmap(layout Layout) {
 		dc.Fill()
 	}
 
-	dc.SavePNG("heatmap.png")
+	dc.SavePNG(Config.Paths.Heatmap)
 }

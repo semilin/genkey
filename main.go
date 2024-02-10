@@ -19,6 +19,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -183,7 +184,10 @@ func runCommand(args []string) {
 	}
 	if cmd == "load" {
 		Data = GetTextData(*path)
-		WriteData(Data)
+		name := (*path)[:len(*path)-len(filepath.Ext(*path))]
+		name = name + ".json"
+		outpath := filepath.Join(Config.Paths.Corpora, name)
+		WriteData(Data, outpath)
 	} else if cmd == "rank" {
 		type x struct {
 			name  string
@@ -292,7 +296,7 @@ func main() {
 	flag.BoolVar(&DynamicFlag, "dynamic", false, "")
 	flag.Parse()
 	args := flag.Args()
-	Data = LoadData()
+	Data = LoadData(filepath.Join(Config.Paths.Corpora, Config.Corpus) + ".json")
 
 	Layouts = make(map[string]Layout)
 	LoadLayoutDir()

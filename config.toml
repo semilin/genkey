@@ -1,9 +1,17 @@
+Corpus = "shai"
+
+[Paths]
+Layouts = "layouts"
+Corpora = "corpora"
+Heatmap = "heatmap.png"
+
 [Weights]
 Dist.Lateral = 1.4 # Lateral movement multiplier
+
 # Set to true to measure distances for row-stagger keyboard.
 # Otherwise measures based on ortholinear distances.
 # Can be overriden using the -stagger flag.
-Stagger = false 
+Stagger = false
 
 [Weights.Fspeed]
 SFB = 1.0 # Weight of sfbs
@@ -33,7 +41,7 @@ Enabled = true
 
 # Number of most frequent trigrams to analyze.
 # Set to 0 to analyze all trigrams (will slow down analysis a lot).
-Precision = 100
+Precision = 100000
 
 LeftInwardRoll = 0
 LeftOutwardRoll = 0

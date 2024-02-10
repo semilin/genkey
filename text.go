@@ -135,8 +135,8 @@ func GetTextData(f string) TextData {
 	return data
 }
 
-func WriteData(data TextData) {
-	f, err := os.Create("data.json")
+func WriteData(data TextData, path string) {
+	f, err := os.Create(path)
 
 	if err != nil {
 		panic(err)
@@ -152,8 +152,8 @@ func WriteData(data TextData) {
 	f.WriteString(string(js))
 }
 
-func LoadData() TextData {
-	b, err := os.ReadFile("data.json")
+func LoadData(path string) TextData {
+	b, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}

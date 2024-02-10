@@ -31,6 +31,12 @@ var SwapPossibilities []Pos
 var Analyzed int
 
 var Config struct {
+	Corpus string
+	Paths struct {
+		Layouts string
+		Corpora string
+		Heatmap string
+	}
 	Weights struct {
 		Stagger bool
 		FSpeed  struct {
