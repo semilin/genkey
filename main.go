@@ -286,7 +286,8 @@ func commandUsage(command *Command) {
 }
 
 func main() {
-	flag.BoolVar(&StaggerFlag, "stagger", false, "if true, calculates distance for ANSI row-stagger form factor")
+	ReadWeights()
+	flag.BoolVar(&StaggerFlag, "stagger", Config.Weights.Stagger, "if true, calculates distance for ANSI row-stagger form factor")
 	flag.BoolVar(&SlideFlag, "slide", false, "if true, ignores slideable sfbs (made for Oats) (might not work)")
 	flag.BoolVar(&DynamicFlag, "dynamic", false, "")
 	flag.Parse()
@@ -295,7 +296,6 @@ func main() {
 
 	Layouts = make(map[string]Layout)
 	LoadLayoutDir()
-	ReadWeights()
 
 	runCommand(args)
 }

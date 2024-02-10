@@ -32,7 +32,8 @@ var Analyzed int
 
 var Config struct {
 	Weights struct {
-		FSpeed struct {
+		Stagger bool
+		FSpeed  struct {
 			SFB       float64
 			DSFB      float64
 			KeyTravel float64
