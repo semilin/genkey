@@ -184,9 +184,11 @@ func runCommand(args []string) {
 	}
 	if cmd == "load" {
 		Data = GetTextData(*path)
-		name := (*path)[:len(*path)-len(filepath.Ext(*path))]
+		name := filepath.Base(*path)
+		name = name[:len(name)-len(filepath.Ext(name))]
 		name = name + ".json"
 		outpath := filepath.Join(Config.Paths.Corpora, name)
+		println(outpath)
 		WriteData(Data, outpath)
 	} else if cmd == "rank" {
 		type x struct {
