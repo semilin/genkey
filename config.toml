@@ -1,4 +1,4 @@
-Corpus = "shai"
+Corpus = "shai-iweb"
 
 [Paths]
 # The paths that genkey should operate using. Useful if running genkey
@@ -54,3 +54,19 @@ RightOutwardRoll = 0
 Alternate = 0
 Redirect = 0
 Onehand = 0
+
+[CorpusProcessing]
+# Describes how to process new corpora with `genkey load`. Doesn't
+# apply to already processed corpora.
+
+# The chars which are allowed to be included in ngrams.
+ValidChars = "abcdefghijklmnopqrstuvwxyz,./?;:-_'\""
+# Shift pairs which are to be treated as the same character.
+CharSubstitutions = [["?", "/"],
+                     [":", ";"],
+                     ["_", "-"],
+                     ["\"", "'"]]
+# The largest size of skipgram to be used for DSFB calculation.
+MaxSkipgramSize = 10
+# Set to false to include skipgrams which skip over chars not in ValidChars.
+SkipgramsMustSpanValidChars = true

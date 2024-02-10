@@ -66,4 +66,10 @@ var Config struct {
 			}
 		}
 	}
+	CorpusProcessing struct {
+		ValidChars string
+		CharSubstitutions [][2]string
+		MaxSkipgramSize int8
+		SkipgramsMustSpanValidChars bool
+	}
 }

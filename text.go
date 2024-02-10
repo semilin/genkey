@@ -42,15 +42,27 @@ func GetTextData(f string) TextData {
 	}
 	defer file.Close()
 
-	valid := "etaoinshrdlubcfgjkmpqvwxyz,./?;:-_'\""
-
 	var data TextData
 	data.Letters = make(map[string]int)
 	data.Bigrams = make(map[string]int)
 	data.Trigrams = make(map[string]int)
 	data.Skipgrams = make(map[string]float64)
 
-	maxSkipgramSize := 10
+	validstr := Config.CorpusProcessing.ValidChars
+	maxSkipgramSize := int(Config.CorpusProcessing.MaxSkipgramSize)
+	onlySpanValidChars := Config.CorpusProcessing.SkipgramsMustSpanValidChars
+	substitutionslist := Config.CorpusProcessing.CharSubstitutions
+
+	validmap := make(map[string]bool)
+	for _, c := range validstr {
+		validmap[string(c)] = true
+	}
+
+	substitutionmap := make(map[string]string)
+	for _, pair := range substitutionslist {
+		substitutionmap[pair[0]] = pair[1]
+	}
+	
 	powers := []float64{}
 
 	for i := 0; i < maxSkipgramSize; i++ {
@@ -72,20 +84,22 @@ func GetTextData(f string) TextData {
 		for _, char := range chars {
 			data.Total++
 			char = strings.ToLower(char)
-			// hardcoded heck
-			if char == "?" {
-				char = "/"
-			} else if char == "\"" {
-				char = "'"
-			} else if char == ":" {
-				char = ";"
-			} else if char == "_" {
-				char = "-"
-			}
 
-			if !strings.Contains(valid, char) {
-				// reset lastchars in case of invalid character
-				lastchars = []string{}
+			if sub, ok := substitutionmap[char]; ok {
+				char = sub
+			}
+			
+			if !validmap[char] {
+				if onlySpanValidChars {
+					// reset lastchars in case of invalid character
+					lastchars = []string{}
+				} else {
+					lastchars = append(lastchars, "X") // sentinel value for invalid char
+
+					if len(lastchars) > maxSkipgramSize {
+						lastchars = lastchars[1:maxSkipgramSize+1] // remove first character
+					}
+				}
 				continue
 			} else {
 				data.Letters[char]++
@@ -93,13 +107,16 @@ func GetTextData(f string) TextData {
 				last := length - 1 // index of the most recent character
 				for i := last; i >= 0; i-- {
 					c := lastchars[i]
+					if c == "X" {
+						continue
+					}
 					if i == last {
 						if c != " " && char != " " {
 							data.TotalBigrams++
 						}
 						data.Bigrams[c+char]++
 					} else {
-						if i == last-1 {
+						if i == last-1 && lastchars[last] != "X" {
 							data.Trigrams[c+lastchars[last]+char]++
 						}
 						data.Skipgrams[c+char] += powers[length-i-2]

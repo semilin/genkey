@@ -50,4 +50,9 @@ func ReadWeights() {
 	if err != nil {
 		panic(err)
 	}
+
+	if !fileExists(filepath.Join(Config.Paths.Corpora, Config.Corpus) + ".json") {
+		fmt.Printf("Corpus [%s] specified in config.toml does not exist.\n", Config.Corpus)
+		os.Exit(1)
+	}
 }
