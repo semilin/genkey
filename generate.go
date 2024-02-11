@@ -150,7 +150,7 @@ func Populate(n int) Layout {
 	PrintLayout(layouts[2].l.Keys)
 	fmt.Println(Score(layouts[2].l))
 
-	layouts = layouts[0:100]
+	layouts = layouts[0:Config.Generation.Selection]
 
 	for i := range layouts {
 		layouts[i].score = 0

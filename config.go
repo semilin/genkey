@@ -32,7 +32,7 @@ func findConfig() string {
 	if fileExists(path) {
 		return path
 	}
-	
+
 	println("Couldn't find config.toml in any of local directory, $XDG_CONFIG_DIR/genkey/config.toml, or ~/.config/genkey/config.toml.")
 	os.Exit(1)
 	return ""
@@ -52,7 +52,12 @@ func ReadWeights() {
 	}
 
 	if !fileExists(filepath.Join(Config.Paths.Corpora, Config.Corpus) + ".json") {
-		fmt.Printf("Corpus [%s] specified in config.toml does not exist.\n", Config.Corpus)
+		fmt.Printf("Invalid config: Corpus [%s] does not exist.\n", Config.Corpus)
+		os.Exit(1)
+	}
+
+	if Config.Generation.Selection > Config.Generation.InitialPopulation {
+		fmt.Println("Invalid config: Generation.Selection cannot be greater than Generation.InitialPopulation.")
 		os.Exit(1)
 	}
 }

@@ -59,6 +59,13 @@ Alternate = 0
 Redirect = 0
 Onehand = 0
 
+[Generation]
+# The number of random layouts to be optimized at start of generation.
+InitialPopulation = 1000
+# The number of best layouts out of the initial population to run full
+# improvement on. Must be less than InitialPopulation.
+Selection = 100
+
 [CorpusProcessing]
 # Describes how to process new corpora with `genkey load`. Doesn't
 # apply to already processed corpora.

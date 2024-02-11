@@ -213,7 +213,7 @@ func runCommand(args []string) {
 	} else if cmd == "analyze" {
 		PrintAnalysis(*layout)
 	} else if cmd == "generate" {
-		best := Populate(1000)
+		best := Populate(Config.Generation.InitialPopulation)
 		optimal := Score(best)
 
 		type x struct {

@@ -69,6 +69,10 @@ var Config struct {
 			}
 		}
 	}
+	Generation struct {
+		InitialPopulation int
+		Selection int
+	}
 	CorpusProcessing struct {
 		ValidChars string
 		CharSubstitutions [][2]string
