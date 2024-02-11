@@ -729,15 +729,15 @@ func Similarity(a, b []string) int {
 func DuplicatesAndMissing(l Layout) ([]string, []string) {
 	counts := make(map[string]int)
 	// collect counts of each key
-	for _, row := range(l.Keys) {
-		for _, c := range(row) {
+	for _, row := range l.Keys {
+		for _, c := range row {
 			counts[c] += 1
 		}
 	}
 	// then check duplicates and missing
 	duplicates := make([]string, 0)
 	missing := make([]string, 0)
-	for _, r := range([]rune("abcdefghijklmnopqrstuvwxyz,./;'")) {
+	for _, r := range []rune("abcdefghijklmnopqrstuvwxyz,./;'") {
 		c := string(r)
 		if counts[c] == 0 {
 			missing = append(missing, c)

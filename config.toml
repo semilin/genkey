@@ -60,6 +60,8 @@ Redirect = 0
 Onehand = 0
 
 [Generation]
+# The characters that generated layouts will consist of.
+GeneratedLayoutChars = "abcdefghijklmnopqrstuvwxyz,./'"
 # The number of random layouts to be optimized at start of generation.
 InitialPopulation = 1000
 # The number of best layouts out of the initial population to run full

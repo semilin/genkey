@@ -68,7 +68,7 @@ func Score(l Layout) float64 {
 }
 
 func randomLayout() Layout {
-	chars := "abcdefghijklmnopqrstuvwxyz,./'"
+	chars := Config.Generation.GeneratedLayoutChars
 	var k [][]string
 	k = make([][]string, 3)
 	var l Layout

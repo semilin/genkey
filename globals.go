@@ -70,13 +70,14 @@ var Config struct {
 		}
 	}
 	Generation struct {
-		InitialPopulation int
-		Selection int
+		GeneratedLayoutChars string
+		InitialPopulation    int
+		Selection            int
 	}
 	CorpusProcessing struct {
-		ValidChars string
-		CharSubstitutions [][2]string
-		MaxSkipgramSize int8
+		ValidChars                  string
+		CharSubstitutions           [][2]string
+		MaxSkipgramSize             int8
 		SkipgramsMustSpanValidChars bool
 	}
 }

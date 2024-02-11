@@ -62,7 +62,7 @@ func GetTextData(f string) TextData {
 	for _, pair := range substitutionslist {
 		substitutionmap[pair[0]] = pair[1]
 	}
-	
+
 	powers := []float64{}
 
 	for i := 0; i < maxSkipgramSize; i++ {
@@ -88,7 +88,7 @@ func GetTextData(f string) TextData {
 			if sub, ok := substitutionmap[char]; ok {
 				char = sub
 			}
-			
+
 			if !validmap[char] {
 				if onlySpanValidChars {
 					// reset lastchars in case of invalid character
@@ -97,7 +97,7 @@ func GetTextData(f string) TextData {
 					lastchars = append(lastchars, "X") // sentinel value for invalid char
 
 					if len(lastchars) > maxSkipgramSize {
-						lastchars = lastchars[1:maxSkipgramSize+1] // remove first character
+						lastchars = lastchars[1 : maxSkipgramSize+1] // remove first character
 					}
 				}
 				continue
@@ -125,7 +125,7 @@ func GetTextData(f string) TextData {
 				lastchars = append(lastchars, char)
 
 				if len(lastchars) > maxSkipgramSize {
-					lastchars = lastchars[1:maxSkipgramSize+1] // remove first character
+					lastchars = lastchars[1 : maxSkipgramSize+1] // remove first character
 				}
 			}
 		}
