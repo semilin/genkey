@@ -25,6 +25,7 @@ var FingerNames = [8]string{"LP", "LR", "LM", "LI", "RI", "RM", "RR", "RP"}
 var Layouts map[string]Layout
 var GeneratedFingermap map[Finger][]Pos
 var GeneratedFingermatrix map[Pos]Finger
+var LongestLayoutName int
 
 var SwapPossibilities []Pos
 

@@ -207,7 +207,7 @@ func runCommand(args []string) {
 		})
 
 		for _, l := range sorted {
-			spaces := strings.Repeat(".", 20-len(l.name))
+			spaces := strings.Repeat(".", 1+LongestLayoutName-len(l.name))
 			fmt.Printf("%s.%s%.2f\n", l.name, spaces, l.score)
 		}
 	} else if cmd == "analyze" {
@@ -232,7 +232,7 @@ func runCommand(args []string) {
 		})
 
 		for _, l := range sorted {
-			spaces := strings.Repeat(".", 25-len(l.name))
+			spaces := strings.Repeat(".", 1+LongestLayoutName-len(l.name))
 			fmt.Printf("%s.%s%d%%\n", l.name, spaces, int(100*optimal/(Score(Layouts[l.name]))))
 		}
 	} else if cmd == "interactive" {
@@ -302,6 +302,12 @@ func main() {
 
 	Layouts = make(map[string]Layout)
 	LoadLayoutDir()
+
+	for _, l := range Layouts {
+		if len(l.Name) > LongestLayoutName {
+			LongestLayoutName = len(l.Name)
+		}
+	}
 
 	runCommand(args)
 }
