@@ -253,6 +253,7 @@ func runCommand(args []string) {
 		Heatmap(*layout)
 	} else if cmd == "improve" {
 		ImproveFlag = true
+		ImproveLayout = *layout
 		best := Populate(1000)
 		optimal := Score(best)
 
