@@ -1,5 +1,5 @@
 # genkey
-Note: genkey 1.2 is the last major version of genkey. It mostly consists of a cleaned up codebase with less bugs, so that its code can maybe be helpful for someone. I will no longer make any changes to the project, but pull requests are welcome. See the Alternatives section.
+Note: genkey 1.2 is the last major version of genkey. It mostly consists of a cleaned up codebase with less bugs, so that its code can maybe be helpful for someone. I will no longer make any significant changes to the project, but pull requests are welcome. See the Alternatives section.
 
 Genkey is a powerful tool for analyzing and creating keyboard layouts that was used to create [Semimak](https://semilin.github.io/pages/semimak.html). It features detailed analysis output, generation, customizable weighting, individual layout improvement, heatmap output, interactive analysis, and much more! 
 
