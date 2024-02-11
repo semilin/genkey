@@ -117,7 +117,6 @@ func sortLayouts(layouts []layoutScore) {
 }
 
 func Populate(n int) Layout {
-	rand.Seed(time.Now().Unix())
 	layouts := []layoutScore{}
 	for i := 0; i < n; i++ {
 		if !ImproveFlag {
