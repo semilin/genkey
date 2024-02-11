@@ -178,7 +178,9 @@ func Populate(n int) Layout {
 	}
 
 	PrintAnalysis(best.l)
-	Heatmap(best.l)
+	if Config.Output.Heatmap {
+		Heatmap(best.l)
+	}
 
 	//improved := ImproveRedirects(layouts[0].keys)
 	//PrintAnalysis("Generated (improved redirects)", improved)

@@ -32,6 +32,9 @@ var Analyzed int
 
 var Config struct {
 	Corpus string
+	Output struct {
+		Heatmap bool
+	}
 	Paths struct {
 		Layouts string
 		Corpora string

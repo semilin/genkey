@@ -1,5 +1,9 @@
 Corpus = "shai-iweb"
 
+[Output]
+# Enables heatmap output after layout generation.
+Heatmap = true
+
 [Paths]
 # The paths that genkey should operate using. Useful if running genkey
 # as a standalone executable rather than using a dedicated directory.
@@ -40,11 +44,11 @@ Lsb = 1 # Weight of lsb frequency
 
 [Weights.Score.Trigrams]
 # No trigrams will be calculated if enabled = false
-Enabled = true
+Enabled = false
 
 # Number of most frequent trigrams to analyze.
 # Set to 0 to analyze all trigrams (will slow down analysis a lot).
-Precision = 100000
+Precision = 100
 
 LeftInwardRoll = 0
 LeftOutwardRoll = 0
