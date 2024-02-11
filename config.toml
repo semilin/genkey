@@ -1,0 +1,95 @@
+Corpus = "shai-iweb"
+
+[Output]
+# Enables heatmap output after layout generation.
+Generation.Heatmap = true
+
+# Char to fill the space in the rank display.
+Rank.Spacer = ' '
+
+# The number of most frequent ngrams to display in `genkey analysis`.
+Analysis.TopNgrams = 8
+
+# The number of most frequent ngrams to display by default in commands
+# like `genkey sfbs`.
+Misc.TopNgrams = 20
+
+[Paths]
+# The paths that genkey should operate using. Useful if running genkey
+# as a standalone executable rather than using a dedicated directory.
+
+Layouts = "./layouts"
+Corpora = "./corpora"
+Heatmap = "./heatmap.png"
+
+[Weights]
+Dist.Lateral = 1.4 # Lateral movement multiplier
+
+# Set to true to measure distances for row-stagger keyboard.
+# Otherwise measures based on ortholinear distances.
+# Can be overriden using the -stagger flag.
+Stagger = false
+
+[Weights.Fspeed]
+SFB = 1.0 # Weight of sfbs
+DSFB = 0.5 # Weight of dsfbs
+KeyTravel = 0.01 # How much baseline distance there is per keypress
+
+# Keys per second, or how dexterous each finger is
+KPS = [
+    1.5, # lp
+    3.6, # lr
+    4.8, # lm
+    5.5, # li
+    5.5, # ri
+    4.8, # rm
+    3.6, # rr
+    1.5, # rp
+]
+
+[Weights.Score]
+Fspeed = 3 # Weight of fspeed
+IndexBalance = 0.3 # Weight of difference in usage between index fingers
+Lsb = 1 # Weight of lsb frequency
+
+[Weights.Score.Trigrams]
+# No trigrams will be calculated if enabled = false
+Enabled = false
+
+# Number of most frequent trigrams to analyze.
+# Set to 0 to analyze all trigrams (will slow down analysis a lot).
+Precision = 100
+
+LeftInwardRoll = 0
+LeftOutwardRoll = 0
+RightInwardRoll = 0
+RightOutwardRoll = 0
+
+Alternate = 0
+Redirect = 0
+Onehand = 0
+
+[Generation]
+# The characters that generated layouts will consist of.
+GeneratedLayoutChars = "abcdefghijklmnopqrstuvwxyz,./'"
+# The number of random layouts to be optimized at start of generation.
+InitialPopulation = 1000
+# The number of best layouts out of the initial population to run full
+# improvement on. Must be less than InitialPopulation.
+Selection = 100
+
+[CorpusProcessing]
+# Describes how to process new corpora with `genkey load`. Doesn't
+# apply to already processed corpora.
+
+# The chars which are allowed to be included in ngrams.
+ValidChars = "abcdefghijklmnopqrstuvwxyz,./?;:-_'\""
+# Shift pairs which are to be treated as the same character.
+CharSubstitutions = [["?", "/"],
+                     [":", ";"],
+                     ["_", "-"],
+                     ["\"", "'"]]
+# The largest size of skipgram to be used for DSFB calculation.
+MaxSkipgramSize = 10
+# Set to false to include skipgrams which skip over chars not in ValidChars.
+SkipgramsMustSpanValidChars = true

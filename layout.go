@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 Colin Hughes
+Copyright (C) 2024 semi
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -16,7 +16,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -158,7 +157,7 @@ func MinimizeLayout(init *Layout, pins [][]string, count int, top bool, is33 boo
 
 func LoadLayout(f string) Layout {
 	var l Layout
-	b, err := ioutil.ReadFile(f)
+	b, err := os.ReadFile(f)
 	if err != nil {
 		panic(err)
 	}
@@ -222,14 +221,14 @@ func LoadLayout(f string) Layout {
 }
 
 func LoadLayoutDir() {
-	dir, err := os.Open("layouts")
+	dir, err := os.Open(Config.Paths.Layouts)
 	if err != nil {
-		fmt.Println("Please make sure there is a folder called 'layouts' in this directory!")
+		fmt.Printf("Layouts directory could not be opened at %s\n", Config.Paths.Layouts)
 		panic(err)
 	}
 	files, _ := dir.Readdirnames(0)
 	for _, f := range files {
-		l := LoadLayout(filepath.Join("layouts", f))
+		l := LoadLayout(filepath.Join(Config.Paths.Layouts, f))
 		if l.Name == "" {
 			continue
 		}
@@ -266,8 +265,9 @@ func GenKeymap(keys [][]string) map[string]Pos {
 
 func FingerSpeed(l *Layout, weighted bool) []float64 {
 	speeds := []float64{0, 0, 0, 0, 0, 0, 0, 0}
-	sfbweight := Weight.FSpeed.SFB
-	dsfbweight := Weight.FSpeed.DSFB
+	weight := &Config.Weights
+	sfbweight := weight.FSpeed.SFB
+	dsfbweight := weight.FSpeed.DSFB
 	for f, posits := range l.Fingermap {
 		for i := 0; i < len(posits); i++ {
 			for j := i; j < len(posits); j++ {
@@ -283,12 +283,12 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2, true) + (2 * weight.FSpeed.KeyTravel)
 				speeds[f] += ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 			}
 		}
 		if weighted {
-			speeds[f] /= Weight.FSpeed.KPS[f]
+			speeds[f] /= weight.FSpeed.KPS[f]
 		}
 		speeds[f] = 800 * speeds[f] / l.Total
 	}
@@ -297,8 +297,9 @@ func FingerSpeed(l *Layout, weighted bool) []float64 {
 
 func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 	speeds := []float64{0, 0, 0, 0, 0, 0, 0, 0}
-	sfbweight := Weight.FSpeed.SFB
-	dsfbweight := Weight.FSpeed.DSFB
+	weight := &Config.Weights
+	sfbweight := weight.FSpeed.SFB
+	dsfbweight := weight.FSpeed.DSFB
 	for f, posits := range l.Fingermap {
 		for i := 0; i < len(posits); i++ {
 			var highestsfb float64
@@ -314,7 +315,7 @@ func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 				sfb := float64(Data.Bigrams[*k1+*k2])
 				dsfb := Data.Skipgrams[*k1+*k2]
 
-				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
+				dist := twoKeyDist(*p1, *p2, true) + (2 * weight.FSpeed.KeyTravel)
 				speed := ((sfbweight * sfb) + (dsfbweight * dsfb)) * dist
 				if sfb > highestsfb {
 					highestsfb = sfb
@@ -329,7 +330,7 @@ func DynamicFingerSpeed(l *Layout, weighted bool) []float64 {
 			speeds[f] += newspeed
 		}
 		if weighted {
-			speeds[f] /= Weight.FSpeed.KPS[f]
+			speeds[f] /= weight.FSpeed.KPS[f]
 		}
 		speeds[f] = 800 * speeds[f] / l.Total
 	}
@@ -447,8 +448,9 @@ func ListDynamic(l Layout) ([]FreqPair, []FreqPair) {
 
 func ListWorstBigrams(l Layout) []FreqPair {
 	var bigrams []FreqPair
-	sfbweight := Weight.FSpeed.SFB
-	dsfbweight := Weight.FSpeed.DSFB
+	weight := Config.Weights
+	sfbweight := weight.FSpeed.SFB
+	dsfbweight := weight.FSpeed.DSFB
 	for f, posits := range l.Fingermap {
 		for i := 0; i < len(posits); i++ {
 			for j := i; j < len(posits); j++ {
@@ -463,8 +465,8 @@ func ListWorstBigrams(l Layout) []FreqPair {
 					dsfb += Data.Skipgrams[*k2+*k1]
 				}
 
-				dist := twoKeyDist(*p1, *p2, true) + (2 * Weight.FSpeed.KeyTravel)
-				cost := 100 * (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / Weight.FSpeed.KPS[f]
+				dist := twoKeyDist(*p1, *p2, true) + (2 * weight.FSpeed.KeyTravel)
+				cost := 100 * (((sfbweight * sfb) + (dsfbweight * dsfb)) * dist) / weight.FSpeed.KPS[f]
 				bigrams = append(bigrams, FreqPair{*k1 + *k2, cost})
 			}
 		}
@@ -486,14 +488,14 @@ type TrigramValues struct {
 // FastTrigrams approximates trigram counts with a given precision
 // (precision=0 gives full data). It returns a count of {rolls,
 // alternates, onehands, redirects, total}
-func FastTrigrams(l Layout, precision int) TrigramValues {
+func FastTrigrams(l *Layout, precision int) TrigramValues {
 	var tgs TrigramValues
 
 	if precision == 0 {
 		precision = len(Data.TopTrigrams)
 	}
 
-	for _, tg := range Data.TopTrigrams[:precision] {
+	for _, tg := range Data.TopTrigrams[:min(len(Data.TopTrigrams), precision)] {
 		km1, ok1 := l.Keymap[string(tg.Ngram[0])]
 		km2, ok2 := l.Keymap[string(tg.Ngram[1])]
 		km3, ok3 := l.Keymap[string(tg.Ngram[2])]
@@ -727,15 +729,15 @@ func Similarity(a, b []string) int {
 func DuplicatesAndMissing(l Layout) ([]string, []string) {
 	counts := make(map[string]int)
 	// collect counts of each key
-	for _, row := range(l.Keys) {
-		for _, c := range(row) {
+	for _, row := range l.Keys {
+		for _, c := range row {
 			counts[c] += 1
 		}
 	}
 	// then check duplicates and missing
 	duplicates := make([]string, 0)
 	missing := make([]string, 0)
-	for _, r := range([]rune("abcdefghijklmnopqrstuvwxyz,./;'")) {
+	for _, r := range []rune("abcdefghijklmnopqrstuvwxyz,./;'") {
 		c := string(r)
 		if counts[c] == 0 {
 			missing = append(missing, c)
@@ -775,7 +777,7 @@ func twoKeyDist(a, b Pos, weighted bool) float64 {
 
 	var dist float64
 	if weighted {
-		dist = (Weight.Dist.Lateral * x * x) + (y * y)
+		dist = (Config.Weights.Dist.Lateral * x * x) + (y * y)
 	} else {
 		dist = math.Sqrt((x * x) + (y * y))
 	}

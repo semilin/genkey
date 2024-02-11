@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 Colin Hughes
+Copyright (C) 2024 semi
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -17,12 +17,13 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"os"
 	"sort"
-	"strings"
+	"unicode"
 )
 
 type TextData struct {
@@ -43,79 +44,98 @@ func GetTextData(f string) TextData {
 	}
 	defer file.Close()
 
-	valid := "etaoinshrdlubcfgjkmpqvwxyz,./?;:-_'\""
-
 	var data TextData
 	data.Letters = make(map[string]int)
 	data.Bigrams = make(map[string]int)
 	data.Trigrams = make(map[string]int)
 	data.Skipgrams = make(map[string]float64)
 
+	validstr := Config.CorpusProcessing.ValidChars
+	maxSkipgramSize := int(Config.CorpusProcessing.MaxSkipgramSize)
+	onlySpanValidChars := Config.CorpusProcessing.SkipgramsMustSpanValidChars
+	substitutionslist := Config.CorpusProcessing.CharSubstitutions
+
+	validmap := make(map[rune]bool)
+	for _, c := range validstr {
+		validmap[c] = true
+	}
+
+	substitutionmap := make(map[rune]rune)
+	for _, pair := range substitutionslist {
+		substitutionmap[rune(pair[0][0])] = rune(pair[1][0])
+	}
+
 	powers := []float64{}
 
-	for i := 0; i < 20; i++ {
+	for i := 0; i < maxSkipgramSize; i++ {
 		powers = append(powers, 1/math.Pow(2, float64(i)))
 	}
 
-	var lastchars []string
+	var lastchars []rune
 
-	scanner := bufio.NewScanner(file)
+	reader := bufio.NewReader(file)
 
 	var line int
-	for scanner.Scan() {
-		lastchars = []string{}
-		chars := strings.Split(scanner.Text(), "")
+	for {
+		chars, err := reader.ReadString('\n')
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		lastchars = []rune{}
+
 		line++
 		if line%1000 == 0 {
 			fmt.Printf("%d lines read...\r", line)
 		}
 		for _, char := range chars {
 			data.Total++
-			char = strings.ToLower(char)
-			// hardcoded heck
-			if char == "?" {
-				char = "/"
-			} else if char == "\"" {
-				char = "'"
-			} else if char == ":" {
-				char = ";"
-			} else if char == "_" {
-				char = "-"
+			char = unicode.ToLower(char)
+
+			if sub, ok := substitutionmap[char]; ok {
+				char = sub
 			}
 
-			if !strings.Contains(valid, char) {
-				// reset lastchars in case of invalid character
-				lastchars = []string{}
+			if !validmap[char] {
+				if onlySpanValidChars {
+					// reset lastchars in case of invalid character
+					lastchars = []rune{}
+				} else {
+					lastchars = append(lastchars, 'X') // sentinel value for invalid char
+
+					if len(lastchars) > maxSkipgramSize {
+						lastchars = lastchars[1 : maxSkipgramSize+1] // remove first character
+					}
+				}
 				continue
 			} else {
-				data.Letters[char]++
+				data.Letters[string(char)]++
 				length := len(lastchars)
 				last := length - 1 // index of the most recent character
 				for i := last; i >= 0; i-- {
 					c := lastchars[i]
+					if c == 'X' {
+						continue
+					}
 					if i == last {
-						if c != " " && char != " " {
+						if c != ' ' && char != ' ' {
 							data.TotalBigrams++
 						}
-						data.Bigrams[c+char]++
+						data.Bigrams[string(c)+string(char)]++
 					} else {
-						if i == last-1 {
-							data.Trigrams[c+lastchars[last]+char]++
+						if i == last-1 && lastchars[last] != 'X' {
+							data.Trigrams[string(c)+string(lastchars[last])+string(char)]++
 						}
-						data.Skipgrams[c+char] += powers[length-i-2]
+						data.Skipgrams[string(c)+string(char)] += powers[length-i-2]
 					}
 				}
 				lastchars = append(lastchars, char)
 
-				if len(lastchars) > 10 {
-					lastchars = lastchars[1:11] // remove first character
+				if len(lastchars) > maxSkipgramSize {
+					lastchars = lastchars[1 : maxSkipgramSize+1] // remove first character
 				}
 			}
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		panic(err)
 	}
 
 	fmt.Println()
@@ -135,8 +155,8 @@ func GetTextData(f string) TextData {
 	return data
 }
 
-func WriteData(data TextData) {
-	f, err := os.Create("data.json")
+func WriteData(data TextData, path string) {
+	f, err := os.Create(path)
 
 	if err != nil {
 		panic(err)
@@ -152,8 +172,8 @@ func WriteData(data TextData) {
 	f.WriteString(string(js))
 }
 
-func LoadData() TextData {
-	b, err := ioutil.ReadFile("data.json")
+func LoadData(path string) TextData {
+	b, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}

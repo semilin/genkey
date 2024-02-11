@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 Colin Hughes
+   Copyright (C) 2024 semi
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -25,33 +25,71 @@ var FingerNames = [8]string{"LP", "LR", "LM", "LI", "RI", "RM", "RR", "RP"}
 var Layouts map[string]Layout
 var GeneratedFingermap map[Finger][]Pos
 var GeneratedFingermatrix map[Pos]Finger
+var LongestLayoutName int
 
 var SwapPossibilities []Pos
 
 var Analyzed int
 
-var Weight struct {
-	FSpeed struct {
-		SFB       float64
-		DSFB      float64
-		KeyTravel float64
-		KPS       [8]float64
+var Config struct {
+	Corpus string
+	Output struct {
+		Generation struct {
+			Heatmap bool
+		}
+		Rank struct {
+			Spacer string
+		}
+		Analysis struct {
+			TopNgrams int
+		}
+		Misc struct {
+			TopNgrams int
+		}
 	}
-	Dist struct {
-		Lateral float64
+	Paths struct {
+		Layouts string
+		Corpora string
+		Heatmap string
 	}
-	Score struct {
-		FSpeed       float64
-		IndexBalance float64
-		LSB          float64
+	Weights struct {
+		Stagger bool
+		FSpeed  struct {
+			SFB       float64
+			DSFB      float64
+			KeyTravel float64
+			KPS       [8]float64
+		}
+		Dist struct {
+			Lateral float64
+		}
+		Score struct {
+			FSpeed       float64
+			IndexBalance float64
+			LSB          float64
 
-		TrigramPrecision int
-		LeftInwardRoll   float64
-		LeftOutwardRoll  float64
-		RightInwardRoll  float64
-		RightOutwardRoll float64
-		Alternate        float64
-		Redirect         float64
-		Onehand          float64
+			Trigrams struct {
+				Enabled          bool
+				Precision        int
+				LeftInwardRoll   float64
+				LeftOutwardRoll  float64
+				RightInwardRoll  float64
+				RightOutwardRoll float64
+				Alternate        float64
+				Redirect         float64
+				Onehand          float64
+			}
+		}
+	}
+	Generation struct {
+		GeneratedLayoutChars string
+		InitialPopulation    int
+		Selection            int
+	}
+	CorpusProcessing struct {
+		ValidChars                  string
+		CharSubstitutions           [][2]string
+		MaxSkipgramSize             int8
+		SkipgramsMustSpanValidChars bool
 	}
 }

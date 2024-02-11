@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 Colin Hughes
+Copyright (C) 2024 semi
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -20,6 +20,7 @@ import (
 	"math"
 
 	"github.com/fogleman/gg"
+	"github.com/wayneashleyberry/truecolor/pkg/color"
 )
 
 func PrintLayout(keys [][]string) {
@@ -35,7 +36,7 @@ func PrintLayout(keys [][]string) {
 }
 
 func PrintAnalysis(l Layout) {
-	fmt.Println(l.Name)
+	color.White().Bold().Println(l.Name)
 	PrintLayout(l.Keys)
 
 	duplicates, missing := DuplicatesAndMissing(l)
@@ -46,20 +47,20 @@ func PrintAnalysis(l Layout) {
 	if len(missing) > 0 {
 		fmt.Printf("Missing characters: %s\n", missing)
 	}
-	
-	ftri := FastTrigrams(l, 0)
+
+	ftri := FastTrigrams(&l, 0)
 	ftotal := float64(ftri.Total)
 	leftrolls := 100*float64(ftri.LeftInwardRolls)/ftotal + 100*float64(ftri.LeftOutwardRolls)/ftotal
 	rightrolls := 100*float64(ftri.RightInwardRolls)/ftotal + 100*float64(ftri.RightOutwardRolls)/ftotal
 	fmt.Printf("Rolls (l): %.2f%%\n", leftrolls)
-	fmt.Printf("\tInward: ~%.2f%%\n", 100*float64(ftri.LeftInwardRolls)/ftotal)
-	fmt.Printf("\tOutward: ~%.2f%%\n", 100*float64(ftri.LeftOutwardRolls)/ftotal)
+	fmt.Printf("\tInward: %.2f%%\n", 100*float64(ftri.LeftInwardRolls)/ftotal)
+	fmt.Printf("\tOutward: %.2f%%\n", 100*float64(ftri.LeftOutwardRolls)/ftotal)
 	fmt.Printf("Rolls (r): %.2f%%\n", rightrolls)
-	fmt.Printf("\tInward: ~%.2f%%\n", 100*float64(ftri.RightInwardRolls)/ftotal)
-	fmt.Printf("\tOutward: ~%.2f%%\n", 100*float64(ftri.RightOutwardRolls)/ftotal)
-	fmt.Printf("Alternates: ~%.2f%%\n", 100*float64(ftri.Alternates)/ftotal)
-	fmt.Printf("Onehands: ~%.2f%%\n", 100*float64(ftri.Onehands)/ftotal)
-	fmt.Printf("Redirects: ~%.2f%%\n", 100*float64(ftri.Redirects)/ftotal)
+	fmt.Printf("\tInward: %.2f%%\n", 100*float64(ftri.RightInwardRolls)/ftotal)
+	fmt.Printf("\tOutward: %.2f%%\n", 100*float64(ftri.RightOutwardRolls)/ftotal)
+	fmt.Printf("Alternates: %.2f%%\n", 100*float64(ftri.Alternates)/ftotal)
+	fmt.Printf("Onehands: %.2f%%\n", 100*float64(ftri.Onehands)/ftotal)
+	fmt.Printf("Redirects: %.2f%%\n", 100*float64(ftri.Redirects)/ftotal)
 
 	var weighted []float64
 	var unweighted []float64
@@ -98,6 +99,8 @@ func PrintAnalysis(l Layout) {
 	fmt.Printf("Index Usage: %.1f%% %.1f%%\n", left, right)
 	var sfb float64
 	var sfbs []FreqPair
+
+	ngcount := Config.Output.Analysis.TopNgrams
 	if !DynamicFlag {
 		sfb = SFBs(l, false)
 		sfbs = ListSFBs(l, false)
@@ -109,7 +112,7 @@ func PrintAnalysis(l Layout) {
 		SortFreqList(sfbs)
 
 		fmt.Println("Top SFBs:")
-		PrintFreqList(sfbs, 8, true)
+		PrintFreqList(sfbs, ngcount, true)
 	} else {
 		sfb = DynamicSFBs(l)
 		escaped, real := ListDynamic(l)
@@ -123,7 +126,7 @@ func PrintAnalysis(l Layout) {
 		bigrams := ListWorstBigrams(l)
 		SortFreqList(bigrams)
 		fmt.Println("Worst Bigrams:")
-		PrintFreqList(bigrams, 8, false)
+		PrintFreqList(bigrams, ngcount, false)
 	}
 
 	fmt.Printf("Score: %.2f\n", Score(l))
@@ -177,5 +180,5 @@ func Heatmap(layout Layout) {
 		dc.Fill()
 	}
 
-	dc.SavePNG("heatmap.png")
+	dc.SavePNG(Config.Paths.Heatmap)
 }

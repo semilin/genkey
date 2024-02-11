@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 Colin Hughes
+Copyright (C) 2024 semi
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -29,7 +29,7 @@ import (
 
 func Score(l Layout) float64 {
 	var score float64
-	s := &Weight.Score
+	s := &Config.Weights.Score
 	if s.FSpeed != 0 {
 		var speeds []float64
 		if !DynamicFlag {
@@ -46,15 +46,15 @@ func Score(l Layout) float64 {
 	if s.LSB != 0 {
 		score += s.LSB * 100 * float64(LSBs(l)) / l.Total
 	}
-	if s.TrigramPrecision != -1 {
-		tri := FastTrigrams(l, s.TrigramPrecision)
-		score += s.LeftInwardRoll * (100 - (100 * float64(tri.LeftInwardRolls) / float64(tri.Total)))
-		score += s.RightInwardRoll * (100 - (100 * float64(tri.RightInwardRolls) / float64(tri.Total)))
-		score += s.LeftOutwardRoll * (100 - (100 * float64(tri.LeftOutwardRolls) / float64(tri.Total)))
-		score += s.RightOutwardRoll * (100 - (100 * float64(tri.RightOutwardRolls) / float64(tri.Total)))
-		score += s.Alternate * (100 - (100 * float64(tri.Alternates) / float64(tri.Total)))
-		score += s.Onehand * (100 - (100 * float64(tri.Onehands) / float64(tri.Total)))
-		score += s.Redirect * (100 * float64(tri.Redirects) / float64(tri.Total))
+	if s.Trigrams.Enabled {
+		tri := FastTrigrams(&l, s.Trigrams.Precision)
+		score += s.Trigrams.LeftInwardRoll * (100 - (100 * float64(tri.LeftInwardRolls) / float64(tri.Total)))
+		score += s.Trigrams.RightInwardRoll * (100 - (100 * float64(tri.RightInwardRolls) / float64(tri.Total)))
+		score += s.Trigrams.LeftOutwardRoll * (100 - (100 * float64(tri.LeftOutwardRolls) / float64(tri.Total)))
+		score += s.Trigrams.RightOutwardRoll * (100 - (100 * float64(tri.RightOutwardRolls) / float64(tri.Total)))
+		score += s.Trigrams.Alternate * (100 - (100 * float64(tri.Alternates) / float64(tri.Total)))
+		score += s.Trigrams.Onehand * (100 - (100 * float64(tri.Onehands) / float64(tri.Total)))
+		score += s.Trigrams.Redirect * (100 * float64(tri.Redirects) / float64(tri.Total))
 	}
 
 	if s.IndexBalance != 0 {
@@ -68,7 +68,7 @@ func Score(l Layout) float64 {
 }
 
 func randomLayout() Layout {
-	chars := "abcdefghijklmnopqrstuvwxyz,./'"
+	chars := Config.Generation.GeneratedLayoutChars
 	var k [][]string
 	k = make([][]string, 3)
 	var l Layout
@@ -117,7 +117,6 @@ func sortLayouts(layouts []layoutScore) {
 }
 
 func Populate(n int) Layout {
-	rand.Seed(time.Now().Unix())
 	layouts := []layoutScore{}
 	for i := 0; i < n; i++ {
 		if !ImproveFlag {
@@ -151,7 +150,7 @@ func Populate(n int) Layout {
 	PrintLayout(layouts[2].l.Keys)
 	fmt.Println(Score(layouts[2].l))
 
-	layouts = layouts[0:100]
+	layouts = layouts[0:Config.Generation.Selection]
 
 	for i := range layouts {
 		layouts[i].score = 0
@@ -178,7 +177,9 @@ func Populate(n int) Layout {
 	}
 
 	PrintAnalysis(best.l)
-	Heatmap(best.l)
+	if Config.Output.Generation.Heatmap {
+		Heatmap(best.l)
+	}
 
 	//improved := ImproveRedirects(layouts[0].keys)
 	//PrintAnalysis("Generated (improved redirects)", improved)
