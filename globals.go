@@ -37,6 +37,9 @@ var Config struct {
 		Generation struct {
 			Heatmap bool
 		}
+		Rank struct {
+			Spacer string
+		}
 		Analysis struct {
 			TopNgrams int
 		}

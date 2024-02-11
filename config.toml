@@ -4,6 +4,9 @@ Corpus = "shai-iweb"
 # Enables heatmap output after layout generation.
 Generation.Heatmap = true
 
+# Char to fill the space in the rank display.
+Rank.Spacer = ' '
+
 # The number of most frequent ngrams to display in `genkey analysis`.
 Analysis.TopNgrams = 8
 

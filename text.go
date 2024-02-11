@@ -83,7 +83,7 @@ func GetTextData(f string) TextData {
 		}
 
 		lastchars = []rune{}
-		
+
 		line++
 		if line%1000 == 0 {
 			fmt.Printf("%d lines read...\r", line)
