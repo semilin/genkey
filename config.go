@@ -19,7 +19,7 @@ func findConfig() string {
 	if fileExists("./config.toml") {
 		return "config.toml"
 	}
-	config_dir := os.Getenv("XDG_CONFIG_DIR")
+	config_dir := os.Getenv("XDG_CONFIG_HOME")
 	path := filepath.Join(config_dir, "genkey", "config.toml")
 	if fileExists(path) {
 		return path
@@ -33,7 +33,7 @@ func findConfig() string {
 		return path
 	}
 
-	println("Couldn't find config.toml in any of local directory, $XDG_CONFIG_DIR/genkey/config.toml, or ~/.config/genkey/config.toml.")
+	println("Couldn't find config.toml in any of local directory, $XDG_CONFIG_HOME/genkey/config.toml, or ~/.config/genkey/config.toml.")
 	os.Exit(1)
 	return ""
 }
