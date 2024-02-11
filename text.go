@@ -17,11 +17,13 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"sort"
-	"strings"
+	"unicode"
 )
 
 type TextData struct {
@@ -53,14 +55,14 @@ func GetTextData(f string) TextData {
 	onlySpanValidChars := Config.CorpusProcessing.SkipgramsMustSpanValidChars
 	substitutionslist := Config.CorpusProcessing.CharSubstitutions
 
-	validmap := make(map[string]bool)
+	validmap := make(map[rune]bool)
 	for _, c := range validstr {
-		validmap[string(c)] = true
+		validmap[c] = true
 	}
 
-	substitutionmap := make(map[string]string)
+	substitutionmap := make(map[rune]rune)
 	for _, pair := range substitutionslist {
-		substitutionmap[pair[0]] = pair[1]
+		substitutionmap[rune(pair[0][0])] = rune(pair[1][0])
 	}
 
 	powers := []float64{}
@@ -69,21 +71,26 @@ func GetTextData(f string) TextData {
 		powers = append(powers, 1/math.Pow(2, float64(i)))
 	}
 
-	var lastchars []string
+	var lastchars []rune
 
-	scanner := bufio.NewScanner(file)
+	reader := bufio.NewReader(file)
 
 	var line int
-	for scanner.Scan() {
-		lastchars = []string{}
-		chars := strings.Split(scanner.Text(), "")
+	for {
+		chars, err := reader.ReadString('\n')
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		lastchars = []rune{}
+		
 		line++
 		if line%1000 == 0 {
 			fmt.Printf("%d lines read...\r", line)
 		}
 		for _, char := range chars {
 			data.Total++
-			char = strings.ToLower(char)
+			char = unicode.ToLower(char)
 
 			if sub, ok := substitutionmap[char]; ok {
 				char = sub
@@ -92,9 +99,9 @@ func GetTextData(f string) TextData {
 			if !validmap[char] {
 				if onlySpanValidChars {
 					// reset lastchars in case of invalid character
-					lastchars = []string{}
+					lastchars = []rune{}
 				} else {
-					lastchars = append(lastchars, "X") // sentinel value for invalid char
+					lastchars = append(lastchars, 'X') // sentinel value for invalid char
 
 					if len(lastchars) > maxSkipgramSize {
 						lastchars = lastchars[1 : maxSkipgramSize+1] // remove first character
@@ -102,24 +109,24 @@ func GetTextData(f string) TextData {
 				}
 				continue
 			} else {
-				data.Letters[char]++
+				data.Letters[string(char)]++
 				length := len(lastchars)
 				last := length - 1 // index of the most recent character
 				for i := last; i >= 0; i-- {
 					c := lastchars[i]
-					if c == "X" {
+					if c == 'X' {
 						continue
 					}
 					if i == last {
-						if c != " " && char != " " {
+						if c != ' ' && char != ' ' {
 							data.TotalBigrams++
 						}
-						data.Bigrams[c+char]++
+						data.Bigrams[string(c)+string(char)]++
 					} else {
-						if i == last-1 && lastchars[last] != "X" {
-							data.Trigrams[c+lastchars[last]+char]++
+						if i == last-1 && lastchars[last] != 'X' {
+							data.Trigrams[string(c)+string(lastchars[last])+string(char)]++
 						}
-						data.Skipgrams[c+char] += powers[length-i-2]
+						data.Skipgrams[string(c)+string(char)] += powers[length-i-2]
 					}
 				}
 				lastchars = append(lastchars, char)
@@ -129,10 +136,6 @@ func GetTextData(f string) TextData {
 				}
 			}
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		panic(err)
 	}
 
 	fmt.Println()
