@@ -2,7 +2,14 @@ Corpus = "shai-iweb"
 
 [Output]
 # Enables heatmap output after layout generation.
-Heatmap = true
+Generation.Heatmap = true
+
+# The number of most frequent ngrams to display in `genkey analysis`.
+Analysis.TopNgrams = 8
+
+# The number of most frequent ngrams to display by default in commands
+# like `genkey sfbs`.
+Misc.TopNgrams = 20
 
 [Paths]
 # The paths that genkey should operate using. Useful if running genkey

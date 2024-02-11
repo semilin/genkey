@@ -177,7 +177,7 @@ func Populate(n int) Layout {
 	}
 
 	PrintAnalysis(best.l)
-	if Config.Output.Heatmap {
+	if Config.Output.Generation.Heatmap {
 		Heatmap(best.l)
 	}
 

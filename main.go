@@ -266,7 +266,7 @@ func runCommand(args []string) {
 		}
 		SortFreqList(list)
 		if count == 0 {
-			count = 16
+			count = Config.Output.Misc.TopNgrams
 		}
 		if total != 0.0 {
 			fmt.Printf("%.2f%%\n", total)

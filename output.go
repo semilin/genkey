@@ -98,6 +98,8 @@ func PrintAnalysis(l Layout) {
 	fmt.Printf("Index Usage: %.1f%% %.1f%%\n", left, right)
 	var sfb float64
 	var sfbs []FreqPair
+
+	ngcount := Config.Output.Analysis.TopNgrams
 	if !DynamicFlag {
 		sfb = SFBs(l, false)
 		sfbs = ListSFBs(l, false)
@@ -109,7 +111,7 @@ func PrintAnalysis(l Layout) {
 		SortFreqList(sfbs)
 
 		fmt.Println("Top SFBs:")
-		PrintFreqList(sfbs, 8, true)
+		PrintFreqList(sfbs, ngcount, true)
 	} else {
 		sfb = DynamicSFBs(l)
 		escaped, real := ListDynamic(l)
@@ -123,7 +125,7 @@ func PrintAnalysis(l Layout) {
 		bigrams := ListWorstBigrams(l)
 		SortFreqList(bigrams)
 		fmt.Println("Worst Bigrams:")
-		PrintFreqList(bigrams, 8, false)
+		PrintFreqList(bigrams, ngcount, false)
 	}
 
 	fmt.Printf("Score: %.2f\n", Score(l))
