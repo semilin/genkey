@@ -23,6 +23,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/wayneashleyberry/truecolor/pkg/color"
 )
 
 var Data TextData
@@ -35,6 +37,7 @@ type Argument int
 const (
 	NullArg Argument = iota
 	LayoutArg
+	NgramArg
 	PathArg
 )
 
@@ -111,6 +114,11 @@ var Commands = []Command{
 		Arg:         LayoutArg,
 		CountArg:    true,
 	},
+	{
+		Names:       []string{"ngram"},
+		Description: "lists the frequency of a given ngram",
+		Arg:         NgramArg,
+	},
 }
 
 func getLayout(s string) *Layout {
@@ -133,6 +141,7 @@ func checkLayoutProvided(args []string) {
 func runCommand(args []string) {
 	var layout *Layout
 	var path *string
+	var ngram *string
 	var cmd string
 	count := 0
 
@@ -166,6 +175,8 @@ func runCommand(args []string) {
 				return
 			}
 			path = &args[1]
+		} else if command.Arg == NgramArg {
+			ngram = &args[1]
 		} else if command.Arg == LayoutArg {
 			layout = getLayout(args[1])
 		}
@@ -272,6 +283,29 @@ func runCommand(args []string) {
 			fmt.Printf("%.2f%%\n", total)
 		}
 		PrintFreqList(list, count, true)
+	} else if cmd == "speed" {
+		unweighted := FingerSpeed(layout, false)
+		fmt.Println("Unweighted Speed")
+		for i, v := range unweighted {
+			fmt.Printf("\t%s: %.2f\n", FingerNames[i], v)
+		}
+
+		weighted := FingerSpeed(layout, true)
+		fmt.Println("Weighted Speed")
+		for i, v := range weighted {
+			fmt.Printf("\t%s: %.2f\n", FingerNames[i], v)
+		}
+	} else if cmd == "ngram" {
+		total := float64(Data.Total)
+		ngram := *ngram
+		if len(ngram) == 1 {
+			fmt.Printf("unigram: %.3f%%\n", 100*float64(Data.Letters[ngram])/total)
+		} else if len(ngram) == 2 {
+			fmt.Printf("bigram: %.3f%%\n", 100*float64(Data.Bigrams[ngram])/total)
+			fmt.Printf("skipgram: %.3f%%\n", 100*Data.Skipgrams[ngram]/total)
+		} else if len(ngram) == 3 {
+			fmt.Printf("trigram: %.3f%%\n", 100*float64(Data.Trigrams[ngram])/total)
+		}
 	}
 }
 
@@ -279,9 +313,13 @@ func commandUsage(command *Command) {
 	var argstr string
 	if command.Arg == LayoutArg {
 		argstr = " layout"
+	} else if command.Arg == NgramArg {
+		argstr = " ngram"
 	} else if command.Arg == PathArg {
 		argstr = " filepath"
 	}
+
+	argstr = color.White().Italic().Sprint(argstr)
 
 	var countstr string
 	if command.CountArg {

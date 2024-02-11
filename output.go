@@ -20,6 +20,7 @@ import (
 	"math"
 
 	"github.com/fogleman/gg"
+	"github.com/wayneashleyberry/truecolor/pkg/color"
 )
 
 func PrintLayout(keys [][]string) {
@@ -35,7 +36,7 @@ func PrintLayout(keys [][]string) {
 }
 
 func PrintAnalysis(l Layout) {
-	fmt.Println(l.Name)
+	color.White().Bold().Println(l.Name)
 	PrintLayout(l.Keys)
 
 	duplicates, missing := DuplicatesAndMissing(l)
