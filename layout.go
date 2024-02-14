@@ -760,9 +760,21 @@ func staggeredX(c, r int) float64 {
 	return sx
 }
 
+func staggeredY(c, r int) float64 {
+	var sy float64
+	if c < 10 {
+		sy = float64(r) - Config.Weights.ColStaggers[c]
+	} else if c >= 10 {
+		sy = float64(r) - Config.Weights.ColStaggers[9]//Unsure if pinky stagger being the same is guaranteed
+	}
+	return sy
+}
+
 func twoKeyDist(a, b Pos, weighted bool) float64 {
 	var ax float64
 	var bx float64
+	var ay float64
+	var by float64
 
 	if StaggerFlag {
 		ax = staggeredX(a.Col, a.Row)
@@ -772,8 +784,16 @@ func twoKeyDist(a, b Pos, weighted bool) float64 {
 		bx = float64(b.Col)
 	}
 
+	if ColStaggerFlag {
+		ay = staggeredY(a.Col, a.Row)
+		by = staggeredY(b.Col, b.Row)
+	} else {
+		ay = float64(a.Row)
+		by = float64(b.Row)
+	}
+	
 	x := ax - bx
-	y := float64(a.Row - b.Row)
+	y := ay - by
 
 	var dist float64
 	if weighted {
