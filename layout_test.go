@@ -31,6 +31,16 @@ func TestSFBs(t *testing.T) {
 	if r1 != r2 {
 		t.Errorf("Original layout has %.1f SFB; Mirrored has %.1f", r1, r2)
 	}
+	for x := 0; x < 10; x++ {
+		Swap(&m, Pos{x, 0}, Pos{x, 2})
+		Swap(&m, Pos{x, 0}, Pos{x, 1})
+	}
+
+	m = CopyLayout(mtgap)
+	r2 = SFBs(m, false)
+	if r1 != r2 {
+		t.Errorf("Original layout has %.1f SFB; Intra-finger swapped has %.1f", r1, r2)
+	}
 }
 
 func TestTrigrams(t *testing.T) {
