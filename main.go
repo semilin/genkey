@@ -341,7 +341,7 @@ func main() {
 	Data = LoadData(filepath.Join(Config.Paths.Corpora, Config.Corpus) + ".json")
 
 	Layouts = make(map[string]Layout)
-	LoadLayoutDir()
+	LoadLayoutDir(Config.Paths.Layouts)
 
 	for _, l := range Layouts {
 		if len(l.Name) > LongestLayoutName {

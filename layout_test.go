@@ -5,9 +5,9 @@ import (
 )
 
 func init() {
-	Data = LoadData()
+	Data = LoadData("./corpora/tr.json")
 	Layouts = make(map[string]Layout)
-	LoadLayoutDir()
+	LoadLayoutDir("./layouts")
 }
 
 // input layout must be 3x10
@@ -36,8 +36,8 @@ func TestSFBs(t *testing.T) {
 func TestTrigrams(t *testing.T) {
 	mtgap := Layouts["mtgap30"]
 	m := mirror(mtgap)
-	r1 := FastTrigrams(mtgap, 0)
-	r2 := FastTrigrams(m, 0)
+	r1 := FastTrigrams(&mtgap, 0)
+	r2 := FastTrigrams(&m, 0)
 	alt1 := r1.Alternates
 	alt2 := r2.Alternates
 	lir1 := r1.LeftInwardRolls
