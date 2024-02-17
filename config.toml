@@ -33,6 +33,7 @@ Stagger = false
 # Set to true to measure distances with set column staggers.
 # Can be overriden using the -colstagger flag.
 ColStagger = false
+# For columns after the 10th, last stagger value is used.
 ColStaggers = [0, 0.75, 1.25, 0.80, 0.75, 0.75, 0.80, 1.25, 0.75, 0]
 
 [Weights.Fspeed]
