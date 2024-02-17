@@ -30,6 +30,12 @@ Dist.Lateral = 1.4 # Lateral movement multiplier
 # Can be overriden using the -stagger flag.
 Stagger = false
 
+# Set to true to measure distances with set column staggers.
+# Can be overriden using the -colstagger flag.
+ColStagger = false
+# For columns after the 10th, last stagger value is used.
+ColStaggers = [0, 0.75, 1.25, 0.80, 0.75, 0.75, 0.80, 1.25, 0.75, 0]
+
 [Weights.Fspeed]
 SFB = 1.0 # Weight of sfbs
 DSFB = 0.5 # Weight of dsfbs

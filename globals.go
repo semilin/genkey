@@ -15,6 +15,8 @@
 package main
 
 var StaggerFlag bool
+var ColStaggerFlag bool
+var ColStaggers [10]float64
 var SlideFlag bool
 var DynamicFlag bool
 var ImproveFlag bool
@@ -54,6 +56,8 @@ var Config struct {
 	}
 	Weights struct {
 		Stagger bool
+		ColStagger bool
+		ColStaggers [10]float64
 		FSpeed  struct {
 			SFB       float64
 			DSFB      float64
