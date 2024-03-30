@@ -220,15 +220,15 @@ func LoadLayout(f string) Layout {
 	return l
 }
 
-func LoadLayoutDir() {
-	dir, err := os.Open(Config.Paths.Layouts)
+func LoadLayoutDir(path string) {
+	dir, err := os.Open(path)
 	if err != nil {
-		fmt.Printf("Layouts directory could not be opened at %s\n", Config.Paths.Layouts)
+		fmt.Printf("Layouts directory could not be opened at %s\n", path)
 		panic(err)
 	}
 	files, _ := dir.Readdirnames(0)
 	for _, f := range files {
-		l := LoadLayout(filepath.Join(Config.Paths.Layouts, f))
+		l := LoadLayout(filepath.Join(path, f))
 		if l.Name == "" {
 			continue
 		}

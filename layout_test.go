@@ -5,9 +5,9 @@ import (
 )
 
 func init() {
-	Data = LoadData()
+	Data = LoadData("./corpora/tr.json")
 	Layouts = make(map[string]Layout)
-	LoadLayoutDir()
+	LoadLayoutDir("./layouts")
 }
 
 // input layout must be 3x10
@@ -31,13 +31,23 @@ func TestSFBs(t *testing.T) {
 	if r1 != r2 {
 		t.Errorf("Original layout has %.1f SFB; Mirrored has %.1f", r1, r2)
 	}
+	for x := 0; x < 10; x++ {
+		Swap(&m, Pos{x, 0}, Pos{x, 2})
+		Swap(&m, Pos{x, 0}, Pos{x, 1})
+	}
+
+	m = CopyLayout(mtgap)
+	r2 = SFBs(m, false)
+	if r1 != r2 {
+		t.Errorf("Original layout has %.1f SFB; Intra-finger swapped has %.1f", r1, r2)
+	}
 }
 
 func TestTrigrams(t *testing.T) {
 	mtgap := Layouts["mtgap30"]
 	m := mirror(mtgap)
-	r1 := FastTrigrams(mtgap, 0)
-	r2 := FastTrigrams(m, 0)
+	r1 := FastTrigrams(&mtgap, 0)
+	r2 := FastTrigrams(&m, 0)
 	alt1 := r1.Alternates
 	alt2 := r2.Alternates
 	lir1 := r1.LeftInwardRolls
