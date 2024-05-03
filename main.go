@@ -299,12 +299,12 @@ func runCommand(args []string) {
 	} else if cmd == "ngram" {
 		total := float64(Data.Total)
 		ngram := *ngram
-		if len(ngram) == 1 {
+		if length := len([]rune(ngram)); length == 1 {
 			fmt.Printf("unigram: %.3f%%\n", 100*float64(Data.Letters[ngram])/total)
-		} else if len(ngram) == 2 {
+		} else if length == 2 {
 			fmt.Printf("bigram: %.3f%%\n", 100*float64(Data.Bigrams[ngram])/total)
 			fmt.Printf("skipgram: %.3f%%\n", 100*Data.Skipgrams[ngram]/total)
-		} else if len(ngram) == 3 {
+		} else if length == 3 {
 			fmt.Printf("trigram: %.3f%%\n", 100*float64(Data.Trigrams[ngram])/total)
 		}
 	}
