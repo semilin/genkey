@@ -21,7 +21,6 @@ import (
 	"runtime"
 	"sort"
 
-	"strings"
 	"time"
 )
 
@@ -67,18 +66,24 @@ func Score(l Layout) float64 {
 	return score
 }
 
+func remove(s []rune, i int) []rune {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
 func randomLayout() Layout {
-	chars := Config.Generation.GeneratedLayoutChars
+	chars := []rune(Config.Generation.GeneratedLayoutChars)
 	var k [][]string
 	k = make([][]string, 3)
 	var l Layout
 	for row := 0; row < 3; row++ {
 		k[row] = make([]string, 10)
 		for col := 0; col < 10; col++ {
-			char := string([]rune(chars)[rand.Intn(len(chars))])
+			i := rand.Intn(len(chars))
+			char := string(chars[i])
 			k[row][col] += char
 			l.Total += float64(Data.Letters[char])
-			chars = strings.Replace(chars, char, "", 1)
+			chars = remove(chars, i)
 		}
 	}
 
