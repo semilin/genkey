@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/wayneashleyberry/truecolor/pkg/color"
+	"github.com/jwalton/gchalk"
 )
 
 var Data TextData
@@ -320,7 +320,7 @@ func commandUsage(command *Command) {
 		argstr = " filepath"
 	}
 
-	argstr = color.White().Italic().Sprint(argstr)
+	argstr = gchalk.WithItalic().Sprintf("%s", argstr)
 
 	var countstr string
 	if command.CountArg {

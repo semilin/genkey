@@ -14,7 +14,7 @@ import (
 	"github.com/eiannone/keyboard"
 
 	tm "github.com/buger/goterm"
-	"github.com/wayneashleyberry/truecolor/pkg/color"
+	"github.com/jwalton/gchalk"
 )
 
 var layoutwidth int
@@ -52,9 +52,9 @@ func printlayout(l *Layout, px, py int) {
 			pc := freq / 0.1 //percent
 			log := math.Log(1+pc) * 255
 			base := math.Round(0.3 * 255)
-			c := color.Color(uint8(0.6*base+log), uint8(base+log), uint8(base+log))
+			c := gchalk.WithRGB(uint8(0.6*base+log), uint8(base+log), uint8(base+log))
 			tm.MoveCursor(px+(2*x), py+y)
-			tm.Printf("%s", c.Sprint(k))
+			tm.Printf("%s", c.Sprintf("%s", k))
 		}
 	}
 }
@@ -101,20 +101,20 @@ func printtrigrams(l *Layout) {
 	x := 0
 	y := 0
 	for i, v := range []float64{float64(tg.LeftInwardRolls + tg.LeftOutwardRolls + tg.RightOutwardRolls + tg.RightInwardRolls), float64(tg.Alternates), float64(tg.Onehands), float64(tg.Redirects)} {
-		var c color.Message
+		var c *gchalk.Builder
 		if i == 0 {
-			c = *c.Color(166, 188, 220)
+			c = gchalk.WithRGB(166, 188, 220)
 		} else if i == 1 {
-			c = *c.Color(162, 136, 227)
+			c = gchalk.WithRGB(162, 136, 227)
 		} else if i == 2 {
-			c = *c.Color(217, 90, 120)
+			c = gchalk.WithRGB(217, 90, 120)
 		} else if i == 3 {
-			c = *c.Color(45, 167, 130)
+			c = gchalk.WithRGB(45, 167, 130)
 		}
 
 		for pc := math.Ceil(100 * float64(v) / total); pc > 0; pc -= 1 {
 			//s := c.Sprint("█")
-			s := c.Sprint("=")
+			s := c.Sprintf("=")
 			tm.Printf(s)
 			//tm.MoveCursorForward(1)
 			x++
