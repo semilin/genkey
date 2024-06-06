@@ -2,7 +2,6 @@ genkey
 genkey.exe
 text.txt
 heatmap.png
-release.sh
 cpu.prof
 genkey.test
 mem.prof
