@@ -7,7 +7,7 @@ For installation instructions and documentation, see [the website](https://semil
 
 ## Alternatives
 - For what is essentially a better version of genkey, I recommend Oxey's [Oxeylyzer](https://github.com/o-x-e-y/oxeylyzer).
-- For something very different, I'm currently working on a graphical analyzer called [Keymui](https://github.com/semilin/). It's much more powerful and flexible than genkey.
+- For something very different, I'm currently working on a graphical analyzer called [Keymui](https://github.com/semilin/keymui). It's much more powerful and flexible than genkey.
 
 ## License
 Copyright © 2024 semi
